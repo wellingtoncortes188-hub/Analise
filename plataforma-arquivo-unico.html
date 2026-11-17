@@ -2584,10 +2584,10 @@ Resources:`;for(let t of c){if(!t||typeof t!=`string`)throw Error(`@supabase/aut
 
   var REST_HOSTS = ['https://data-api.binance.vision', 'https://api.binance.com'];
   var WS_HOSTS = [
-    'wss://stream.binance.com:443',
     'wss://data-stream.binance.vision:443',
-    'wss://stream.binance.com:9443',
-    'wss://data-stream.binance.vision'
+    'wss://data-stream.binance.vision',
+    'wss://stream.binance.com:443',
+    'wss://stream.binance.com:9443'
   ];
 
   function bySymbol(id) {
@@ -16092,13 +16092,13 @@ Resources:`;for(let t of c){if(!t||typeof t!=`string`)throw Error(`@supabase/aut
 (function (global) {
   'use strict';
 
-  var A = null, pendente = null, agendado = false, ultimo = 0, ligado = false;
+  var A = null, acum = null, agendado = false, ultimo = 0, ligado = false;
   var contagem = 0, janela = 0, porSegundo = 0;
 
   function pinta() {
     agendado = false;
-    var t = pendente;
-    pendente = null;
+    var t = acum;
+    acum = null;
     if (!t || !A) { return; }
 
     var rows = A.rows();
@@ -16107,10 +16107,10 @@ Resources:`;for(let t of c){if(!t||typeof t!=`string`)throw Error(`@supabase/aut
 
     /* o negócio pertence à vela em formação: estica máxima/mínima e move o fechamento */
     if (t.t >= vela.t) {
-      vela.h = Math.max(vela.h, t.p);
-      vela.l = Math.min(vela.l, t.p);
+      vela.h = Math.max(vela.h, t.hi);
+      vela.l = Math.min(vela.l, t.lo);
       vela.c = t.p;
-      vela.v = (vela.v || 0) + (t.q || 0);
+      vela.v = (vela.v || 0) + t.v;
       A.api.update(vela);
       A.legenda(vela);
       if (global.MXStudies) { global.MXStudies.update(rows); }
@@ -16127,7 +16127,16 @@ Resources:`;for(let t of c){if(!t||typeof t!=`string`)throw Error(`@supabase/aut
     if (!ligado) { inicia(); }                 /* o gráfico pode ter nascido depois deste módulo */
     if (!ligado || !A || !t || !(t.p > 0)) { return; }
     if (global.MXReplay && global.MXReplay.active()) { return; }   /* no replay, quem manda é o arquivo */
-    pendente = t;
+    /* numa rajada de negócios o desenho é um só, por quadro de tela, mas nenhum negócio se perde:
+       máxima, mínima e volume vão somando aqui, a cada um deles */
+    if (acum && t.t >= acum.t) {
+      acum.p = t.p;
+      if (t.p > acum.hi) { acum.hi = t.p; }
+      if (t.p < acum.lo) { acum.lo = t.p; }
+      acum.v += (t.q || 0);
+    } else {
+      acum = { t: t.t, p: t.p, hi: t.p, lo: t.p, v: (t.q || 0) };
+    }
     /* conta o ritmo, para a barra de estado poder mostrar que está ao vivo */
     var s = Math.floor(Date.now() / 1000);
     if (s !== janela) { porSegundo = contagem; contagem = 0; janela = s; }
