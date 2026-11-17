@@ -2274,6 +2274,77 @@ html[data-ct="0"] .ct-chip,html[data-ct="0"] .ct-seg,html[data-ct="0"] .cc-passo
   color:var(--text);font:700 14px Manrope,sans-serif;cursor:pointer}
 #mxBloqueio button:hover{background:rgba(var(--ink-rgb),.25)}
 </style>
+<style>/* MX360 Plataforma: lista de ativos (a pedido) — mesma janela deitada das Configurações. */
+
+.at-back{position:fixed;inset:0;z-index:3700;display:grid;place-items:center;padding:16px;
+  background:rgba(0,0,0,.45);backdrop-filter:blur(4px);-webkit-backdrop-filter:blur(4px)}
+.at-card{width:min(1040px,96vw);height:min(680px,90vh);display:grid;
+  grid-template-columns:230px minmax(0,1fr);grid-template-areas:"cab cab" "rail lista";
+  grid-template-rows:auto minmax(0,1fr);
+  border:1px solid rgba(var(--ink-rgb),.14);border-radius:14px;overflow:hidden;background:var(--bg);
+  box-shadow:0 24px 70px rgba(var(--shadow-rgb),.4);font:500 14px Manrope,system-ui,sans-serif;color:var(--text)}
+.at-cab{grid-area:cab;display:flex;align-items:center;gap:12px;padding:14px 16px 14px 22px;
+  border-bottom:1px solid rgba(var(--ink-rgb),.12)}
+.at-cab b{font-size:17px;font-weight:600;flex:none}
+.at-busca{flex:1;min-width:0;height:38px;padding:0 12px;border:1px solid rgba(var(--ink-rgb),.2);
+  border-radius:9px;background:rgba(var(--ink-rgb),.05);color:var(--text);font:500 14px Manrope,system-ui,sans-serif}
+.at-busca:focus{outline:none;border-color:var(--primary)}
+.at-x{flex:none;width:36px;height:36px;border:0;border-radius:8px;background:none;color:var(--text);
+  font:700 19px Manrope,sans-serif;cursor:pointer}
+.at-x:hover{background:rgba(var(--ink-rgb),.1)}
+
+.at-rail{grid-area:rail;display:flex;flex-direction:column;gap:2px;min-height:0;padding:10px;
+  border-right:1px solid rgba(var(--ink-rgb),.12);overflow-y:auto}
+.at-rail[hidden]{display:none}
+.at-rail button{display:flex;align-items:center;justify-content:space-between;gap:8px;flex:none;
+  min-height:40px;padding:0 12px;border:0;border-left:3px solid transparent;border-radius:8px;background:none;
+  color:var(--text);font:600 13px Manrope,system-ui,sans-serif;text-align:left;cursor:pointer}
+.at-rail button:hover{background:rgba(var(--ink-rgb),.06)}
+.at-rail button[aria-selected="true"]{background:rgba(var(--primary-rgb),.12);border-left-color:var(--primary)}
+.at-rail i{font-style:normal;color:var(--muted);font-weight:500;font-size:.78rem}
+
+.at-lista{grid-area:lista;min-height:0;overflow-y:auto;padding:14px 18px 20px}
+.at-grade{display:grid;grid-template-columns:repeat(auto-fill,minmax(232px,1fr));gap:8px}
+.at-item{position:relative;display:grid;grid-template-columns:1fr auto;grid-template-rows:auto auto;
+  gap:2px 10px;padding:10px 30px 10px 12px;border:1px solid var(--line);border-radius:10px;
+  background:none;color:var(--text);text-align:left;cursor:pointer}
+.at-item:hover{background:rgba(var(--ink-rgb),.06)}
+.at-item[aria-current="true"]{border-color:var(--primary);background:rgba(var(--primary-rgb),.08)}
+.at-nome{font:700 .92rem Manrope,system-ui,sans-serif}
+.at-sub{grid-row:2;color:var(--muted);font-size:.72rem}
+.at-preco{grid-column:2;grid-row:1;font:700 .88rem Manrope,system-ui,sans-serif;font-variant-numeric:tabular-nums}
+.at-var{grid-column:2;grid-row:2;font:600 .74rem Manrope,system-ui,sans-serif;font-variant-numeric:tabular-nums;color:var(--muted)}
+.at-var[data-dir="up"]{color:#2f7d4e}
+.at-var[data-dir="down"]{color:#d92b2b}
+.at-fav{position:absolute;right:8px;top:50%;transform:translateY(-50%);font-style:normal;font-size:15px;
+  color:rgba(var(--ink-rgb),.25);cursor:pointer;line-height:1}
+.at-fav.on,.at-fav:hover{color:var(--gold)}
+.at-carregando{margin:14px 2px;color:var(--muted);font-size:.84rem}
+
+.at-aviso{margin:0 0 12px;padding:11px 12px;border:1px solid rgba(var(--gold-rgb),.35);border-radius:10px;
+  background:rgba(var(--gold-rgb),.08);font-size:.8rem;line-height:1.5}
+.at-aviso p{margin:0 0 6px}
+.at-chave{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}
+.at-chave input{flex:1;min-width:180px;height:36px;padding:0 10px;border:1px solid var(--line);
+  border-radius:8px;background:var(--bg);color:var(--text);font:500 13px Manrope,system-ui,sans-serif}
+.at-chave button{min-height:36px;padding:0 12px;border:1px solid var(--line);border-radius:8px;
+  background:none;color:var(--text);font:700 12px Manrope,system-ui,sans-serif;cursor:pointer}
+.at-chave button:hover{border-color:var(--primary);color:var(--primary)}
+
+@media (max-width:760px){
+  .at-back{padding:8px}
+  .at-card{width:97vw;height:92vh;grid-template-columns:minmax(0,1fr);
+    grid-template-areas:"cab" "rail" "lista";grid-template-rows:auto auto minmax(0,1fr)}
+  .at-cab{flex-wrap:wrap;padding:10px 12px}
+  .at-cab b{order:1}.at-x{order:2;margin-left:auto}.at-busca{order:3;flex:1 0 100%}
+  .at-rail{flex-direction:row;gap:6px;padding:8px 10px;overflow-x:auto;border-right:0;
+    border-bottom:1px solid rgba(var(--ink-rgb),.12)}
+  .at-rail button{flex:none;min-height:34px;border-left:0;border-bottom:3px solid transparent}
+  .at-rail button[aria-selected="true"]{border-left-color:transparent;border-bottom-color:var(--primary)}
+  .at-lista{padding:12px 12px 18px}
+  .at-grade{grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:7px}
+}
+</style>
 </head>
 <body>
 <div class="app">
@@ -12260,6 +12331,7 @@ Resources:`;for(let t of c){if(!t||typeof t!=`string`)throw Error(`@supabase/aut
     rows = r; src = name; api.setData(rows, st.tf);
     if (global.MXStudies) { global.MXStudies.setData(rows, st.tf, st.sym); }
     if (global.MXDraw && global.MXDraw.setSymbol) { global.MXDraw.setSymbol(st.sym, st.tf); }
+    if (global.MXShell && global.MXShell.quote) { global.MXShell.quote((S.bySymbol(st.sym) || {}).label || st.sym, st.tf, null); }
     if (global.MXTrade) { global.MXTrade.setSymbol(st.sym); if (rows.length) { global.MXTrade.tick(rows[rows.length - 1].c); } }
     legend(rows[rows.length - 1]); msg('');
   }
@@ -12295,6 +12367,20 @@ Resources:`;for(let t of c){if(!t||typeof t!=`string`)throw Error(`@supabase/aut
         if (my !== seq) { return; }
         applyRows(r, 'AwesomeAPI'); stream = F.fx.stream(st.sym, rows[rows.length - 1], hnd('AwesomeAPI'));
       }).catch(function () { if (my === seq) { demo(); } });
+      return;
+    }
+    if (global.MXFonte && global.MXFonte.tem(st.sym)) {
+      var nomeF = global.MXFonte.nome(st.sym);
+      put('lgTf', st.tf);
+      global.MXFonte.klines(st.sym, st.tf).then(function (r) {
+        if (my !== seq) { return; }
+        applyRows(r, nomeF);
+        stream = global.MXFonte.stream(st.sym, st.tf, rows[rows.length - 1], hnd(nomeF));
+      }).catch(function (e) {
+        if (my !== seq) { return; }
+        msg((e && e.message) || 'Não deu para carregar este ativo.', false);
+        live('offline', nomeF);
+      });
       return;
     }
     put('lgTf', st.tf);
@@ -15412,7 +15498,7 @@ Resources:`;for(let t of c){if(!t||typeof t!=`string`)throw Error(`@supabase/aut
       if (!ligado || !r || !r.length) { throw new Error('sem candles'); }
       ponte.aplica(r);
       tiraAviso();
-      ponte.estado('delayed', 'Binance · atualizando a cada 2s (sem WebSocket nesta rede)');
+      ponte.estado('delayed', 'Binance 2s');
       ponte.aviso('');
 
       liga(p);
@@ -15461,7 +15547,7 @@ Resources:`;for(let t of c){if(!t||typeof t!=`string`)throw Error(`@supabase/aut
       if (!ponte) { return; }
       var parado = Date.now() - ultimoDado > 8000;
       if (parado && !timers.length) {
-        ponte.estado('delayed', 'Binance · dados reais a cada 2s (sem WebSocket nesta rede)');
+        ponte.estado('delayed', 'Binance 2s');
         liga(p);
       } else if (!parado && timers.length) {
         paraBuscas();
@@ -15526,6 +15612,447 @@ Resources:`;for(let t of c){if(!t||typeof t!=`string`)throw Error(`@supabase/aut
     ativo: function () { return ligado; },
     host: function () { return hostOk; }
   };
+})(window);
+</script>
+<script>/* MX360 Plataforma: índices dos EUA e ouro (a pedido).
+   A Binance não tem Nasdaq, S&P 500 nem Dow Jones, e as fontes gratuitas clássicas (Yahoo, Stooq)
+   são bloqueadas pelo navegador — testei as duas. A que passa é a Twelve Data, com chave gratuita.
+   No plano grátis ela não entrega o índice em si, e sim o ETF que o espelha, que é o padrão do
+   mercado para acompanhar: SPY (S&P 500), QQQ (Nasdaq 100), DIA (Dow Jones), IWM (Russell 2000).
+   Também traz XAU/USD (ouro) e o par de câmbio, que a Binance não tem.
+   A chave fica guardada só neste aparelho, nunca no código. */
+(function (global) {
+  'use strict';
+
+  var doc = global.document;
+  var API = 'https://api.twelvedata.com';
+  var KEY = 'mx360.td.key';
+
+  /* o que o módulo serve, com o nome que o aluno entende */
+  var ATIVOS = [
+    { id: 'SPY', td: 'SPY', label: 'S&P 500', nota: 'ETF SPY', prec: 2, cat: 'indices' },
+    { id: 'QQQ', td: 'QQQ', label: 'Nasdaq 100', nota: 'ETF QQQ', prec: 2, cat: 'indices' },
+    { id: 'DIA', td: 'DIA', label: 'Dow Jones', nota: 'ETF DIA', prec: 2, cat: 'indices' },
+    { id: 'IWM', td: 'IWM', label: 'Russell 2000', nota: 'ETF IWM', prec: 2, cat: 'indices' },
+    { id: 'XAUUSD', td: 'XAU/USD', label: 'XAU/USD', nota: 'ouro', prec: 2, cat: 'commodities' },
+    { id: 'XAGUSD', td: 'XAG/USD', label: 'XAG/USD', nota: 'prata', prec: 3, cat: 'commodities' },
+    { id: 'WTIUSD', td: 'WTI/USD', label: 'Petróleo WTI', nota: 'barril', prec: 2, cat: 'commodities' }
+  ];
+
+  var TF = { '1m': '1min', '5m': '5min', '15m': '15min', '30m': '30min', '45m': '45min', '1h': '1h', '2h': '2h', '4h': '4h', '1d': '1day', '1w': '1week' };
+  var MS = { '1min': 6e4, '5min': 3e5, '15min': 9e5, '30min': 18e5, '45min': 27e5, '1h': 36e5, '2h': 72e5, '4h': 144e5, '1day': 864e5, '1week': 6048e5 };
+
+  function porId(id) {
+    for (var i = 0; i < ATIVOS.length; i++) { if (ATIVOS[i].id === id) { return ATIVOS[i]; } }
+    return null;
+  }
+
+  function chave() { try { return global.localStorage.getItem(KEY) || ''; } catch (e) { return ''; } }
+  function guardaChave(v) {
+    try { if (v) { global.localStorage.setItem(KEY, v.trim()); } else { global.localStorage.removeItem(KEY); } } catch (e) {}
+  }
+
+  function pega(caminho) {
+    var k = chave();
+    if (!k) { return global.Promise.reject(new Error('Falta a chave da Twelve Data. Abra a lista de ativos e cole a sua chave gratuita no grupo Índices.')); }
+    return global.fetch(API + caminho + '&apikey=' + encodeURIComponent(k))
+      .then(function (r) { return r.json(); })
+      .then(function (j) {
+        if (j && (j.status === 'error' || j.code >= 400)) {
+          var m = String(j.message || '');
+          if (/api key/i.test(m)) { throw new Error('Chave da Twelve Data inválida. Confira na lista de ativos.'); }
+          if (/run out|limit/i.test(m)) { throw new Error('Limite de consultas da Twelve Data atingido por hoje. Tente mais tarde.'); }
+          throw new Error(m || 'A fonte dos índices recusou a consulta.');
+        }
+        return j;
+      });
+  }
+
+  /* ------------------------------------------------------------- candles */
+
+  function klines(id, tf) {
+    var a = porId(id);
+    if (!a) { return global.Promise.reject(new Error('ativo desconhecido')); }
+    var iv = TF[tf] || '5min';
+    return pega('/time_series?symbol=' + encodeURIComponent(a.td) + '&interval=' + iv + '&outputsize=1000&order=ASC&timezone=UTC')
+      .then(function (j) {
+        var v = (j && j.values) || [];
+        if (!v.length) { throw new Error('Sem candles para este ativo agora.'); }
+        return v.map(function (k) {
+          return {
+            t: Date.parse(k.datetime.replace(' ', 'T') + (k.datetime.length <= 10 ? 'T00:00:00Z' : 'Z')),
+            o: +k.open, h: +k.high, l: +k.low, c: +k.close, v: +(k.volume || 0)
+          };
+        }).filter(function (c) { return !isNaN(c.t) && c.c > 0; });
+      });
+  }
+
+  /* ------------------------------------ atualização: consulta de tempos em tempos
+     A Twelve Data não tem tempo real no plano grátis e o limite diário é curto, então a plataforma
+     pergunta o preço a cada 30s, só com a aba à vista. O estado mostra "Atrasado", sem fingir. */
+
+  function stream(id, tf, ultima, h) {
+    var a = porId(id), iv = TF[tf] || '5min', passo = MS[iv] || 3e5;
+    var atual = ultima ? JSON.parse(JSON.stringify(ultima)) : null;
+    var morto = false, timer = null;
+
+    function roda() {
+      if (morto || doc.hidden) { return; }
+      pega('/quote?symbol=' + encodeURIComponent(a.td)).then(function (q) {
+        if (morto || !q || q.close == null) { return; }
+        var p = +q.close, b = Math.floor(Date.now() / passo) * passo;
+        if (!atual || b > atual.t) { atual = { t: b, o: atual ? atual.c : p, h: p, l: p, c: p, v: 0 }; }
+        else { atual.h = Math.max(atual.h, p); atual.l = Math.min(atual.l, p); atual.c = p; }
+        if (h.onCandle) { h.onCandle(JSON.parse(JSON.stringify(atual))); }
+        if (h.onTicker) {
+          h.onTicker({
+            last: p, change: +q.change || 0, changePct: +q.percent_change || 0,
+            high: +q.high || p, low: +q.low || p, volQuote: +q.volume || 0
+          });
+        }
+        if (h.onStatus) { h.onStatus('delayed'); }
+      }).catch(function () { if (h.onStatus) { h.onStatus('retry'); } });
+    }
+
+    if (h.onStatus) { h.onStatus('delayed'); }
+    roda();
+    timer = global.setInterval(roda, 30000);
+    return { close: function () { morto = true; global.clearInterval(timer); } };
+  }
+
+  /* --------------------------------------------------------------- registro */
+
+  ATIVOS.forEach(function (a) {
+    global.MXData.symbols.push({ id: a.id, label: a.label, base: a.id, prec: a.prec, note: a.nota, cat: a.cat, src: 'twelvedata' });
+  });
+
+  global.MXFonte = {
+    tem: function (id) { return !!porId(id); },
+    nome: function () { return 'Twelve Data'; },
+    klines: klines,
+    stream: stream,
+    ativos: function () { return ATIVOS.slice(); },
+    chave: chave,
+    guardaChave: guardaChave,
+    temChave: function () { return !!chave(); }
+  };
+})(window);
+</script>
+<script>/* MX360 Plataforma: lista completa de ativos (a pedido).
+   Antes a plataforma tinha cinco pares fixos no código. Agora ela lê o catálogo inteiro da Binance
+   pela API pública (exchangeInfo + volume de 24h), organiza por grupo e deixa buscar — e soma os
+   índices dos EUA, as commodities, as ações da B3 e o câmbio que já existiam em outras fontes.
+   O catálogo fica guardado no aparelho por um dia, para não pesar a cada abertura. */
+(function (global) {
+  'use strict';
+
+  var doc = global.document;
+  var HOSTS = ['https://data-api.binance.vision', 'https://api.binance.com'];
+  var CACHE = 'mx360.catalogo.v1';
+  var FAV = 'mx360.favoritos.v1';
+  var DIA = 24 * 3600 * 1000;
+
+  var catalogo = null, precos = {}, caixa = null, grupoAtual = '', busca = '';
+
+  function $(id) { return doc.getElementById(id); }
+
+  function pega(caminho) {
+    function tenta(i) {
+      if (i >= HOSTS.length) { return global.Promise.reject(new Error('sem resposta')); }
+      return global.fetch(HOSTS[i] + caminho, { cache: 'no-store' })
+        .then(function (r) { if (!r.ok) { throw new Error(r.status); } return r.json(); })
+        .catch(function () { return tenta(i + 1); });
+    }
+    return tenta(0);
+  }
+
+  /* ------------------------------------------------------------- favoritos */
+
+  function favs() {
+    try { return JSON.parse(global.localStorage.getItem(FAV) || '[]') || []; } catch (e) { return []; }
+  }
+  function marcaFav(id) {
+    var l = favs(), k = l.indexOf(id);
+    if (k >= 0) { l.splice(k, 1); } else { l.push(id); }
+    try { global.localStorage.setItem(FAV, JSON.stringify(l)); } catch (e) {}
+    pinta();
+  }
+
+  /* -------------------------------------------------------------- catálogo */
+
+  function casasDe(tick) {
+    var s = String(tick || '0.01');
+    if (s.indexOf('1') < 0) { return 2; }
+    var p = s.indexOf('.');
+    if (p < 0) { return 0; }
+    var d = s.slice(p + 1).replace(/0+$/, '');
+    return Math.min(8, d.length);
+  }
+
+  function leCache() {
+    try {
+      var c = JSON.parse(global.localStorage.getItem(CACHE) || 'null');
+      if (c && c.t && Date.now() - c.t < DIA && c.pares && c.pares.length) { return c.pares; }
+    } catch (e) {}
+    return null;
+  }
+
+  function carrega() {
+    var guardado = leCache();
+    var pInfo = guardado ? global.Promise.resolve(guardado) :
+      pega('/api/v3/exchangeInfo?permissions=SPOT').then(function (j) {
+        var pares = (j.symbols || []).filter(function (s) {
+          return s.status === 'TRADING' && s.isSpotTradingAllowed !== false;
+        }).map(function (s) {
+          var tick = (s.filters || []).filter(function (f) { return f.filterType === 'PRICE_FILTER'; })[0];
+          return { id: s.symbol, b: s.baseAsset, q: s.quoteAsset, c: casasDe(tick && tick.tickSize) };
+        });
+        try { global.localStorage.setItem(CACHE, JSON.stringify({ t: Date.now(), pares: pares })); } catch (e) {}
+        return pares;
+      });
+
+    return pInfo.then(function (pares) {
+      catalogo = pares;
+      return pega('/api/v3/ticker/24hr').then(function (ts) {
+        (ts || []).forEach(function (t) {
+          precos[t.symbol] = { p: +t.lastPrice, pct: +t.priceChangePercent, vol: +t.quoteVolume };
+        });
+        return pares;
+      }).catch(function () { return pares; });
+    });
+  }
+
+  /* ---------------------------------------------------------------- grupos */
+
+  var MOEDAS = [
+    ['USDT', 'Cripto · USDT'], ['USDC', 'Cripto · USDC'], ['FDUSD', 'Cripto · FDUSD'],
+    ['BTC', 'Cotado em BTC'], ['ETH', 'Cotado em ETH'], ['BNB', 'Cotado em BNB'],
+    ['BRL', 'Em real (BRL)'], ['EUR', 'Em euro (EUR)'], ['TRY', 'Em lira (TRY)']
+  ];
+  var OURO = { PAXG: 1, XAUT: 1, TAUD: 1 };
+
+  function deFonte(cat) {
+    var l = (global.MXFonte && global.MXFonte.ativos && global.MXFonte.ativos()) || [];
+    return l.filter(function (a) { return a.cat === cat; }).map(function (a) {
+      return { id: a.id, b: a.label, q: a.nota, c: a.prec, fonte: 'Twelve Data' };
+    });
+  }
+
+  function deMXData(cat) {
+    return (global.MXData.symbols || []).filter(function (s) { return s.cat === cat && !s.src; })
+      .map(function (s) { return { id: s.id, b: s.label, q: s.note || '', c: s.prec, fonte: 'AwesomeAPI' }; });
+  }
+
+  function grupos() {
+    var g = [], f = favs();
+    if (f.length) {
+      g.push({ nome: 'Favoritos', itens: f.map(function (id) { return item(id); }).filter(Boolean) });
+    }
+    g.push({ nome: 'Índices (EUA)', itens: deFonte('indices'), nota: 'Pelos ETFs que espelham cada índice' });
+    g.push({ nome: 'Commodities', itens: deFonte('commodities').concat(
+      (catalogo || []).filter(function (s) { return OURO[s.b] && s.q === 'USDT'; })) });
+    if (catalogo) {
+      var porVol = catalogo.filter(function (s) { return s.q === 'USDT' && precos[s.id]; })
+        .sort(function (a, b) { return (precos[b.id].vol || 0) - (precos[a.id].vol || 0); });
+      g.push({ nome: 'Mais negociados', itens: porVol.slice(0, 40) });
+      MOEDAS.forEach(function (m) {
+        var itens = catalogo.filter(function (s) { return s.q === m[0]; })
+          .sort(function (a, b) { return ((precos[b.id] || {}).vol || 0) - ((precos[a.id] || {}).vol || 0); });
+        if (itens.length) { g.push({ nome: m[1], itens: itens }); }
+      });
+    }
+    var cambio = deMXData('cambio');
+    if (cambio.length) { g.push({ nome: 'Câmbio', itens: cambio }); }
+    return g;
+  }
+
+  function item(id) {
+    var c = (catalogo || []).filter(function (s) { return s.id === id; })[0];
+    if (c) { return c; }
+    var f = ((global.MXFonte && global.MXFonte.ativos && global.MXFonte.ativos()) || [])
+      .filter(function (a) { return a.id === id; })[0];
+    if (f) { return { id: f.id, b: f.label, q: f.nota, c: f.prec, fonte: 'Twelve Data' }; }
+    var m = (global.MXData.symbols || []).filter(function (s) { return s.id === id; })[0];
+    return m ? { id: m.id, b: m.label, q: m.note || '', c: m.prec } : null;
+  }
+
+  /* ----------------------------------------------------------- escolher */
+
+  function escolhe(id) {
+    var it = item(id);
+    if (!it) { return; }
+    /* garante que o resto da plataforma conhece o ativo (rótulo, casas decimais) */
+    var S = global.MXData;
+    if (!S.bySymbol(id)) {
+      S.symbols.push({
+        id: id, label: it.q && it.q.length <= 6 && /^[A-Z]+$/.test(it.q) ? it.b + '/' + it.q : (it.b || id),
+        base: it.b || id, prec: it.c == null ? 2 : it.c, cat: 'cripto'
+      });
+    }
+    var sel = $('symbol');
+    if (sel) {
+      if (!sel.querySelector('option[value="' + id + '"]')) {
+        var o = doc.createElement('option');
+        o.value = id;
+        o.textContent = (S.bySymbol(id) || {}).label || id;
+        sel.appendChild(o);
+      }
+      sel.value = id;
+      sel.dispatchEvent(new global.Event('change', { bubbles: true }));
+    }
+    fecha();
+  }
+
+  /* --------------------------------------------------------------- tela */
+
+  function abre() {
+    if (caixa) { return; }
+    caixa = doc.createElement('div');
+    caixa.className = 'at-back';
+    caixa.innerHTML = '<div class="at-card" role="dialog" aria-modal="true" aria-label="Ativos">' +
+      '<div class="at-cab"><b>Ativos</b>' +
+      '<input class="at-busca" type="search" placeholder="Buscar: BTC, ouro, Nasdaq, PETR4…" aria-label="Buscar ativo">' +
+      '<button type="button" class="at-x" aria-label="Fechar">×</button></div>' +
+      '<nav class="at-rail" aria-label="Grupos"></nav>' +
+      '<div class="at-lista"><p class="at-carregando">Carregando o catálogo da Binance…</p></div>' +
+      '</div>';
+    doc.body.appendChild(caixa);
+    caixa.querySelector('.at-x').onclick = fecha;
+    caixa.onclick = function (e) { if (e.target === caixa) { fecha(); } };
+    var b = caixa.querySelector('.at-busca');
+    b.oninput = function () { busca = b.value.trim().toLowerCase(); pinta(); };
+    doc.addEventListener('keydown', esc, true);
+
+    if (catalogo) { pinta(); }
+    else {
+      carrega().then(pinta).catch(function () {
+        var l = caixa && caixa.querySelector('.at-lista');
+        if (l) { l.innerHTML = '<p class="at-carregando">Não deu para ler o catálogo da Binance agora. Os ativos de sempre continuam na lista.</p>'; }
+        pinta();
+      });
+    }
+  }
+
+  function esc(e) { if (e.key === 'Escape') { fecha(); } }
+  function fecha() {
+    if (!caixa) { return; }
+    doc.removeEventListener('keydown', esc, true);
+    if (caixa.parentNode) { caixa.parentNode.removeChild(caixa); }
+    caixa = null;
+  }
+
+  function n2(v, c) {
+    return (+v || 0).toLocaleString('pt-BR', { minimumFractionDigits: c, maximumFractionDigits: c });
+  }
+
+  function pinta() {
+    if (!caixa) { return; }
+    var gs = grupos(), lista = caixa.querySelector('.at-lista'), rail = caixa.querySelector('.at-rail');
+    var atualId = (global.MXApp && global.MXApp.estado().sym) || '';
+    var f = favs();
+
+    if (busca) {
+      var todos = [], vistos = {};
+      gs.forEach(function (g) {
+        g.itens.forEach(function (i) {
+          if (vistos[i.id]) { return; }
+          vistos[i.id] = 1;
+          var alvo = (i.id + ' ' + (i.b || '') + ' ' + (i.q || '')).toLowerCase();
+          if (alvo.indexOf(busca) >= 0) { todos.push(i); }
+        });
+      });
+      rail.hidden = true;
+      lista.innerHTML = todos.length
+        ? cartoes(todos.slice(0, 120), atualId, f)
+        : '<p class="at-carregando">Nada encontrado para “' + busca + '”.</p>';
+      liga();
+      return;
+    }
+
+    rail.hidden = false;
+    if (!grupoAtual || !gs.filter(function (g) { return g.nome === grupoAtual; }).length) {
+      grupoAtual = gs.length ? gs[0].nome : '';
+    }
+    rail.innerHTML = gs.map(function (g) {
+      return '<button type="button" data-g="' + g.nome + '" aria-selected="' + (g.nome === grupoAtual) + '">' +
+        '<span>' + g.nome + '</span><i>' + g.itens.length + '</i></button>';
+    }).join('');
+    Array.prototype.forEach.call(rail.children, function (b) {
+      b.onclick = function () { grupoAtual = b.getAttribute('data-g'); pinta(); };
+    });
+
+    var g0 = gs.filter(function (g) { return g.nome === grupoAtual; })[0] || { itens: [] };
+    var cabeca = '';
+    if (g0.nome === 'Índices (EUA)' || g0.nome === 'Commodities') {
+      var temChave = global.MXFonte && global.MXFonte.temChave();
+      cabeca = '<div class="at-aviso">' +
+        (g0.nota ? '<p>' + g0.nota + ', que é como o mercado acompanha esses índices sem contrato futuro.</p>' : '') +
+        '<p>Fonte: Twelve Data' + (temChave ? ' · chave configurada.' : ' — precisa da sua chave gratuita.') + '</p>' +
+        '<div class="at-chave"><input type="password" placeholder="Cole aqui a sua chave da Twelve Data" value="" aria-label="Chave da Twelve Data">' +
+        '<button type="button" data-k="salvar">Salvar</button>' +
+        (temChave ? '<button type="button" data-k="apagar">Remover</button>' : '') + '</div></div>';
+    }
+    lista.innerHTML = cabeca + cartoes(g0.itens.slice(0, 200), atualId, f) +
+      (g0.itens.length > 200 ? '<p class="at-carregando">Mostrando os 200 primeiros — use a busca para achar o resto.</p>' : '');
+    liga();
+  }
+
+  function cartoes(itens, atualId, f) {
+    return '<div class="at-grade">' + itens.map(function (i) {
+      var pr = precos[i.id], c = i.c == null ? 2 : i.c;
+      var rot = i.fonte ? i.b : (i.q && /^[A-Z]{2,6}$/.test(i.q) ? i.b + '/' + i.q : i.b);
+      return '<button type="button" class="at-item" data-id="' + i.id + '"' + (i.id === atualId ? ' aria-current="true"' : '') + '>' +
+        '<span class="at-nome">' + rot + '</span>' +
+        '<span class="at-sub">' + (i.fonte ? i.q + ' · ' + i.fonte : i.id) + '</span>' +
+        (pr ? '<span class="at-preco">' + n2(pr.p, c) + '</span>' +
+          '<span class="at-var" data-dir="' + (pr.pct > 0 ? 'up' : pr.pct < 0 ? 'down' : 'flat') + '">' +
+          (pr.pct > 0 ? '+' : '') + n2(pr.pct, 2) + '%</span>' : '<span class="at-preco">—</span><span class="at-var"></span>') +
+        '<i class="at-fav' + (f.indexOf(i.id) >= 0 ? ' on' : '') + '" data-fav="' + i.id + '" title="Favorito">★</i>' +
+        '</button>';
+    }).join('') + '</div>';
+  }
+
+  function liga() {
+    if (!caixa) { return; }
+    Array.prototype.forEach.call(caixa.querySelectorAll('.at-item'), function (b) {
+      b.onclick = function (e) {
+        if (e.target.hasAttribute('data-fav')) { e.stopPropagation(); marcaFav(e.target.getAttribute('data-fav')); return; }
+        escolhe(b.getAttribute('data-id'));
+      };
+    });
+    var salvar = caixa.querySelector('[data-k="salvar"]');
+    if (salvar) {
+      salvar.onclick = function () {
+        var i = caixa.querySelector('.at-chave input');
+        if (i && i.value.trim()) {
+          global.MXFonte.guardaChave(i.value);
+          if (global.MXShell && global.MXShell.toast) { global.MXShell.toast('Chave salva neste aparelho.'); }
+          pinta();
+        }
+      };
+    }
+    var apagar = caixa.querySelector('[data-k="apagar"]');
+    if (apagar) {
+      apagar.onclick = function () { global.MXFonte.guardaChave(''); pinta(); };
+    }
+  }
+
+  /* ------------------------------------------------------------------ liga */
+
+  function inicia() {
+    var alvo = doc.querySelector('.topbar .symbol');
+    if (!alvo) { return; }
+    /* o seletor de sempre continua existindo; o toque passa a abrir a lista organizada */
+    alvo.addEventListener('pointerdown', function (e) { e.preventDefault(); e.stopPropagation(); abre(); }, true);
+    alvo.addEventListener('click', function (e) { e.preventDefault(); e.stopPropagation(); }, true);
+    var sel = $('symbol');
+    if (sel) { sel.addEventListener('mousedown', function (e) { e.preventDefault(); }); }
+  }
+
+  global.MXAtivos = { inicia: inicia, abre: abre, fecha: fecha, carrega: carrega, favoritos: favs };
+
+  if (doc.readyState === 'loading') { doc.addEventListener('DOMContentLoaded', function () { global.setTimeout(inicia, 700); }); }
+  else { global.setTimeout(inicia, 700); }
 })(window);
 </script>
 </body>
