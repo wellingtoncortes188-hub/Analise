@@ -12469,6 +12469,10 @@ Resources:`;for(let t of c){if(!t||typeof t!=`string`)throw Error(`@supabase/aut
   /* Quem e administrador. Aqui mora apenas o RESUMO criptografico (SHA-256) do e-mail, nunca o
      endereco: esta pagina e publica, e endereco em codigo publico vira alvo de spam e de golpe.
      O resumo nao volta a ser e-mail; so serve para reconhecer quem ja entrou pelo servidor MX. */
+  /* Para onde o link do e-mail devolve o aluno: a propria plataforma, sem a parte de busca.
+     O mesmo endereco precisa estar liberado no Supabase (URL Configuration). */
+  function volta() { return global.location.origin + global.location.pathname; }
+
   var ADMINS = ['6d05cf7b7100d90c35fbbaea0cfea68eac8b8b29183d47dfa09df27b0402b9d6'];
 
   function resumo(email) {
@@ -12571,7 +12575,7 @@ Resources:`;for(let t of c){if(!t||typeof t!=`string`)throw Error(`@supabase/aut
     atalho('Reenviar o e-mail de confirmação', function () {
       if (!temServidor || !sb.auth.resend) { aviso('Sem servidor agora. Tente outra vez em instantes.'); return; }
       trava(true);
-      sb.auth.resend({ type: 'signup', email: email }).then(function (r) {
+      sb.auth.resend({ type: 'signup', email: email, options: { emailRedirectTo: volta() } }).then(function (r) {
         trava(false);
         if (r && r.error) { aviso(humano(r.error)); return; }
         aviso('Enviamos de novo para ' + email + '. Procure também no spam.', 'ok');
@@ -12650,6 +12654,7 @@ Resources:`;for(let t of c){if(!t||typeof t!=`string`)throw Error(`@supabase/aut
     var nome = ($('gNome') && $('gNome').value || '').trim();
 
     if (modo !== 'nova-senha' && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) { aviso('Confira o e-mail digitado.'); return; }
+    try { global.localStorage.setItem('mx360.ultimo-email', email); } catch (e) {}
     if (senha.length < 6) { aviso('A senha precisa de no mínimo 6 caracteres.'); return; }
     if (modo === 'cadastrar') {
       if (!nome) { aviso('Diga como quer ser chamado.'); return; }
@@ -12665,7 +12670,7 @@ Resources:`;for(let t of c){if(!t||typeof t!=`string`)throw Error(`@supabase/aut
     trava(true);
     var p;
     if (modo === 'nova-senha') { p = sb.auth.updateUser({ password: senha }); }
-    else if (modo === 'cadastrar') { p = sb.auth.signUp({ email: email, password: senha, options: { data: { nome: nome } } }); }
+    else if (modo === 'cadastrar') { p = sb.auth.signUp({ email: email, password: senha, options: { data: { nome: nome }, emailRedirectTo: volta() } }); }
     else { p = sb.auth.signInWithPassword({ email: email, password: senha }); }
 
     p.then(function (r) {
@@ -12783,11 +12788,46 @@ Resources:`;for(let t of c){if(!t||typeof t!=`string`)throw Error(`@supabase/aut
     global.addEventListener('mx360:recuperar-senha', function () { modo = 'nova-senha'; aplicaModo(); mostra('gate', true); doc.documentElement.removeAttribute('data-entrou'); });
   }
 
+  /* O link do e-mail volta com a sessao no endereco (#access_token=...&type=signup). A biblioteca
+     consome isso sozinha, mas leva um instante: em vez de deixar o aluno olhando a porta fechada,
+     a plataforma escuta o nascimento da sessao e entra direto. */
+  function escutaSessao() {
+    if (!temServidor || !sb.auth.onAuthStateChange) { return; }
+    sb.auth.onAuthStateChange(function (evento, sessao) {
+      if (evento === 'PASSWORD_RECOVERY') { modo = 'nova-senha'; aplicaModo(); return; }
+      if (!sessao || !sessao.user) { return; }
+      if (doc.documentElement.hasAttribute('data-entrou')) { confereAdmin({ email: sessao.user.email }); return; }
+      limpaEndereco();
+      abre({ email: sessao.user.email || '', nome: nomeDe(sessao.user) }, true);
+    });
+  }
+
+  function limpaEndereco() {
+    try { global.history.replaceState(null, '', global.location.pathname + global.location.search); } catch (e) {}
+  }
+
   function inicia() {
     sb = global.MXServidor && global.MXServidor.sb;
     temServidor = !!(global.MXServidor && global.MXServidor.ok && sb);
     liga();
     aplicaModo();
+    escutaSessao();
+
+    /* chegou pelo link do e-mail: avisa enquanto a sessao e montada */
+    var hash = String(global.location.hash || '');
+    if (/access_token|type=signup|type=magiclink|type=invite/.test(hash) && !/type=recovery/.test(hash)) {
+      aviso('E-mail confirmado. Abrindo a plataforma…', 'ok');
+    }
+    /* o link veio com erro (expirado ou ja usado): o aluno precisa saber o que fazer */
+    if (/error_code|error_description/.test(hash)) {
+      var m = decodeURIComponent((hash.match(/error_description=([^&]*)/) || [])[1] || '').replace(/\+/g, ' ');
+      limpaEndereco();
+      aviso(/expired|invalid/i.test(m)
+        ? 'Esse link de confirmação expirou ou já foi usado. Entre com a sua senha, ou peça um novo e-mail abaixo.'
+        : (m || 'Não deu para confirmar por esse link.'));
+      var em = (global.localStorage.getItem('mx360.ultimo-email') || '');
+      if (em) { if ($('gEmail')) { $('gEmail').value = em; } ofereceReenvio(em); }
+    }
 
     if (global.MXServidor && global.MXServidor.recuperando && global.MXServidor.recuperando()) {
       modo = 'nova-senha'; aplicaModo(); return;
