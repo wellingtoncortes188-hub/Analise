@@ -2583,7 +2583,12 @@ Resources:`;for(let t of c){if(!t||typeof t!=`string`)throw Error(`@supabase/aut
   ];
 
   var REST_HOSTS = ['https://data-api.binance.vision', 'https://api.binance.com'];
-  var WS_HOSTS = ['wss://stream.binance.com:9443', 'wss://data-stream.binance.vision'];
+  var WS_HOSTS = [
+    'wss://stream.binance.com:443',
+    'wss://data-stream.binance.vision:443',
+    'wss://stream.binance.com:9443',
+    'wss://data-stream.binance.vision'
+  ];
 
   function bySymbol(id) {
     for (var i = 0; i < SYMBOLS.length; i++) {
@@ -2908,7 +2913,7 @@ Resources:`;for(let t of c){if(!t||typeof t!=`string`)throw Error(`@supabase/aut
       status('retry');
       retry++;
       hostIdx++;
-      timer = setTimeout(connect, Math.min(1000 * Math.pow(1.6, retry), 10000));
+      timer = setTimeout(connect, Math.min(600 * Math.pow(1.5, retry), 5000));
     }
 
     function connect() {
@@ -2916,7 +2921,12 @@ Resources:`;for(let t of c){if(!t||typeof t!=`string`)throw Error(`@supabase/aut
       status(retry ? 'retry' : 'connecting');
       var url = WS_HOSTS[hostIdx % WS_HOSTS.length] + '/stream?streams=' + streams;
       try { ws = new WebSocket(url); } catch (e) { schedule(); return; }
-      ws.onopen = function () { retry = 0; status('live'); arm(); };
+      var esteWs = ws;
+      /* rede que engole a conexao sem responder: nao vale esperar, o proximo endereco pode abrir */
+      var abrindo = setTimeout(function () {
+        if (esteWs.readyState !== 1) { try { esteWs.close(); } catch (e) {} }
+      }, 4000);
+      ws.onopen = function () { clearTimeout(abrindo); retry = 0; status('live'); arm(); };
       ws.onmessage = function (ev) {
         arm();
         var msg;
@@ -2924,7 +2934,7 @@ Resources:`;for(let t of c){if(!t||typeof t!=`string`)throw Error(`@supabase/aut
         if (msg && msg.data) { onData(msg.stream || '', msg.data); }
       };
       ws.onerror = function () { try { ws.close(); } catch (e) {} };
-      ws.onclose = function () { clearTimeout(watchdog); schedule(); };
+      ws.onclose = function () { clearTimeout(abrindo); clearTimeout(watchdog); schedule(); };
     }
 
     connect();
@@ -12390,7 +12400,11 @@ Resources:`;for(let t of c){if(!t||typeof t!=`string`)throw Error(`@supabase/aut
       stream = S.openStream(st.sym, st.tf, hnd('Binance'));
       market = S.openMarket(st.sym, {
         onBook: function (b) { if (global.MXReal) { global.MXReal.viuDados(); } book(b); },
-        onTrade: trade
+        onTrade: function (t) {
+          if (global.MXReal) { global.MXReal.viuDados(); }
+          trade(t);
+          if (global.MXTempo) { global.MXTempo.negocio(t); }
+        }
       });
       if (global.MXReal) {
         global.MXReal.vigia({
@@ -15498,7 +15512,7 @@ Resources:`;for(let t of c){if(!t||typeof t!=`string`)throw Error(`@supabase/aut
       if (!ligado || !r || !r.length) { throw new Error('sem candles'); }
       ponte.aplica(r);
       tiraAviso();
-      ponte.estado('delayed', 'Binance 2s');
+      ponte.estado('delayed', 'Binance 1s');
       ponte.aviso('');
 
       liga(p);
@@ -15515,23 +15529,35 @@ Resources:`;for(let t of c){if(!t||typeof t!=`string`)throw Error(`@supabase/aut
     return true;
   }
 
-  /* busca periódica: preço e vela a cada 2s, livro e negócios a cada 3s */
+  /* Busca periódica, quando o WebSocket não passa na rede. O preço vem sozinho a cada segundo
+     (consulta minúscula, de peso 1 na Binance) e entra pelo mesmo caminho dos negócios ao vivo,
+     então a vela anda igual. O resto — estatística do dia, vela oficial, livro e negócios — vem em
+     ritmo mais calmo, para não gastar a internet do aluno à toa. */
+  function so(preco) {
+    if (!(preco > 0)) { return; }
+    if (global.MXTempo) { global.MXTempo.negocio({ p: preco, q: 0, t: Date.now() }); }
+    else if (global.MXTrade) { global.MXTrade.tick(preco); }
+  }
+
+  function precoAgora(sym) {
+    return pega('/api/v3/ticker/price?symbol=' + sym).then(function (j) { so(+(j && j.price)); });
+  }
+
   function liga(p) {
     if (timers.length) { return; }
     ligado = true;
-    function ciclo() {
-      if (doc.hidden) { return; }        /* tela em segundo plano: não gasta dados do aluno */
-      topo(p.sym).catch(function () {});
-      velaAtual(p.sym, p.tf).catch(function () {});
-    }
-    function ciclo2() {
+    function rapido() { if (!doc.hidden) { precoAgora(p.sym).catch(function () {}); } }
+    function medio() {
       if (doc.hidden) { return; }
+      velaAtual(p.sym, p.tf).catch(function () {});
       livro(p.sym).catch(function () {});
       negocios(p.sym).catch(function () {});
     }
-    ciclo(); ciclo2();
-    timers.push(global.setInterval(ciclo, 2000));
-    timers.push(global.setInterval(ciclo2, 3000));
+    function lento() { if (!doc.hidden) { topo(p.sym).catch(function () {}); } }
+    rapido(); medio(); lento();
+    timers.push(global.setInterval(rapido, 1000));
+    timers.push(global.setInterval(medio, 3000));
+    timers.push(global.setInterval(lento, 5000));
   }
 
   /* O caso comum não é a Binance estar fora: é o WebSocket não passar na rede do aluno. Os candles
@@ -15547,7 +15573,7 @@ Resources:`;for(let t of c){if(!t||typeof t!=`string`)throw Error(`@supabase/aut
       if (!ponte) { return; }
       var parado = Date.now() - ultimoDado > 8000;
       if (parado && !timers.length) {
-        ponte.estado('delayed', 'Binance 2s');
+        ponte.estado('delayed', 'Binance 1s');
         liga(p);
       } else if (!parado && timers.length) {
         paraBuscas();
@@ -16053,6 +16079,79 @@ Resources:`;for(let t of c){if(!t||typeof t!=`string`)throw Error(`@supabase/aut
 
   if (doc.readyState === 'loading') { doc.addEventListener('DOMContentLoaded', function () { global.setTimeout(inicia, 700); }); }
   else { global.setTimeout(inicia, 700); }
+})(window);
+</script>
+<script>/* MX360 Plataforma: preço em tempo real de verdade (a pedido).
+   A Binance manda a vela do gráfico (stream de kline) a cada 1 a 2 segundos — era daí o atraso que
+   aparecia na tela. Mas ela também manda CADA negócio fechado (stream aggTrade), na hora em que
+   acontece, e esse stream a plataforma já recebia para a janela de negócios.
+   Aqui esse mesmo negócio passa a formar a vela: o preço anda tick a tick, no ritmo do mercado,
+   e a vela oficial do kline continua chegando por trás para fechar o período certinho.
+   Para não castigar o aparelho em momentos de 50 negócios por segundo, o desenho é feito uma vez
+   por quadro de tela (~60 por segundo), com o último preço recebido. */
+(function (global) {
+  'use strict';
+
+  var A = null, pendente = null, agendado = false, ultimo = 0, ligado = false;
+  var contagem = 0, janela = 0, porSegundo = 0;
+
+  function pinta() {
+    agendado = false;
+    var t = pendente;
+    pendente = null;
+    if (!t || !A) { return; }
+
+    var rows = A.rows();
+    var vela = rows[rows.length - 1];
+    if (!vela) { return; }
+
+    /* o negócio pertence à vela em formação: estica máxima/mínima e move o fechamento */
+    if (t.t >= vela.t) {
+      vela.h = Math.max(vela.h, t.p);
+      vela.l = Math.min(vela.l, t.p);
+      vela.c = t.p;
+      vela.v = (vela.v || 0) + (t.q || 0);
+      A.api.update(vela);
+      A.legenda(vela);
+      if (global.MXStudies) { global.MXStudies.update(rows); }
+      if (global.MXShell) { global.MXShell.price(t.p); }
+      if (global.MXTrade) { global.MXTrade.tick(t.p); }
+    }
+    aplicados++;
+    ultimo = t.p;
+  }
+
+  var aplicados = 0;
+
+  function negocio(t) {
+    if (!ligado) { inicia(); }                 /* o gráfico pode ter nascido depois deste módulo */
+    if (!ligado || !A || !t || !(t.p > 0)) { return; }
+    if (global.MXReplay && global.MXReplay.active()) { return; }   /* no replay, quem manda é o arquivo */
+    pendente = t;
+    /* conta o ritmo, para a barra de estado poder mostrar que está ao vivo */
+    var s = Math.floor(Date.now() / 1000);
+    if (s !== janela) { porSegundo = contagem; contagem = 0; janela = s; }
+    contagem++;
+    if (!agendado) { agendado = true; global.requestAnimationFrame(pinta); }
+  }
+
+  function inicia() {
+    A = global.MXApp;
+    ligado = !!(A && A.api && A.rows);
+  }
+
+  global.MXTempo = {
+    inicia: inicia,
+    negocio: negocio,
+    ultimo: function () { return ultimo; },
+    ritmo: function () { return porSegundo; },
+    aplicados: function () { return aplicados; },
+    ligado: function () { return ligado; }
+  };
+
+  if (global.document.readyState === 'loading') {
+    global.document.addEventListener('DOMContentLoaded', function () { global.setTimeout(inicia, 300); });
+  } else { global.setTimeout(inicia, 300); }
 })(window);
 </script>
 </body>
