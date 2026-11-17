@@ -12541,6 +12541,44 @@ Resources:`;for(let t of c){if(!t||typeof t!=`string`)throw Error(`@supabase/aut
     if (tipo) { e.setAttribute('data-tipo', tipo); } else { e.removeAttribute('data-tipo'); }
   }
 
+  /* Um atalho dentro do proprio aviso: o aluno resolve ali, sem adivinhar o que fazer. */
+  function atalho(texto, aoTocar) {
+    var e = $('gErro');
+    if (!e || e.querySelector('[data-atalho]')) { return; }
+    var b = doc.createElement('button');
+    b.type = 'button';
+    b.setAttribute('data-atalho', '1');
+    b.textContent = texto;
+    b.style.cssText = 'display:block;margin:8px 0 0;padding:0;border:0;background:none;color:#D6A94D;' +
+      'font:700 .86rem Manrope,sans-serif;cursor:pointer;text-decoration:underline;text-align:left';
+    b.onclick = aoTocar;
+    e.appendChild(b);
+  }
+
+  /* conta que ainda nao existe: leva direto para o cadastro, com o e-mail ja preenchido */
+  function ofereceCadastro(email) {
+    atalho('Criar conta com este e-mail', function () {
+      modo = 'cadastrar';
+      aplicaModo();
+      if ($('gEmail')) { $('gEmail').value = email; }
+      aviso('Escolha um nome e uma senha para criar a sua conta.', 'ok');
+      if ($('gNome')) { $('gNome').focus(); }
+    });
+  }
+
+  /* conta criada mas e-mail nao confirmado: reenvia a mensagem */
+  function ofereceReenvio(email) {
+    atalho('Reenviar o e-mail de confirmação', function () {
+      if (!temServidor || !sb.auth.resend) { aviso('Sem servidor agora. Tente outra vez em instantes.'); return; }
+      trava(true);
+      sb.auth.resend({ type: 'signup', email: email }).then(function (r) {
+        trava(false);
+        if (r && r.error) { aviso(humano(r.error)); return; }
+        aviso('Enviamos de novo para ' + email + '. Procure também no spam.', 'ok');
+      }).catch(function (e) { trava(false); aviso(humano(e)); });
+    });
+  }
+
   /* Se o servidor nao responde, o aluno nao pode ficar parado na porta: aparece a entrada simulada,
      que abre a plataforma sem conta (a conta Simulador MX fica so neste aparelho). */
   function ofereceSemServidor() {
@@ -12632,7 +12670,14 @@ Resources:`;for(let t of c){if(!t||typeof t!=`string`)throw Error(`@supabase/aut
 
     p.then(function (r) {
       trava(false);
-      if (r && r.error) { aviso(humano(r.error)); if (ehRede(r.error)) { ofereceSemServidor(); } return; }
+      if (r && r.error) {
+        aviso(humano(r.error));
+        var m = String(r.error.message || '').toLowerCase();
+        if (ehRede(r.error)) { ofereceSemServidor(); }
+        else if (modo === 'entrar' && m.indexOf('not confirmed') >= 0) { ofereceReenvio(email); }
+        else if (modo === 'entrar' && m.indexOf('invalid login') >= 0) { ofereceCadastro(email); }
+        return;
+      }
       var d = (r && r.data) || {};
       if (modo === 'nova-senha') {
         if (global.MXServidor.fimRecuperacao) { global.MXServidor.fimRecuperacao(); }
@@ -12642,7 +12687,8 @@ Resources:`;for(let t of c){if(!t||typeof t!=`string`)throw Error(`@supabase/aut
       }
       if (modo === 'cadastrar' && d.user && !d.session) {
         modo = 'entrar'; aplicaModo();
-        aviso('Cadastro criado. Confirme o e-mail que enviamos e volte aqui para entrar.', 'ok');
+        aviso('Cadastro criado. Abra o e-mail que enviamos para ' + email + ' e toque no link de confirmação — sem isso a entrada não libera. Olhe também no spam.', 'ok');
+        ofereceReenvio(email);
         return;
       }
       abre({ email: (d.user && d.user.email) || email, nome: nomeDe(d.user) || nome }, true);
