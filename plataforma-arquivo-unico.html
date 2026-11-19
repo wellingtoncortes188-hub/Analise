@@ -2384,6 +2384,116 @@ html[data-ct="0"] .ct-chip,html[data-ct="0"] .ct-seg,html[data-ct="0"] .cc-passo
   .side[data-pro="1"] .side-body{flex:1;height:auto;min-height:0}
 }
 </style>
+<style>/* Acabamento igual ao da plataforma de referência: etiquetas das ordens, abas e cartões. */
+
+/* ---- ordens projetadas pelo indicador: selo dourado, tipo em verde, valor em branco ---- */
+.ol-it[data-k="ind"]{--sc:#22a447;--sb:#124d24}
+.ol-it[data-k="ind"] .ol-tag{background:#0b0f0d;border-color:#0b0f0d;color:#fff;font-weight:700}
+.ol-it[data-k="ind"] .ol-grp{background:rgba(var(--bg-rgb),.96)}
+.ol-it[data-k="ind"] .ol-res{padding:0 9px}
+
+/* a plaquinha do eixo sem preço (linha de cobertura) deixava um retângulo preto vazio no gráfico */
+.pz-ax:empty{display:none}
+
+/* o canto do gráfico fica só com "Ajustar", como no modelo; escala e "agora" seguem nas configurações */
+.tools #btnAuto,.tools #btnLog,.tools #btnNow{display:none}
+
+/* o painel da direita é escolhido pelos ícones da lateral: a tira de abas em texto sai do caminho
+   (no celular ela continua, porque lá não há ícones ao lado) */
+@media (min-width:1001px){
+  .side-tab{display:none}
+}
+
+/* ---- negócios: filtro de tamanho e destaque dos grandes ---- */
+.fx-topo{display:flex;align-items:center;gap:8px;flex:none;padding:8px 10px 6px}
+.fx-so{min-height:34px;padding:0 12px;border:1px solid rgba(var(--ink-rgb),.18);border-radius:8px;
+  background:var(--bg);color:var(--ink);font:inherit;font-size:.8rem;font-weight:700;cursor:pointer}
+.fx-so[aria-pressed="true"]{border-color:var(--gold);background:rgba(var(--gold-rgb),.12);color:var(--gold)}
+.fx-mult{display:flex;gap:2px;padding:2px;border-radius:8px;background:rgba(var(--ink-rgb),.06)}
+.fx-mult button{min-width:34px;height:28px;padding:0 6px;border:0;border-radius:6px;background:none;
+  color:var(--muted);font:inherit;font-size:.78rem;font-weight:700;cursor:pointer}
+.fx-mult button[aria-pressed="true"]{background:var(--bg);color:var(--ink);box-shadow:0 1px 2px rgba(var(--shadow-rgb),.2)}
+.fx-corte{margin-left:auto;color:var(--muted);font-size:.76rem;font-weight:700;white-space:nowrap}
+.fx-vazio{margin:16px 12px;color:var(--muted);font-size:.82rem;text-align:center}
+.trade-row.grande{position:relative;background:rgba(var(--gold-rgb),.12);font-weight:700}
+.trade-row.grande::before{content:"";position:absolute;left:0;top:1px;bottom:1px;width:3px;background:var(--gold)}
+
+/* ---- book: cartão de viés ---- */
+.fx-vies{flex:none;margin:8px 10px 10px;padding:10px 12px;border:1px solid rgba(var(--ink-rgb),.12);
+  border-radius:12px;background:rgba(var(--ink-rgb),.03)}
+.fx-vt{display:flex;align-items:flex-start;gap:10px}
+.fx-seta{display:grid;place-items:center;flex:none;width:30px;height:30px;border-radius:9px;
+  background:rgba(var(--ink-rgb),.1);color:var(--muted);font-size:.8rem}
+.fx-vies[data-l="c"] .fx-seta{background:rgba(var(--primary-rgb),.16);color:var(--pos)}
+.fx-vies[data-l="v"] .fx-seta{background:rgba(var(--down-rgb),.16);color:var(--neg)}
+.fx-vt b{display:block;font-size:.94rem;font-weight:700;line-height:1.25}
+.fx-vt i{display:block;margin-top:2px;color:var(--muted);font-style:normal;font-size:.76rem}
+.fx-sinais{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px}
+.fx-sin{padding:4px 10px;border:1px solid rgba(var(--ink-rgb),.16);border-radius:999px;
+  color:var(--muted);font-size:.74rem;font-weight:700}
+.fx-sin[data-on="true"][data-v="c"]{border-color:var(--pos);color:var(--pos);background:rgba(var(--primary-rgb),.1)}
+.fx-sin[data-on="true"][data-v="v"]{border-color:var(--neg);color:var(--neg);background:rgba(var(--down-rgb),.1)}
+
+/* ---- book: força e fluxo ---- */
+.fx-forca,.fx-cartao{flex:none;margin:10px;padding:10px 12px;border:1px solid rgba(var(--ink-rgb),.12);border-radius:12px}
+.fx-lin{display:flex;align-items:center;gap:8px;font-size:.8rem}
+.fx-lin>span:first-child{color:var(--muted)}
+.fx-lin b{margin-left:auto;font-weight:700}
+.fx-cartao .fx-lin b{min-width:72px;margin-left:auto;text-align:right}
+.fx-cartao .fx-lin i{flex:0 0 76px;height:7px;border-radius:4px;background:var(--muted);opacity:.85}
+.fx-cartao .fx-gc{background:var(--pos)}
+.fx-cartao .fx-gv{background:var(--neg)}
+.fx-barra{display:flex;height:8px;margin:8px 0 6px;border-radius:5px;overflow:hidden;background:rgba(var(--ink-rgb),.08)}
+.fx-b1{background:var(--pos)}
+.fx-b2{background:var(--ink)}
+.fx-pes{justify-content:space-between;font-size:.78rem;font-weight:700}
+.fx-pes .fx-c{color:var(--pos)}
+.fx-pes .fx-v{color:var(--muted)}
+.fx-ba{margin:6px 0 8px;font-size:.78rem;font-weight:700}
+.fx-ba .fx-bid{color:var(--pos)}
+.fx-ba .fx-ask{color:var(--neg);margin-left:10px}
+.fx-fim{justify-content:space-between;margin-top:8px;padding-top:8px;
+  border-top:1px solid rgba(var(--ink-rgb),.1);font-size:.8rem;font-weight:700}
+.fx-fim [data-d="up"]{color:var(--pos)}
+.fx-fim [data-d="down"]{color:var(--neg)}
+.fx-jan{display:flex;gap:2px;margin-left:auto;padding:2px;border-radius:8px;background:rgba(var(--ink-rgb),.06)}
+.fx-jan button{min-width:32px;height:24px;border:0;border-radius:6px;background:none;color:var(--muted);
+  font:inherit;font-size:.72rem;font-weight:700;cursor:pointer}
+.fx-jan button[aria-pressed="true"]{background:var(--bg);color:var(--ink)}
+
+/* ---- aba do agente: o conteúdo saía pela direita do painel ---- */
+#pane_agent{overflow-x:hidden}
+#pane_agent *{max-width:100%;box-sizing:border-box}
+#pane_agent input,#pane_agent textarea,#pane_agent select{min-width:0;width:100%}
+
+/* no book, o preço da compra sai em verde, como no modelo (a venda fica no tom do texto) */
+.book-row.bid span:nth-of-type(1){color:var(--pos);font-weight:600}
+
+/* a pílula do indicador mostra a taxa de acerto e o resultado, em uma linha só */
+.mx2-st-pill{white-space:nowrap}
+
+/* a plaquinha do preço da posição ficava preta sobre preta (fundo e texto na mesma cor): some o número */
+.pz-ax{background:#0b0f0d!important;color:#fff!important}
+
+/* boleta em cima do gráfico: TP em verde e SL em vermelho, tracejados, como no modelo */
+.ct-chip .cc-tp{color:#22a447;border-color:rgba(34,164,71,.5);border-style:dashed}
+.ct-chip .cc-sl{color:#d23a4a;border-color:rgba(210,58,74,.5);border-style:dashed}
+.ct-chip .cc-tp[aria-pressed="true"]{background:rgba(34,164,71,.16);border-style:solid}
+.ct-chip .cc-sl[aria-pressed="true"]{background:rgba(210,58,74,.16);border-style:solid}
+.ct-chip input{font-weight:800}
+.ct-chip>span{color:var(--muted)}
+
+/* barra de cima no formato do modelo: os períodos sem a caixa cinza em volta, só o ativo destacado */
+.topbar .tf{border-color:transparent;background:none;box-shadow:none}
+
+/* "Temas e cores" agora mora dentro de Configurações: o botão solto da barra sai, como no modelo */
+.topbar #btnStyle{display:none}
+
+/* ícones de traço fino na barra de cima, no tamanho do modelo */
+.topbar .tool-ico svg{width:19px;height:19px;fill:none;stroke:currentColor;stroke-width:1.8;
+  stroke-linecap:round;stroke-linejoin:round}
+.topbar .tool-ico{display:grid;place-items:center}
+</style>
 </head>
 <body>
 <div class="app">
@@ -7105,7 +7215,7 @@ Resources:`;for(let t of c){if(!t||typeof t!=`string`)throw Error(`@supabase/aut
     if (st.lg) { top = Math.max(8, Math.round(st.lg.getBoundingClientRect().bottom - hr.top + 8)); }
     if (top !== st.top) { st.top = top; st.box.style.top = top + 'px'; }
     st.card.style.maxHeight = Math.max(120, Math.round(hr.height - top - 34)) + 'px';
-    mn = cfg.statsMin === null ? (hr.width < 560 || hr.height < 420) : cfg.statsMin;
+    mn = cfg.statsMin === null ? true : cfg.statsMin;
     st.box.setAttribute('data-min', mn ? 'y' : 'n');
   }
   function stMin(min) {
@@ -12226,11 +12336,17 @@ Resources:`;for(let t of c){if(!t||typeof t!=`string`)throw Error(`@supabase/aut
     brand.textContent = 'MX';
     var setNav = nav(), mb = mk('button', 'tb-menu', '☰'); mb.type = 'button'; mb.setAttribute('aria-label', 'Menu'); mb.onclick = function () { setNav(true); };
     top.insertBefore(mb, top.querySelector('.symbol'));
-    var g = $('grpVis'), cfg = mk('button', 'tool tool-ico', '⚙'), th = mk('button', 'tool tool-ico', '☀');
+    var g = $('grpVis'), cfg = mk('button', 'tool tool-ico', '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16"/><circle cx="9" cy="7" r="2.2"/><circle cx="15" cy="12" r="2.2"/><circle cx="8" cy="17" r="2.2"/></svg>'), th = mk('button', 'tool tool-ico', '<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>');
+    /* mesmos icones de traco fino do modelo, no lugar dos simbolos de texto */
+    var fora = mk('button', 'tool tool-ico', '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 3h6v6M10 14 21 3M21 14v7H3V3h7"/></svg>');
+    fora.type = 'button'; fora.title = 'Abrir a plataforma em outra janela';
+    fora.setAttribute('aria-label', fora.title);
+    fora.onclick = function () { global.open(location.href, '_blank', 'noopener'); };
     cfg.type = th.type = 'button'; cfg.title = 'Configurações do gráfico'; th.title = 'Tema claro/escuro';
     cfg.onclick = cfgModal;
     th.onclick = function () { var b = document.querySelector('[data-tema="' + (global.MXStyle && global.MXStyle.valor('tema') === 'altoclaro' ? 'grafite' : 'altoclaro') + '"]'); if (b) { b.click(); } };
-    g.insertBefore(th, g.firstChild); g.insertBefore(cfg, g.firstChild); $('btnFull').hidden = false;
+    g.insertBefore(th, g.firstChild); g.insertBefore(cfg, g.firstChild);
+    g.insertBefore(fora, th.nextSibling); $('btnFull').hidden = false;
     top.appendChild(mk('span', 'tb-av', 'MS'));
     tab = mk('div', 'symtab', '<div class="symtab-i"><span id="stSym">BTC/USDT</span><em id="stTf">5m</em><b id="stChg" data-dir="flat">—</b></div><button type="button" class="symtab-add" aria-label="Nova aba" disabled>+</button>');
     top.parentNode.insertBefore(tab, $('stage'));
@@ -12488,11 +12604,13 @@ Resources:`;for(let t of c){if(!t||typeof t!=`string`)throw Error(`@supabase/aut
       e.innerHTML = h;
     }
     side('bookAsks', b.asks.slice().reverse().slice(0), true); side('bookBids', b.bids, false);
-    if (b.bids[0] && b.asks[0]) { put('bookMidPrice', fmt((b.bids[0][0] + b.asks[0][0]) / 2)); put('bookSpread', 'spread ' + fmt(b.asks[0][0] - b.bids[0][0])); }
+    if (b.bids[0] && b.asks[0]) { put('bookMidPrice', fmt((b.bids[0][0] + b.asks[0][0]) / 2)); put('bookSpread', 'Spread ' + fmt(b.asks[0][0] - b.bids[0][0])); }
+    if (global.MXFluxo) { global.MXFluxo.book(b); }
   }
   function trade(t) {
     var e = $('tradesList'); if (!e) { return; }
     var r = document.createElement('div');
+    if (global.MXFluxo) { global.MXFluxo.negocio(t); return; }
     r.className = 'trade-row ' + t.side;
     r.innerHTML = '<span>' + fmt(t.p) + '</span><span>' + t.q.toFixed(4) + '</span><span>' + new Date(t.t).toLocaleTimeString('pt-BR') + '</span>';
     e.insertBefore(r, e.firstChild);
@@ -12545,7 +12663,7 @@ Resources:`;for(let t of c){if(!t||typeof t!=`string`)throw Error(`@supabase/aut
     if (global.MXEntrada) { global.MXEntrada.inicia(); } else { document.documentElement.setAttribute('data-entrou', '1'); }
     var sel = $('symbol');
     S.symbols.forEach(function (s) { var o = document.createElement('option'); o.value = s.id; o.textContent = s.label; sel.appendChild(o); });
-    sel.onchange = function () { st.sym = sel.value; save(); load(); };
+    sel.onchange = function () { st.sym = sel.value; save(); load(); if (global.MXMarca) { global.MXMarca(); } };
     TFS.forEach(function (t) {
       var b = document.createElement('button'); b.type = 'button'; b.className = 'tool'; b.dataset.tf = t; b.textContent = t === '1d' ? '1D' : t === '1w' ? '1S' : t;
       b.onclick = function () { st.tf = t; save(); sync(); load(); }; $('tf').appendChild(b);
@@ -12590,7 +12708,21 @@ Resources:`;for(let t of c){if(!t||typeof t!=`string`)throw Error(`@supabase/aut
     $('btnFit').onclick = function () { api.reset(); };
     $('btnNow').onclick = function () { api.goLive(); };
     $('msgRetry').onclick = load;
-    api.setWatermark && 0;
+    if (api.setWatermark) {
+      global.MXMarca = function () {
+        var it = S.bySymbol(st.sym) || {};
+        var NOMES = { '1m': '1 minuto', '3m': '3 minutos', '5m': '5 minutos', '15m': '15 minutos',
+          '30m': '30 minutos', '45m': '45 minutos', '1h': '1 hora', '4h': '4 horas',
+          '1d': 'Diário', '1w': 'Semanal' };
+        var nome = NOMES[st.tf] || st.tf;
+        api.setWatermark([
+          { text: 'MX360°', k: 1 },
+          { text: st.sym + ' · ' + nome, k: .30 },
+          { text: it.label || st.sym, k: .26 }
+        ]);
+      };
+      global.MXMarca();
+    }
     if (global.MXShell) { global.MXShell.init({ api: api, rows: function () { return rows; }, fmt: fmt }); global.MXShell.quote((S.bySymbol(st.sym) || {}).label || st.sym, st.tf, null); }
     tabs(); buildWatch(); sync(); load();
   }
@@ -16430,6 +16562,278 @@ Resources:`;for(let t of c){if(!t||typeof t!=`string`)throw Error(`@supabase/aut
 
   if (doc.readyState === 'loading') { doc.addEventListener('DOMContentLoaded', function () { global.setTimeout(inicia, 900); }); }
   else { global.setTimeout(inicia, 900); }
+})(window);
+</script>
+<script>/* MX360 Plataforma: as abas de Negócios e Book no formato da plataforma de referência.
+   Negócios: filtro "Só grandes", o tamanho que conta como grande (3x, 5x ou 10x o negócio comum do
+   momento) e destaque na linha de quem passou desse tamanho.
+   Book: cartão de viés com quatro sinais (book, agressão, CVD e preço), a força do book e o cartão
+   de fluxo com compra, venda, delta e CVD na janela escolhida.
+   Tudo é calculado com o que já chega da Binance — nenhuma consulta nova. */
+(function (global) {
+  'use strict';
+
+  var doc = global.document;
+  function $(id) { return doc.getElementById(id); }
+
+  /* ------------------------------------------------------------- números */
+
+  function n2(v, c) {
+    return (v || 0).toLocaleString('pt-BR', { minimumFractionDigits: c, maximumFractionDigits: c });
+  }
+  function curto(v) {
+    var a = Math.abs(v);
+    if (a >= 1e9) { return n2(v / 1e9, 2) + ' bi'; }
+    if (a >= 1e6) { return n2(v / 1e6, 2) + ' mi'; }
+    if (a >= 1e3) { return n2(v / 1e3, 2) + ' mil'; }
+    return n2(v, 2);
+  }
+  function qtd(v) {
+    if (v >= 1000) { return n2(v, 3); }
+    return n2(v, v >= 1 ? 4 : 5);
+  }
+  function hora(t) {
+    return new Date(t).toLocaleTimeString('pt-BR');
+  }
+
+  /* --------------------------------------------------------- negócios */
+
+  var MULT = [3, 5, 10];
+  var neg = {
+    mult: 5, so: false, linhas: [], tam: [], corte: 0,
+    topo: null, lista: null, pinta: 0
+  };
+
+  function mediana(v) {
+    if (!v.length) { return 0; }
+    var l = v.slice().sort(function (a, b) { return a - b; });
+    return l[Math.floor(l.length / 2)];
+  }
+
+  function cabecaNegocios() {
+    var pane = $('pane_trades');
+    if (!pane || neg.topo) { return; }
+    var cab = doc.createElement('div');
+    cab.className = 'fx-topo';
+    cab.innerHTML = '<button type="button" class="fx-so" aria-pressed="false">Só grandes</button>' +
+      '<div class="fx-mult" role="group" aria-label="O que conta como negócio grande">' +
+      MULT.map(function (m) {
+        return '<button type="button" data-m="' + m + '" aria-pressed="' + (m === neg.mult) + '">' + m + '×</button>';
+      }).join('') + '</div><span class="fx-corte">—</span>';
+    pane.insertBefore(cab, pane.firstChild);
+    neg.topo = cab;
+    neg.lista = $('tradesList');
+
+    cab.querySelector('.fx-so').onclick = function () {
+      neg.so = !neg.so;
+      this.setAttribute('aria-pressed', String(neg.so));
+      desenhaNegocios(true);
+    };
+    Array.prototype.forEach.call(cab.querySelectorAll('.fx-mult button'), function (b) {
+      b.onclick = function () {
+        neg.mult = +b.getAttribute('data-m');
+        Array.prototype.forEach.call(cab.querySelectorAll('.fx-mult button'), function (o) {
+          o.setAttribute('aria-pressed', String(+o.getAttribute('data-m') === neg.mult));
+        });
+        desenhaNegocios(true);
+      };
+    });
+  }
+
+  function negocio(t) {
+    cabecaNegocios();
+    neg.linhas.unshift(t);
+    if (neg.linhas.length > 120) { neg.linhas.length = 120; }
+    neg.tam.push(t.q);
+    if (neg.tam.length > 400) { neg.tam.shift(); }
+    neg.corte = mediana(neg.tam) * neg.mult;
+    fluxo(t);
+    if (!neg.pinta) { neg.pinta = global.setTimeout(function () { neg.pinta = 0; desenhaNegocios(); }, 220); }
+  }
+
+  function desenhaNegocios(agora) {
+    if (agora && neg.pinta) { global.clearTimeout(neg.pinta); neg.pinta = 0; }
+    if (!neg.lista) { neg.lista = $('tradesList'); }
+    if (!neg.lista) { return; }
+    neg.corte = mediana(neg.tam) * neg.mult;
+    if (neg.topo) {
+      neg.topo.querySelector('.fx-corte').textContent = neg.corte > 0 ? '≥ ' + qtd(neg.corte) : '—';
+    }
+    var h = '', vistos = 0;
+    for (var i = 0; i < neg.linhas.length && vistos < 60; i++) {
+      var t = neg.linhas[i], grande = neg.corte > 0 && t.q >= neg.corte;
+      if (neg.so && !grande) { continue; }
+      vistos++;
+      h += '<div class="trade-row ' + t.side + (grande ? ' grande' : '') + '">' +
+        '<span>' + n2(t.p, t.p >= 100 ? 2 : 4) + '</span>' +
+        '<span>' + qtd(t.q) + '</span>' +
+        '<span>' + hora(t.t) + '</span></div>';
+    }
+    neg.lista.innerHTML = h || '<p class="fx-vazio">Nenhum negócio desse tamanho ainda.</p>';
+  }
+
+  /* ------------------------------------------------------------- fluxo */
+
+  var JANELAS = [['1m', 60000], ['5m', 300000], ['15m', 900000]];
+  var fx = {
+    janela: 300000, neg: [], book: null, cvd: 0, pinta: 0,
+    vies: null, forca: null, cartao: null
+  };
+
+  function fluxo(t) {
+    fx.neg.push({ t: t.t, m: t.p * t.q, compra: t.side === 'up' });
+    var corte = Date.now() - 900000;
+    while (fx.neg.length && fx.neg[0].t < corte) { fx.neg.shift(); }
+  }
+
+  function somaFluxo() {
+    var corte = Date.now() - fx.janela, c = 0, v = 0;
+    for (var i = fx.neg.length - 1; i >= 0; i--) {
+      if (fx.neg[i].t < corte) { break; }
+      if (fx.neg[i].compra) { c += fx.neg[i].m; } else { v += fx.neg[i].m; }
+    }
+    return { compra: c, venda: v, delta: c - v };
+  }
+
+  function livro(b) {
+    fx.book = b;
+    if (!fx.pinta) { fx.pinta = global.setTimeout(function () { fx.pinta = 0; desenhaBook(); }, 300); }
+  }
+
+  /* ------------------------------------------------------- cartões do book */
+
+  function cabecaBook() {
+    var pane = $('pane_book');
+    if (!pane || fx.vies) { return; }
+
+    var v = doc.createElement('div');
+    v.className = 'fx-vies';
+    v.innerHTML = '<div class="fx-vt"><span class="fx-seta" aria-hidden="true">•</span>' +
+      '<div><b>Lendo o mercado…</b><i>aguardando negócios</i></div></div>' +
+      '<div class="fx-sinais">' +
+      ['Book', 'Agressão', 'CVD', 'Preço'].map(function (s) {
+        return '<span class="fx-sin" data-s="' + s + '">' + s + '</span>';
+      }).join('') + '</div>';
+    pane.insertBefore(v, pane.firstChild);
+    fx.vies = v;
+
+    var f = doc.createElement('div');
+    f.className = 'fx-forca';
+    f.innerHTML = '<div class="fx-lin"><span>Força do book</span><b class="fx-lado">—</b></div>' +
+      '<div class="fx-barra"><i class="fx-b1"></i><i class="fx-b2"></i></div>' +
+      '<div class="fx-lin fx-pes"><span class="fx-c">Compra —</span><span class="fx-v">Venda —</span></div>';
+    pane.appendChild(f);
+    fx.forca = f;
+
+    var c = doc.createElement('div');
+    c.className = 'fx-cartao';
+    c.innerHTML = '<div class="fx-lin"><b>FLUXO</b>' +
+      '<span class="fx-jan" role="group" aria-label="Janela do fluxo">' +
+      JANELAS.map(function (j) {
+        return '<button type="button" data-j="' + j[1] + '" aria-pressed="' + (j[1] === fx.janela) + '">' + j[0] + '</button>';
+      }).join('') + '</span></div>' +
+      '<p class="fx-ba">—</p>' +
+      '<div class="fx-lin"><span>Compra</span><b class="fx-fc">—</b><i class="fx-gc"></i></div>' +
+      '<div class="fx-lin"><span>Venda</span><b class="fx-fv">—</b><i class="fx-gv"></i></div>' +
+      '<div class="fx-lin fx-fim"><span class="fx-de">Delta —</span><span class="fx-cv">CVD —</span></div>';
+    pane.appendChild(c);
+    fx.cartao = c;
+
+    Array.prototype.forEach.call(c.querySelectorAll('.fx-jan button'), function (b) {
+      b.onclick = function () {
+        fx.janela = +b.getAttribute('data-j');
+        Array.prototype.forEach.call(c.querySelectorAll('.fx-jan button'), function (o) {
+          o.setAttribute('aria-pressed', String(+o.getAttribute('data-j') === fx.janela));
+        });
+        desenhaBook();
+      };
+    });
+  }
+
+  function soma(l) {
+    var s = 0;
+    (l || []).slice(0, 10).forEach(function (r) { s += r[1]; });
+    return s;
+  }
+
+  function desenhaBook() {
+    cabecaBook();
+    if (!fx.vies) { return; }
+    var b = fx.book, f = somaFluxo();
+
+    /* --- os quatro sinais: cada um diz compra (1), venda (-1) ou nada (0) --- */
+    var compraB = b ? soma(b.bids) : 0, vendaB = b ? soma(b.asks) : 0;
+    var tot = compraB + vendaB;
+    var sBook = tot > 0 ? (compraB / tot > 0.56 ? 1 : (compraB / tot < 0.44 ? -1 : 0)) : 0;
+    var totF = f.compra + f.venda;
+    var sAgr = totF > 0 ? (f.compra / totF > 0.55 ? 1 : (f.compra / totF < 0.45 ? -1 : 0)) : 0;
+    var sCvd = f.delta > totF * 0.02 ? 1 : (f.delta < -totF * 0.02 ? -1 : 0);
+    var corte = Date.now() - fx.janela, ini = null, fim = null;
+    for (var i = 0; i < fx.neg.length; i++) {
+      if (fx.neg[i].t >= corte) { if (ini == null) { ini = i; } fim = i; }
+    }
+    var sPre = 0;
+    if (global.MXApp && global.MXApp.rows) {
+      var rows = global.MXApp.rows(), u = rows[rows.length - 1];
+      if (u) { sPre = u.c > u.o ? 1 : (u.c < u.o ? -1 : 0); }
+    }
+
+    var sinais = { 'Book': sBook, 'Agressão': sAgr, 'CVD': sCvd, 'Preço': sPre };
+    var placar = sBook + sAgr + sCvd + sPre;
+    var lado = placar > 0 ? 1 : (placar < 0 ? -1 : 0);
+    var alinhados = 0;
+    Object.keys(sinais).forEach(function (k) { if (lado !== 0 && sinais[k] === lado) { alinhados++; } });
+
+    var forte = Math.abs(placar) >= 3 ? 'forte' : (Math.abs(placar) >= 2 ? '' : 'Leve ');
+    var texto = lado === 0 ? 'Mercado equilibrado' :
+      (forte === 'forte' ? 'Viés de ' + (lado > 0 ? 'compra' : 'venda') + ' forte'
+        : forte + 'viés de ' + (lado > 0 ? 'compra' : 'venda'));
+    fx.vies.setAttribute('data-l', lado > 0 ? 'c' : (lado < 0 ? 'v' : '0'));
+    fx.vies.querySelector('.fx-seta').textContent = lado > 0 ? '▲' : (lado < 0 ? '▼' : '•');
+    fx.vies.querySelector('b').textContent = texto;
+    fx.vies.querySelector('i').textContent = lado === 0 ? 'sem acordo entre os sinais'
+      : alinhados + ' de 4 sinais alinhados';
+    Array.prototype.forEach.call(fx.vies.querySelectorAll('.fx-sin'), function (e) {
+      var s = sinais[e.getAttribute('data-s')];
+      e.setAttribute('data-v', s > 0 ? 'c' : (s < 0 ? 'v' : '0'));
+      e.setAttribute('data-on', String(lado !== 0 && s === lado));
+    });
+
+    /* --- força do book --- */
+    if (tot > 0) {
+      var pctC = compraB / tot * 100;
+      fx.forca.querySelector('.fx-lado').textContent =
+        (pctC >= 50 ? 'Compradores ' + Math.round(pctC) : 'Vendedores ' + Math.round(100 - pctC)) + '%';
+      fx.forca.querySelector('.fx-b1').style.width = pctC + '%';
+      fx.forca.querySelector('.fx-b2').style.width = (100 - pctC) + '%';
+      fx.forca.querySelector('.fx-c').textContent = 'Compra ' + qtd(compraB);
+      fx.forca.querySelector('.fx-v').textContent = 'Venda ' + qtd(vendaB);
+    }
+
+    /* --- fluxo --- */
+    var mx = Math.max(f.compra, f.venda) || 1;
+    var cart = fx.cartao;
+    if (b && b.bids[0] && b.asks[0]) {
+      cart.querySelector('.fx-ba').innerHTML = '<span class="fx-bid">Bid ' + n2(b.bids[0][0], 2) + ' · ' + qtd(b.bids[0][1]) +
+        '</span> <span class="fx-ask">Ask ' + n2(b.asks[0][0], 2) + ' · ' + qtd(b.asks[0][1]) + '</span>';
+    }
+    cart.querySelector('.fx-fc').textContent = curto(f.compra);
+    cart.querySelector('.fx-fv').textContent = curto(f.venda);
+    cart.querySelector('.fx-gc').style.width = (f.compra / mx * 100) + '%';
+    cart.querySelector('.fx-gv').style.width = (f.venda / mx * 100) + '%';
+    var de = cart.querySelector('.fx-de'), cv = cart.querySelector('.fx-cv');
+    de.textContent = 'Delta ' + curto(f.delta);
+    de.setAttribute('data-d', f.delta > 0 ? 'up' : (f.delta < 0 ? 'down' : 'flat'));
+    cv.textContent = 'CVD ' + curto(f.delta);
+    cv.setAttribute('data-d', f.delta > 0 ? 'up' : (f.delta < 0 ? 'down' : 'flat'));
+  }
+
+  global.MXFluxo = { negocio: negocio, book: livro, desenha: desenhaBook };
+
+  if (doc.readyState === 'loading') {
+    doc.addEventListener('DOMContentLoaded', function () { global.setTimeout(cabecaNegocios, 1200); });
+  } else { global.setTimeout(cabecaNegocios, 1200); }
+  global.setInterval(function () { if ($('pane_book') && !$('pane_book').hidden) { desenhaBook(); } }, 1500);
 })(window);
 </script>
 </body>
