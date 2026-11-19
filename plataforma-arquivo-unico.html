@@ -2599,7 +2599,7 @@ html[data-claro="1"] .cv-tema::before{content:"☀"}
 .cvip[data-edita="1"] .cv-troca{display:block}
 
 /* capa provisória, no espírito das capas da comunidade */
-.cv-capa{aspect-ratio:3/4;border-radius:10px;background:#0f1211 center/cover no-repeat;overflow:hidden}
+.cv-capa{aspect-ratio:5/8;border-radius:10px;background:#0f1211 center/cover no-repeat;overflow:hidden}
 .cv-capa-m{position:relative;display:grid;align-content:start;gap:8px;padding:16px 14px 0;text-align:center;
   background:radial-gradient(120% 90% at 50% 0%,#2a2113 0%,#11100e 55%,#0b0c0b 100%)}
 .cv-capa-m .cv-marca{justify-items:center;font-size:.95rem;color:#f3e6c6}
@@ -2615,8 +2615,8 @@ html[data-claro="1"] .cv-tema::before{content:"☀"}
 .cv-aulas{position:absolute;right:8px;bottom:8px;padding:2px 8px;border-radius:5px;
   background:rgba(0,0,0,.6);color:#fff;font-size:.68rem;font-weight:700}
 .cv-trilhas{display:flex;gap:16px;flex-wrap:wrap}
-.cv-trilha{flex:0 0 232px}
-.cv-trilha .cv-capa{aspect-ratio:16/10}
+.cv-trilha{flex:0 0 236px}
+.cv-trilha .cv-capa{aspect-ratio:1/1}
 
 /* ---- destaque e produtos ---- */
 .cv-hero{padding:34px 30px;border-radius:18px;
@@ -2708,8 +2708,19 @@ html[data-claro="1"] .cv-tema::before{content:"☀"}
 .cv-res-c .cv-marca{font-size:.42rem}
 
 /* nas trilhas o botão de play precisa de contraste: a capa escurece atrás dele */
-.cv-trilha .cv-abre::after{content:"";position:absolute;inset:0;border-radius:10px;background:rgba(0,0,0,.45)}
+/* trilha como no modelo: a capa inteira à mostra, play branco no canto de baixo e o contador de aulas */
+.cv-trilha .cv-abre::after{content:"";position:absolute;inset:0;border-radius:10px;
+  background:linear-gradient(0deg,rgba(0,0,0,.55),transparent 38%)}
+.cv-trilha .cv-play{left:18px;top:auto;bottom:16px;transform:none;width:48px;height:48px}
 .cv-trilha .cv-play,.cv-trilha .cv-aulas{z-index:2}
+
+/* logo da comunidade (o quadrado azul da marca) */
+.cv-av img{display:block;width:100%;height:100%;border-radius:11px;object-fit:cover}
+.cv-av:has(img){padding:0;overflow:hidden}
+.cv-logo{display:flex;align-items:center;gap:10px}
+.cv-logo img{width:34px;height:34px;border-radius:9px}
+/* capa oficial já traz o próprio desenho: nada de selo, texto ou faixa por cima */
+.cv-capa[style]{box-shadow:inset 0 0 0 1px rgba(255,255,255,.06)}
 </style>
 </head>
 <body>
@@ -17068,23 +17079,23 @@ Resources:`;for(let t of c){if(!t||typeof t!=`string`)throw Error(`@supabase/aut
   /* ------------------------------------------------------------- conteúdo */
 
   var TRILHAS = [
-    { id: 'sala-zoom', nome: 'SALA AO VIVO ZOOM', aulas: 1, feito: 0.35 },
-    { id: 'discord', nome: 'DISCORD', aulas: 1, feito: 0.5 }
+    { img: 'capas/sala-zoom.webp', id: 'sala-zoom', nome: 'SALA AO VIVO ZOOM', aulas: 1, feito: 0.35 },
+    { img: 'capas/discord.webp', id: 'discord', nome: 'DISCORD', aulas: 1, feito: 0.5 }
   ];
 
   var BASE = [
-    { id: 'primeiros-passos', nome: 'PRIMEIROS PASSOS', sub: 'O início de uma jornada rumo à consistência.', aulas: 4, feito: 0.3 },
-    { id: 'teoria-dow', nome: 'TEORIA DE DOW', sub: 'Entenda a lógica por trás dos movimentos do mercado.', aulas: 3, feito: 0.2 },
-    { id: 'analise-tecnica', nome: 'ANÁLISE TÉCNICA', sub: 'Aprenda as técnicas e padrões para dominar o mercado.', aulas: 5, feito: 0.15 },
-    { id: 'fibonacci', nome: 'FIBONACCI', sub: 'Domine os níveis e projeções para precificar o mercado.', aulas: 1, feito: 0.1 },
-    { id: 'price-action', nome: 'PRICE ACTION', sub: 'Domine a leitura do mercado e precifique sem indicadores.', aulas: 3, feito: 0.1 },
-    { id: 'smc', nome: 'SMC', sub: 'Domine a estrutura e as pegadas do Smart Money.', aulas: 4, feito: 0.1 },
-    { id: 'elliott', nome: 'ONDAS DE ELLIOTT', sub: 'Domine a harmonia do mercado e as ondas fractais.', aulas: 3, feito: 0 },
-    { id: 'wyckoff', nome: 'WYCKOFF', sub: 'Domine a leitura do mercado e as pegadas do operador comercial.', aulas: 4, feito: 0 },
-    { id: 'mentoria-2026', nome: 'MENTORIA MX360 MAIO 2026', sub: 'Um guia completo para dominar o mercado financeiro em 2026.', aulas: 15, feito: 0 },
-    { id: 'trade-ao-vivo', nome: 'TRADE AO VIVO', sub: 'Operando ao vivo com a comunidade e dominando o mercado.', aulas: 1, feito: 0, vivo: true },
-    { id: 'grupo-discord', nome: 'GRUPO DISCORD', sub: 'Análise, tendências, volume e sinais com a comunidade.', aulas: 1, feito: 0 },
-    { id: 'gatilhos', nome: 'GATILHOS MILIONÁRIOS', sub: 'Saiba exatamente onde e quando clicar para ganhar 2k por mês.', aulas: 1, feito: 0 }
+    { img: 'capas/primeiros-passos.webp', id: 'primeiros-passos', nome: 'PRIMEIROS PASSOS', sub: 'O início de uma jornada rumo à consistência.', aulas: 4, feito: 0.3 },
+    { img: 'capas/teoria-dow.webp', id: 'teoria-dow', nome: 'TEORIA DE DOW', sub: 'Entenda a lógica por trás dos movimentos do mercado.', aulas: 3, feito: 0.2 },
+    { img: 'capas/analise-tecnica.webp', id: 'analise-tecnica', nome: 'ANÁLISE TÉCNICA', sub: 'Aprenda as técnicas e padrões para dominar o mercado.', aulas: 5, feito: 0.15 },
+    { img: 'capas/fibonacci.webp', id: 'fibonacci', nome: 'FIBONACCI', sub: 'Domine os níveis e projeções para precificar o mercado.', aulas: 1, feito: 0.1 },
+    { img: 'capas/price-action.webp', id: 'price-action', nome: 'PRICE ACTION', sub: 'Domine a leitura do mercado e precifique sem indicadores.', aulas: 3, feito: 0.1 },
+    { img: 'capas/smc.webp', id: 'smc', nome: 'SMC', sub: 'Domine a estrutura e as pegadas do Smart Money.', aulas: 4, feito: 0.1 },
+    { img: 'capas/elliott.webp', id: 'elliott', nome: 'ONDAS DE ELLIOTT', sub: 'Domine a harmonia do mercado e as ondas fractais.', aulas: 3, feito: 0 },
+    { img: 'capas/wyckoff.webp', id: 'wyckoff', nome: 'WYCKOFF', sub: 'Domine a leitura do mercado e as pegadas do operador comercial.', aulas: 4, feito: 0 },
+    { img: 'capas/mentoria-2026.webp', id: 'mentoria-2026', nome: 'MENTORIA MX360 MAIO 2026', sub: 'Um guia completo para dominar o mercado financeiro em 2026.', aulas: 15, feito: 0 },
+    { img: 'capas/trade-ao-vivo.webp', id: 'trade-ao-vivo', nome: 'TRADE AO VIVO', sub: 'Operando ao vivo com a comunidade e dominando o mercado.', aulas: 1, feito: 0, vivo: true },
+    { img: 'capas/grupo-discord.webp', id: 'grupo-discord', nome: 'GRUPO DISCORD', sub: 'Análise, tendências, volume e sinais com a comunidade.', aulas: 1, feito: 0 },
+    { img: 'capas/gatilhos.webp', id: 'gatilhos', nome: 'GATILHOS MILIONÁRIOS', sub: 'Saiba exatamente onde e quando clicar para ganhar 2k por mês.', aulas: 1, feito: 0 }
   ];
 
   var PRODUTOS = [
@@ -17098,7 +17109,7 @@ Resources:`;for(let t of c){if(!t||typeof t!=`string`)throw Error(`@supabase/aut
       chamada: 'Apenas uma operação para você mudar de vida.',
       modulos: [
         { id: 'gm-comece', nome: 'COMECE POR AQUI', aulas: 4, travado: true },
-        { id: 'gm-gatilhos', nome: 'GATILHOS MILIONÁRIOS', aulas: 1, travado: true },
+        { img: 'capas/gatilhos.webp', id: 'gm-gatilhos', nome: 'GATILHOS MILIONÁRIOS', aulas: 1, travado: true },
         { id: 'gm-pratica', nome: 'NA PRÁTICA', aulas: 2, travado: true }
       ]
     },
@@ -17121,7 +17132,7 @@ Resources:`;for(let t of c){if(!t||typeof t!=`string`)throw Error(`@supabase/aut
   ];
 
   var COMUNIDADES = [
-    { id: 'mx', sigla: 'MX', nome: 'MX Comunidade' },
+    { id: 'mx', sigla: 'MX', nome: 'MX Comunidade', logo: 'capas/logo-mx.png' },
     { id: 'gestao', sigla: 'PG', nome: 'Planilhas de Gestão', travado: true },
     { id: 'gatilhos', sigla: 'GM', nome: 'Gatilhos Milionários', travado: true },
     { id: 'sala', sigla: 'SL', nome: 'Sala ao Vivo MX', travado: true },
@@ -17147,7 +17158,7 @@ Resources:`;for(let t of c){if(!t||typeof t!=`string`)throw Error(`@supabase/aut
 
   /* a capa provisória: fundo escuro com o nome do módulo, no espírito das capas da comunidade */
   function capa(m) {
-    var url = leCapas()[m.id];
+    var url = leCapas()[m.id] || m.img;
     if (url) {
       return '<div class="cv-capa" style="background-image:url(' + esc(url).replace(/[()]/g, '') + ')"></div>';
     }
@@ -17288,7 +17299,8 @@ Resources:`;for(let t of c){if(!t||typeof t!=`string`)throw Error(`@supabase/aut
     caixa.innerHTML =
       '<aside class="cv-com">' + COMUNIDADES.map(function (c, i) {
         return '<button type="button" class="cv-av' + (i === 0 ? ' on' : '') + '" title="' + esc(c.nome) + '">' +
-          esc(c.sigla) + (c.travado ? '<i>🔒</i>' : '') + '</button>';
+          (c.logo ? '<img src="' + esc(c.logo) + '" alt="">' : esc(c.sigla)) +
+          (c.travado ? '<i>🔒</i>' : '') + '</button>';
       }).join('') + '</aside>' +
       '<nav class="cv-nav">' +
       '<button type="button" class="cv-dobra" aria-label="Recolher o menu">▤</button>' +
@@ -17298,7 +17310,8 @@ Resources:`;for(let t of c){if(!t||typeof t!=`string`)throw Error(`@supabase/aut
       '</nav>' +
       '<main class="cv-main">' +
       '<header class="cv-topo">' +
-      '<span class="cv-marca cv-marca-t">MX<i>COMUNIDADE</i></span>' +
+      '<span class="cv-logo"><img src="capas/logo-mx.png" alt="MX">' +
+      '<span class="cv-marca cv-marca-t">MX<i>COMUNIDADE</i></span></span>' +
       '<button type="button" class="cv-afil">+ Afiliar-se</button>' +
       '<div class="cv-busca"><span aria-hidden="true">⌕</span>' +
       '<input type="search" placeholder="Buscar..." aria-label="Buscar módulo ou aula">' +
