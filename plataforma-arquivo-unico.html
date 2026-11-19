@@ -2506,7 +2506,7 @@ html[data-ct="0"] .ct-chip,html[data-ct="0"] .ct-seg,html[data-ct="0"] .cc-passo
 .cvip{--cv-bg:var(--bg);--cv-card:var(--surface);--cv-card2:var(--surface-2);--cv-ink:var(--text);
   --cv-mut:var(--muted);--cv-bd:rgba(var(--ink-rgb),.12);--cv-ouro:var(--gold);--cv-ouro2:var(--gold);
   --cv-som:rgba(0,0,0,.45)}
-html[data-claro="1"] .cvip{--cv-som:rgba(0,0,0,.14)}
+.cvip[data-claro="1"]{--cv-som:rgba(0,0,0,.14)}
 
 /* ---- coluna das comunidades ---- */
 .cv-com{display:flex;flex-direction:column;gap:10px;padding:14px 10px;background:var(--cv-card);
@@ -2561,7 +2561,7 @@ html[data-claro="1"] .cvip{--cv-som:rgba(0,0,0,.14)}
 .cv-capas{width:auto;padding:0 12px;font-weight:700}
 .cvip[data-edita="1"] .cv-capas{border-color:var(--cv-ouro);color:var(--cv-ouro)}
 .cv-tema::before{content:"☾"}
-html[data-claro="1"] .cv-tema::before{content:"☀"}
+.cvip[data-claro="1"] .cv-tema::before{content:"☀"}
 .cv-perfil{border-radius:50%;background:var(--cv-ouro);color:var(--cv-bg);font-weight:800}
 .cv-menu{position:absolute;top:58px;right:56px;width:290px;padding:8px;border:1px solid var(--cv-bd);
   border-radius:14px;background:var(--cv-card);box-shadow:0 18px 40px var(--cv-som);z-index:6}
@@ -2727,6 +2727,20 @@ html[data-claro="1"] .cv-tema::before{content:"☀"}
 .cv-prod-i .cv-capa-w[style]{border-radius:12px}
 .cv-brasao{display:block;width:118px;height:118px;margin:-10px 0 10px -8px;border-radius:50%;object-fit:cover}
 @media (max-width:900px){.cv-brasao{width:86px;height:86px}}
+
+/* escolha de tema só desta área */
+.cv-temas{position:absolute;top:58px;right:100px;width:260px;padding:8px;border:1px solid var(--cv-bd);
+  border-radius:14px;background:var(--cv-card);box-shadow:0 18px 40px var(--cv-som);z-index:6}
+.cv-temas h5{margin:6px 10px 8px;color:var(--cv-mut);font-size:.76rem;font-weight:700}
+.cv-temas button{display:flex;align-items:center;gap:10px;width:100%;min-height:40px;padding:0 10px;border:0;
+  border-radius:10px;background:none;color:var(--cv-ink);font:inherit;font-size:.86rem;text-align:left;cursor:pointer}
+.cv-temas button:hover{background:var(--cv-card2)}
+.cv-temas button[aria-checked="true"]{font-weight:800}
+.cv-temas button[aria-checked="true"]::after{content:"✓";margin-left:auto;color:var(--cv-ouro)}
+.cv-amostra{flex:none;width:20px;height:20px;border:2px solid;border-radius:50%}
+.cv-amostra-p{border-color:var(--cv-mut);background:linear-gradient(135deg,#fff 50%,#16191a 50%)}
+.cv-temas p{margin:8px 10px 4px;color:var(--cv-mut);font-size:.72rem;line-height:1.4}
+@media (max-width:900px){.cv-temas{right:10px}}
 </style>
 </head>
 <body>
@@ -4629,7 +4643,8 @@ Resources:`;for(let t of c){if(!t||typeof t!=`string`)throw Error(`@supabase/aut
   function abre() { if (btn) { setMenu(true); } }
 
   global.MXStyle = { init: init, temas: function () { return TEMAS.map(function (t) { return t.id; }); },
-    valor: valor, muda: muda, exporta: exporta, importa: importa, abre: abre, reaplica: function () { apply(); } };
+    valor: valor, muda: muda, exporta: exporta, importa: importa, abre: abre, reaplica: function () { apply(); },
+    paletas: function () { return TEMAS.map(function (t) { return JSON.parse(JSON.stringify(t)); }); } };
 })(window);
 </script>
 <script>/* MX360 Plataforma, etapa 3: indicadores (matematica pura, sem DOM) */
@@ -17332,7 +17347,8 @@ Resources:`;for(let t of c){if(!t||typeof t!=`string`)throw Error(`@supabase/aut
       '<input type="search" placeholder="Buscar..." aria-label="Buscar módulo ou aula">' +
       '<div class="cv-drop" hidden></div></div>' +
       '<button type="button" class="cv-capas" title="Trocar as capas dos módulos">Capas</button>' +
-      '<button type="button" class="cv-tema" aria-label="Alternar entre tema claro e escuro" title="Tema claro/escuro da plataforma"></button>' +
+      '<button type="button" class="cv-tema" aria-haspopup="menu" aria-label="Tema desta área" title="Tema da Comunidade VIP"></button>' +
+      '<div class="cv-temas" role="menu" hidden></div>' +
       '<button type="button" class="cv-perfil" aria-haspopup="menu">W</button>' +
       '<div class="cv-menu" hidden role="menu">' +
       '<div class="cv-menu-h"><b>Wellington</b><span>✎</span></div>' +
@@ -17348,6 +17364,12 @@ Resources:`;for(let t of c){if(!t||typeof t!=`string`)throw Error(`@supabase/aut
       '<button type="button" class="cv-suporte">🎧 Suporte</button>';
     doc.body.appendChild(caixa);
     liga();
+    aplicaTema();
+    /* seguindo a plataforma: se o tema dela mudar com a área aberta, a área acompanha */
+    if (global.MutationObserver) {
+      new global.MutationObserver(function () { if (!temaCv()) { aplicaTema(); } })
+        .observe(doc.documentElement, { attributes: true, attributeFilter: ['data-claro', 'style'] });
+    }
   }
 
   /* --------------------------------------------------------------- busca */
@@ -17403,7 +17425,10 @@ Resources:`;for(let t of c){if(!t||typeof t!=`string`)throw Error(`@supabase/aut
       var nav = al('.cv-nav button[data-v]');
       if (nav) { vista = nav.getAttribute('data-v'); pinta(); return; }
       if (al('.cv-dobra')) { caixa.classList.toggle('cv-estreito'); return; }
+      var tm = al('.cv-temas [data-tm]');
+      if (tm) { escolheTema(tm.getAttribute('data-tm')); return; }
       if (al('.cv-tema')) { trocaTema(); return; }
+      if (!al('.cv-temas')) { menuTema(false); }
       if (al('.cv-capas')) { editando = !editando; pinta(); return; }
       if (al('.cv-volta')) { vista = 'inicio'; pinta(); return; }
 
@@ -17455,21 +17480,92 @@ Resources:`;for(let t of c){if(!t||typeof t!=`string`)throw Error(`@supabase/aut
     });
   }
 
-  /* O botão daqui é o mesmo botão de tema da plataforma: troca o tema dela, e esta área acompanha
-     porque usa as mesmas cores. Assim existe uma escolha só, e ela vale em todo lugar. */
-  function trocaTema() {
-    var b = doc.querySelector('.topbar [title="Tema claro/escuro"]');
-    if (b) { b.click(); return; }
-    if (global.MXStyle && global.MXStyle.muda) {
-      global.MXStyle.muda('tema', global.MXStyle.valor('tema') === 'altoclaro' ? 'grafite' : 'altoclaro');
-    }
+  /* Tema da Comunidade VIP. Por padrão ela segue o tema da plataforma. Se o aluno escolher outro
+     aqui dentro, a escolha vale só para esta área: as cores são aplicadas na própria caixa da
+     comunidade, por cima das da plataforma, e a plataforma continua exatamente como estava.
+     A escolha fica guardada no aparelho de cada aluno. */
+  var TEMA_CV = 'mx360.cvip.tema.v2';
+
+  function temaCv() {
+    try { return global.localStorage.getItem(TEMA_CV) || ''; } catch (e) { return ''; }
   }
+
+  function trio(h) {
+    h = String(h || '#000000').replace('#', '');
+    return [parseInt(h.slice(0, 2), 16), parseInt(h.slice(2, 4), 16), parseInt(h.slice(4, 6), 16)].join(',');
+  }
+
+  function paletas() {
+    return (global.MXStyle && global.MXStyle.paletas) ? global.MXStyle.paletas() : [];
+  }
+
+  var VARS = ['--bg', '--surface', '--surface-2', '--text', '--muted', '--gold', '--primary', '--down',
+    '--ink-rgb', '--bg-rgb', '--surface-rgb', '--gold-rgb', '--primary-rgb', '--down-rgb'];
+
+  function aplicaTema() {
+    if (!caixa) { return; }
+    var id = temaCv(), t = null;
+    paletas().forEach(function (p) { if (p.id === id) { t = p; } });
+    var st = caixa.style;
+    if (!t) {
+      VARS.forEach(function (v) { st.removeProperty(v); });
+      caixa.setAttribute('data-claro', doc.documentElement.getAttribute('data-claro') || '0');
+      caixa.removeAttribute('data-tema-cv');
+    } else {
+      st.setProperty('--bg', t.bg);
+      st.setProperty('--surface', t.surface);
+      st.setProperty('--surface-2', t.surface2);
+      st.setProperty('--text', t.text);
+      st.setProperty('--muted', t.muted || (t.claro ? '#5f6a6a' : '#99a3a3'));
+      st.setProperty('--gold', t.gold);
+      st.setProperty('--primary', t.primary);
+      st.setProperty('--down', t.down);
+      st.setProperty('--ink-rgb', trio(t.text));
+      st.setProperty('--bg-rgb', trio(t.bg));
+      st.setProperty('--surface-rgb', trio(t.surface));
+      st.setProperty('--gold-rgb', trio(t.gold));
+      st.setProperty('--primary-rgb', trio(t.primary));
+      st.setProperty('--down-rgb', trio(t.down));
+      caixa.setAttribute('data-claro', t.claro ? '1' : '0');
+      caixa.setAttribute('data-tema-cv', t.id);
+    }
+    caixa.style.colorScheme = caixa.getAttribute('data-claro') === '1' ? 'light' : 'dark';
+  }
+
+  function escolheTema(id) {
+    try {
+      if (id) { global.localStorage.setItem(TEMA_CV, id); } else { global.localStorage.removeItem(TEMA_CV); }
+    } catch (e) {}
+    aplicaTema();
+    menuTema(false);
+  }
+
+  function menuTema(abrir) {
+    var m = caixa.querySelector('.cv-temas');
+    if (abrir === undefined) { abrir = m.hidden; }
+    if (!abrir) { m.hidden = true; return; }
+    var atual = temaCv();
+    m.innerHTML = '<h5>Tema desta área</h5>' +
+      '<button type="button" data-tm=""' + (atual ? '' : ' aria-checked="true"') + ' role="menuitemradio">' +
+      '<i class="cv-amostra cv-amostra-p"></i>Igual à plataforma</button>' +
+      paletas().map(function (t) {
+        return '<button type="button" role="menuitemradio" data-tm="' + esc(t.id) + '"' +
+          (atual === t.id ? ' aria-checked="true"' : '') + '>' +
+          '<i class="cv-amostra" style="background:' + esc(t.bg) + ';border-color:' + esc(t.gold) + '"></i>' +
+          esc(t.nome) + '</button>';
+      }).join('') +
+      '<p>Vale só para a Comunidade VIP. A plataforma continua com o tema dela.</p>';
+    m.hidden = false;
+  }
+
+  function trocaTema() { menuTema(); }
 
   /* --------------------------------------------------------- abrir/fechar */
 
   function abre() {
     if (!caixa) { monta(); }
     vista = 'inicio';
+    aplicaTema();
     pinta();
     caixa.hidden = false;
     aberto = true;
