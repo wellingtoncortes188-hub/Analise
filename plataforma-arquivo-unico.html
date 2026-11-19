@@ -13900,11 +13900,37 @@ Resources:`;for(let t of c){if(!t||typeof t!=`string`)throw Error(`@supabase/aut
     return linha.split(sep).map(function (x) { return x.replace(/^"|"$/g, '').trim(); });
   }
 
+  /* tira acento antes de comparar: "Máximo" -> "maximo", "Mínimo" -> "minimo" */
+  function chave(t) {
+    var s = String(t || '').toLowerCase();
+    if (s.normalize) { s = s.normalize('NFD').replace(/[\u0300-\u036f]/g, ''); }
+    return s.replace(/[^a-z]/g, '');
+  }
+
+  /* reconhece data e hora pelo formato, sem adivinhar (o Date.parse do navegador aceita quase tudo) */
+  function ehData(t) {
+    var x = String(t || '').trim().replace(/"/g, '');
+    return /^\d{10}$|^\d{13}$/.test(x) || /^\d{4}-\d{2}-\d{2}/.test(x) || /^\d{1,2}[\/.-]\d{1,2}[\/.-]\d{2,4}/.test(x);
+  }
+  function ehHora(t) { return /^\d{1,2}:\d{2}(:\d{2})?$/.test(String(t || '').trim().replace(/"/g, '')); }
+
+  /* Arquivo sem cabeçalho: acha a coluna da data pelo formato. O Profit, por exemplo, exporta
+     "WINZ25;19/11/2026;10:05:00;abertura;máxima;mínima;fechamento;volume;quantidade" — o ativo vem
+     antes da data e a hora em coluna própria. Depois da data (e da hora, se houver) vêm os preços. */
+  function semCabecalho(cel) {
+    var di = -1;
+    for (var k = 0; k < cel.length; k++) { if (ehData(cel[k])) { di = k; break; } }
+    if (di < 0) { return { data: 0, hora: -1, o: 1, h: 2, l: 3, c: 4, v: 5 }; }
+    var hi = ehHora(cel[di + 1]) ? di + 1 : -1;
+    var ini = (hi >= 0 ? hi : di) + 1;
+    return { data: di, hora: hi, o: ini, h: ini + 1, l: ini + 2, c: ini + 3, v: ini + 4 < cel.length ? ini + 4 : -1 };
+  }
+
   /* acha cada coluna pelo nome, em portugues ou ingles; sem cabecalho, usa a ordem comum */
   function mapa(cab) {
     function ache(lista) {
       for (var k = 0; k < cab.length; k++) {
-        var h = cab[k].toLowerCase().replace(/[^a-z]/g, '');
+        var h = chave(cab[k]);
         for (var j = 0; j < lista.length; j++) { if (h === lista[j] || (h.indexOf(lista[j]) === 0 && h.length < lista[j].length + 4)) { return k; } }
       }
       return -1;
@@ -13956,11 +13982,12 @@ Resources:`;for(let t of c){if(!t||typeof t!=`string`)throw Error(`@supabase/aut
           if (!pulou) {
             sep = separa(linha);
             var cab = corta(linha, sep);
-            var temLetra = /[a-zA-Z]/.test(linha.replace(/^[^;,\t]*/, '')) || /[a-zA-Z]{3,}/.test(cab.join(''));
-            if (temLetra) { m = mapa(cab); pulou = true; if (m) { continue; } }
-            if (!m) { m = { data: 0, hora: -1, o: 1, h: 2, l: 3, c: 4, v: 5 }; }   /* sem cabecalho: ordem padrao */
             pulou = true;
+            /* é cabeçalho quando tem texto e nenhuma célula é data ("WINZ25;19/11/2026;..." é dado) */
+            var ehCab = !cab.some(ehData) && cab.some(function (x) { return /[a-zA-Z]/.test(x); });
+            if (ehCab) { m = mapa(cab); continue; }
           }
+          if (!m) { m = semCabecalho(corta(linha, sep)); }
           var p = corta(linha, sep);
           var _t = quando(p[m.data], m.hora >= 0 ? p[m.hora] : null);
           var _c = num(p[m.c]);
