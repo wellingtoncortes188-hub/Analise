@@ -2345,6 +2345,45 @@ html[data-ct="0"] .ct-chip,html[data-ct="0"] .ct-seg,html[data-ct="0"] .cc-passo
   .at-grade{grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:7px}
 }
 </style>
+<style>/* lista de ativos em categorias */
+.wl-topo{padding:8px 8px 4px;flex:none}
+.wl-busca{width:100%;min-height:40px;padding:8px 12px;border:1px solid rgba(var(--ink-rgb),.14);border-radius:10px;
+  background:rgba(var(--ink-rgb),.04);color:var(--ink);font:inherit;font-size:.86rem}
+.wl-busca:focus{outline:2px solid var(--gold);outline-offset:1px}
+
+.wl-grupo{list-style:none}
+.wl-cab{width:100%;display:flex;align-items:center;gap:8px;min-height:44px;padding:6px 10px;border:0;
+  border-radius:8px;background:rgba(var(--ink-rgb),.04);color:var(--ink);font:inherit;font-weight:700;
+  font-size:.84rem;text-align:left;cursor:pointer}
+.wl-cab:hover{background:rgba(var(--ink-rgb),.08)}
+.wl-cab b{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-weight:700}
+.wl-qtd{flex:none;padding:2px 8px;border-radius:999px;background:rgba(var(--ink-rgb),.08);
+  color:var(--muted);font-size:.72rem;font-weight:700}
+.wl-seta{flex:none;color:var(--muted);font-size:.7rem;transition:transform .15s}
+.wl-grupo.aberto .wl-seta{transform:rotate(90deg)}
+.wl-grupo.aberto .wl-cab{background:rgba(var(--gold-rgb),.1)}
+
+.wl-nota{margin:4px 10px 0;color:var(--muted);font-size:.72rem;line-height:1.4}
+.wl-itens{list-style:none;margin:2px 0 6px;padding:0;display:flex;flex-direction:column;gap:2px}
+.wl-item{list-style:none}
+.wl-mais{width:100%;margin:0 0 8px;padding:8px;border:1px dashed rgba(var(--ink-rgb),.2);border-radius:8px;
+  background:none;color:var(--muted);font:inherit;font-size:.78rem;cursor:pointer}
+.wl-mais:hover{color:var(--ink);border-color:rgba(var(--ink-rgb),.35)}
+.wl-vazio{list-style:none;padding:18px 12px;color:var(--muted);font-size:.84rem;text-align:center}
+
+/* o canto do ativo é um botão: precisa parecer clicável e ter alvo de dedo */
+.topbar .symbol-botao{cursor:pointer;border-radius:8px}
+.topbar .symbol-botao:hover{background:rgba(var(--ink-rgb),.06)}
+.topbar .symbol-botao:focus-visible{outline:2px solid var(--gold);outline-offset:2px}
+.topbar .symbol-botao select{pointer-events:none}
+
+/* No celular em pé o painel lateral é uma folha que cobre a tela inteira (ela é absoluta, do topo
+   ao rodapé), mas o corpo continuava preso a 34% da altura: sobrava um vazio enorme embaixo da
+   lista. Aberto, o corpo passa a ocupar o que tem para ocupar. */
+@media (max-width:1000px) and (orientation:portrait){
+  .side[data-pro="1"] .side-body{flex:1;height:auto;min-height:0}
+}
+</style>
 </head>
 <body>
 <div class="app">
@@ -12038,6 +12077,7 @@ Resources:`;for(let t of c){if(!t||typeof t!=`string`)throw Error(`@supabase/aut
   function sync() {
     var o = isOpen(), h = document.querySelector('.rhandle');
     $('side').setAttribute('data-pro', o ? '1' : '0');
+    $('side').setAttribute('data-open', o ? 'true' : 'false');   /* no celular e este que mostra o corpo */
     if (h) { h.style.right = o ? (50 + $('side').offsetWidth) + 'px' : '50px'; h.textContent = o ? '›' : '‹'; }
     Array.prototype.forEach.call(document.querySelectorAll('.rrail button[data-t]'), function (b) { var t = $('tab_' + b.dataset.t); b.setAttribute('aria-pressed', String(o && t && t.getAttribute('aria-selected') === 'true')); });
   }
@@ -12479,6 +12519,8 @@ Resources:`;for(let t of c){if(!t||typeof t!=`string`)throw Error(`@supabase/aut
     watch = S.openWatch(idsWatch, { onTick: function (t) { if (global.MXReal) { global.MXReal.viuWebSocket(); } onTick(t); } });
     if (global.MXReal) { global.MXReal.watchREST(idsWatch, onTick); }
     F.fx.watch(F.fx.ids, onTick);
+    /* a lista organizada por categoria assume o desenho; esta leitura segue viva so pela fita */
+    if (global.MXWatch) { global.MXWatch.inicia(); }
   }
 
   function sync() {
@@ -16068,14 +16110,35 @@ Resources:`;for(let t of c){if(!t||typeof t!=`string`)throw Error(`@supabase/aut
   function inicia() {
     var alvo = doc.querySelector('.topbar .symbol');
     if (!alvo) { return; }
-    /* o seletor de sempre continua existindo; o toque passa a abrir a lista organizada */
-    alvo.addEventListener('pointerdown', function (e) { e.preventDefault(); e.stopPropagation(); abre(); }, true);
-    alvo.addEventListener('click', function (e) { e.preventDefault(); e.stopPropagation(); }, true);
+    /* O canto do ativo vira um botão de verdade. Antes a lista do navegador (a do <select>) ficava
+       por cima e engolia o toque: no celular o dedo caía nela e a lista organizada não abria. Agora
+       o <select> continua ali, guardando qual ativo está escolhido, mas não recebe mais o toque. */
+    alvo.setAttribute('role', 'button');
+    alvo.setAttribute('tabindex', '0');
+    alvo.setAttribute('aria-haspopup', 'dialog');
+    alvo.setAttribute('aria-label', 'Trocar de ativo');
+    alvo.classList.add('symbol-botao');
+
     var sel = $('symbol');
-    if (sel) { sel.addEventListener('mousedown', function (e) { e.preventDefault(); }); }
+    if (sel) {
+      sel.setAttribute('tabindex', '-1');
+      sel.setAttribute('aria-hidden', 'true');
+      sel.style.pointerEvents = 'none';          /* o toque atravessa e chega no botão */
+    }
+
+    alvo.addEventListener('click', function (e) { e.preventDefault(); abre(); });
+    alvo.addEventListener('keydown', function (e) {
+      if (e.key === 'Enter' || e.key === ' ' || e.key === 'Spacebar') { e.preventDefault(); abre(); }
+    });
   }
 
-  global.MXAtivos = { inicia: inicia, abre: abre, fecha: fecha, carrega: carrega, favoritos: favs };
+  global.MXAtivos = {
+    inicia: inicia, abre: abre, fecha: fecha, carrega: carrega, favoritos: favs,
+    grupos: grupos, escolhe: escolhe, item: item,
+    precos: function () { return precos; },
+    pronto: function () { return !!catalogo; },
+    alterna: marcaFav
+  };
 
   if (doc.readyState === 'loading') { doc.addEventListener('DOMContentLoaded', function () { global.setTimeout(inicia, 700); }); }
   else { global.setTimeout(inicia, 700); }
@@ -16161,6 +16224,212 @@ Resources:`;for(let t of c){if(!t||typeof t!=`string`)throw Error(`@supabase/aut
   if (global.document.readyState === 'loading') {
     global.document.addEventListener('DOMContentLoaded', function () { global.setTimeout(inicia, 300); });
   } else { global.setTimeout(inicia, 300); }
+})(window);
+</script>
+<script>/* MX360 Plataforma: a lista de ativos (watchlist) com tudo o que existe no seletor, em categorias.
+   Antes ela mostrava meia dúzia de ativos soltos, numa lista única. Agora traz o mesmo catálogo do
+   seletor — índices, commodities, os mais negociados e cada moeda de cotação — em pastas que abrem
+   e fecham, com busca em cima. O aluno abre a categoria que interessa e só ela acompanha o preço ao
+   vivo; o resto fica quieto, sem gastar internet nem bateria à toa. */
+(function (global) {
+  'use strict';
+
+  var doc = global.document;
+  var ABERTOS = 'mx360.watch.abertos.v1';
+  var LIMITE_VIVO = 120;          /* quantos ativos acompanham preço ao vivo de uma vez */
+  var MOSTRA = 60;                /* quantos itens aparecem por categoria antes do "ver mais" */
+
+  var ul = null, abertos = null, busca = '', fio = null, maisDe = {}, montando = false;
+
+  function $(id) { return doc.getElementById(id); }
+
+  function leAbertos() {
+    if (abertos) { return abertos; }
+    try { abertos = JSON.parse(global.localStorage.getItem(ABERTOS) || 'null'); } catch (e) { abertos = null; }
+    if (!abertos) { abertos = { 'Favoritos': 1, 'Índices (EUA)': 1, 'Mais negociados': 1 }; }
+    return abertos;
+  }
+  function guardaAbertos() {
+    try { global.localStorage.setItem(ABERTOS, JSON.stringify(abertos)); } catch (e) {}
+  }
+
+  function esc(t) {
+    return String(t == null ? '' : t).replace(/[&<>"]/g, function (c) {
+      return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c];
+    });
+  }
+
+  function rotulo(it) {
+    if (!it) { return ''; }
+    if (it.q && it.q.length <= 6 && /^[A-Z0-9]+$/.test(it.q)) { return it.b + '/' + it.q; }
+    return it.b || it.id;
+  }
+
+  function preco(id, casas) {
+    var p = (global.MXAtivos && global.MXAtivos.precos && global.MXAtivos.precos()[id]) || null;
+    if (!p || !(p.p > 0)) { return null; }
+    return {
+      texto: p.p.toLocaleString('pt-BR', { minimumFractionDigits: casas, maximumFractionDigits: casas }),
+      pct: p.pct
+    };
+  }
+
+  function dir(v) { return v > 0 ? 'up' : (v < 0 ? 'down' : 'flat'); }
+
+  /* ------------------------------------------------------------ desenho */
+
+  function linha(it, atual) {
+    var casas = it.c == null ? 2 : it.c;
+    var p = preco(it.id, casas);
+    var pct = p && p.pct != null ? (p.pct >= 0 ? '+' : '') + p.pct.toFixed(2) + '%' : '—';
+    return '<li class="wl-item"><button type="button" class="watch-row" data-id="' + esc(it.id) + '"' +
+      (it.id === atual ? ' aria-current="true"' : '') +
+      ' data-c="' + casas + '">' +
+      '<span class="w-sym"><b>' + esc(rotulo(it)) + '</b>' +
+      (it.fonte ? '<i>' + esc(it.fonte) + '</i>' : '') + '</span>' +
+      '<span class="w-last">' + (p ? p.texto : '—') + '</span>' +
+      '<span class="w-chg" data-dir="' + (p ? dir(p.pct) : 'flat') + '">' + pct + '</span>' +
+      '</button></li>';
+  }
+
+  function combina(it) {
+    if (!busca) { return true; }
+    return (it.id + ' ' + (it.b || '') + ' ' + (it.q || '')).toLowerCase().indexOf(busca) >= 0;
+  }
+
+  function monta() {
+    ul = $('watchList');
+    if (!ul || !global.MXAtivos || !global.MXAtivos.grupos) { return; }
+    montando = true;
+    leAbertos();
+
+    var atual = ($('symbol') || {}).value || '';
+    var gs = global.MXAtivos.grupos();
+    var html = '';
+    var vivos = [];
+
+    gs.forEach(function (g) {
+      var itens = (g.itens || []).filter(combina);
+      if (!itens.length) { return; }
+      var aberto = busca ? true : !!abertos[g.nome];
+      var teto = maisDe[g.nome] ? itens.length : MOSTRA;
+      html += '<li class="wl-grupo' + (aberto ? ' aberto' : '') + '">' +
+        '<button type="button" class="wl-cab" data-grupo="' + esc(g.nome) + '" aria-expanded="' + aberto + '">' +
+        '<span class="wl-seta" aria-hidden="true">▸</span>' +
+        '<b>' + esc(g.nome) + '</b><span class="wl-qtd">' + itens.length + '</span></button>';
+      if (aberto) {
+        if (g.nota) { html += '<p class="wl-nota">' + esc(g.nota) + '</p>'; }
+        html += '<ul class="wl-itens">';
+        itens.slice(0, teto).forEach(function (it) {
+          html += linha(it, atual);
+          /* só os pares da Binance entram no stream ao vivo: um código estranho (SPY, XAUUSD)
+             derrubaria a conexão inteira e ninguém mais receberia preço */
+          if (!it.fonte && vivos.length < LIMITE_VIVO && vivos.indexOf(it.id) < 0) { vivos.push(it.id); }
+        });
+        html += '</ul>';
+        if (itens.length > teto) {
+          html += '<button type="button" class="wl-mais" data-mais="' + esc(g.nome) + '">Ver os outros ' +
+            (itens.length - teto) + '</button>';
+        }
+      }
+      html += '</li>';
+    });
+
+    if (!html) {
+      html = '<li class="wl-vazio">' + (busca ? 'Nada encontrado para “' + esc(busca) + '”.' :
+        'Carregando o catálogo da Binance…') + '</li>';
+    }
+    ul.innerHTML = html;
+    montando = false;
+    aoVivo(vivos);
+  }
+
+  /* --------------------------------------------------- preço ao vivo */
+
+  var fonte = null, ultimaLista = '';
+
+  function aoVivo(ids) {
+    var chave = ids.join(',');
+    if (chave === ultimaLista) { return; }
+    ultimaLista = chave;
+    if (fonte) { try { fonte.close(); } catch (e) {} fonte = null; }
+    if (!ids.length || !global.MXData || !global.MXData.openWatch) { return; }
+    fonte = global.MXData.openWatch(ids, {
+      onTick: function (t) {
+        if (!ul) { return; }
+        var b = ul.querySelector('.watch-row[data-id="' + t.symbol + '"]');
+        if (!b) { return; }
+        var casas = +b.getAttribute('data-c');
+        if (!(casas >= 0)) { casas = t.last >= 100 ? 2 : (t.last >= 1 ? 4 : 6); }
+        b.querySelector('.w-last').textContent = t.last.toLocaleString('pt-BR',
+          { minimumFractionDigits: casas, maximumFractionDigits: casas });
+        var c = b.querySelector('.w-chg');
+        c.textContent = (t.changePct >= 0 ? '+' : '') + t.changePct.toFixed(2) + '%';
+        c.setAttribute('data-dir', dir(t.changePct));
+      }
+    });
+  }
+
+  /* --------------------------------------------------------- cliques */
+
+  function liga() {
+    var pane = $('pane_watch') || ($('watchList') || {}).parentNode;
+    if (!pane || pane.__mxwl) { return; }
+    pane.__mxwl = true;
+
+    /* busca em cima da lista */
+    var cab = doc.createElement('div');
+    cab.className = 'wl-topo';
+    cab.innerHTML = '<input class="wl-busca" type="search" placeholder="Buscar ativo: BTC, ouro, Nasdaq…" aria-label="Buscar na lista de ativos">';
+    pane.insertBefore(cab, $('watchList'));
+    var campo = cab.querySelector('.wl-busca');
+    campo.oninput = function () {
+      global.clearTimeout(fio);
+      fio = global.setTimeout(function () { busca = campo.value.trim().toLowerCase(); monta(); }, 160);
+    };
+
+    pane.addEventListener('click', function (e) {
+      var cabeca = e.target.closest ? e.target.closest('.wl-cab') : null;
+      if (cabeca) {
+        var nome = cabeca.getAttribute('data-grupo');
+        abertos[nome] = abertos[nome] ? 0 : 1;
+        guardaAbertos();
+        monta();
+        return;
+      }
+      var mais = e.target.closest ? e.target.closest('.wl-mais') : null;
+      if (mais) { maisDe[mais.getAttribute('data-mais')] = 1; monta(); return; }
+      var linha = e.target.closest ? e.target.closest('.watch-row') : null;
+      if (linha && global.MXAtivos) { global.MXAtivos.escolhe(linha.getAttribute('data-id')); }
+    });
+
+    /* o ativo do gráfico fica marcado na lista */
+    var sel = $('symbol');
+    if (sel) {
+      sel.addEventListener('change', function () {
+        if (!ul) { return; }
+        Array.prototype.forEach.call(ul.querySelectorAll('.watch-row[aria-current]'), function (b) {
+          b.removeAttribute('aria-current');
+        });
+        var b = ul.querySelector('.watch-row[data-id="' + sel.value + '"]');
+        if (b) { b.setAttribute('aria-current', 'true'); }
+      });
+    }
+  }
+
+  function inicia() {
+    if (!$('watchList') || !global.MXAtivos) { return; }
+    liga();
+    monta();
+    if (!global.MXAtivos.pronto()) {
+      global.MXAtivos.carrega().then(monta).catch(function () {});
+    }
+  }
+
+  global.MXWatch = { monta: monta, inicia: inicia, abertos: function () { return leAbertos(); } };
+
+  if (doc.readyState === 'loading') { doc.addEventListener('DOMContentLoaded', function () { global.setTimeout(inicia, 900); }); }
+  else { global.setTimeout(inicia, 900); }
 })(window);
 </script>
 </body>
