@@ -2500,10 +2500,13 @@ html[data-ct="0"] .ct-chip,html[data-ct="0"] .ct-seg,html[data-ct="0"] .cc-passo
 .cvip[hidden]{display:none}
 .cv-aberto{overflow:hidden}
 
-.cvip[data-tema="escuro"]{--cv-bg:#15191a;--cv-card:#1e2426;--cv-card2:#232a2c;--cv-ink:#e9edec;
-  --cv-mut:#99a3a3;--cv-bd:rgba(255,255,255,.1);--cv-ouro:#c9a227;--cv-ouro2:#e7c766;--cv-som:rgba(0,0,0,.5)}
-.cvip[data-tema="claro"]{--cv-bg:#f4f5f5;--cv-card:#fff;--cv-card2:#eceeee;--cv-ink:#15191a;
-  --cv-mut:#5f6a6a;--cv-bd:rgba(0,0,0,.12);--cv-ouro:#8a6f12;--cv-ouro2:#b89423;--cv-som:rgba(0,0,0,.14)}
+/* As cores vêm do tema que o próprio aluno escolheu na plataforma (Configurações → Temas e cores):
+   fundo, superfícies, texto, dourado e as cores que ele tiver personalizado. Trocou lá, troca aqui na
+   hora, sem recarregar. Cada aluno vê o próprio tema — a escolha de um não mexe na tela de outro. */
+.cvip{--cv-bg:var(--bg);--cv-card:var(--surface);--cv-card2:var(--surface-2);--cv-ink:var(--text);
+  --cv-mut:var(--muted);--cv-bd:rgba(var(--ink-rgb),.12);--cv-ouro:var(--gold);--cv-ouro2:var(--gold);
+  --cv-som:rgba(0,0,0,.45)}
+html[data-claro="1"] .cvip{--cv-som:rgba(0,0,0,.14)}
 
 /* ---- coluna das comunidades ---- */
 .cv-com{display:flex;flex-direction:column;gap:10px;padding:14px 10px;background:var(--cv-card);
@@ -2558,8 +2561,8 @@ html[data-ct="0"] .ct-chip,html[data-ct="0"] .ct-seg,html[data-ct="0"] .cc-passo
 .cv-capas{width:auto;padding:0 12px;font-weight:700}
 .cvip[data-edita="1"] .cv-capas{border-color:var(--cv-ouro);color:var(--cv-ouro)}
 .cv-tema::before{content:"☾"}
-.cvip[data-tema="claro"] .cv-tema::before{content:"☀"}
-.cv-perfil{border-radius:50%;background:var(--cv-ouro);color:#15191a;font-weight:800}
+html[data-claro="1"] .cv-tema::before{content:"☀"}
+.cv-perfil{border-radius:50%;background:var(--cv-ouro);color:var(--cv-bg);font-weight:800}
 .cv-menu{position:absolute;top:58px;right:56px;width:290px;padding:8px;border:1px solid var(--cv-bd);
   border-radius:14px;background:var(--cv-card);box-shadow:0 18px 40px var(--cv-som);z-index:6}
 .cv-menu-h{display:flex;align-items:center;justify-content:space-between;padding:10px 12px;font-weight:700}
@@ -2592,7 +2595,7 @@ html[data-ct="0"] .ct-chip,html[data-ct="0"] .ct-seg,html[data-ct="0"] .cc-passo
 .cv-prog{display:block;height:3px;margin-top:8px;border-radius:2px;background:var(--cv-bd)}
 .cv-prog i{display:block;height:100%;border-radius:2px;background:#d23a4a}
 .cv-troca{display:none;position:absolute;left:8px;top:8px;padding:4px 10px;border:0;border-radius:8px;
-  background:var(--cv-ouro);color:#15191a;font:inherit;font-size:.7rem;font-weight:800;cursor:pointer}
+  background:var(--cv-ouro);color:var(--cv-bg);font:inherit;font-size:.7rem;font-weight:800;cursor:pointer}
 .cvip[data-edita="1"] .cv-troca{display:block}
 
 /* capa provisória, no espírito das capas da comunidade */
@@ -2630,9 +2633,8 @@ html[data-ct="0"] .ct-chip,html[data-ct="0"] .ct-seg,html[data-ct="0"] .cc-passo
 .cv-prod{display:grid;grid-template-columns:1fr minmax(0,46%);align-items:center;gap:24px;
   margin-top:34px;padding:26px;border-radius:18px;background:var(--cv-card)}
 .cv-prod-t h2{margin:0 0 18px;font-size:clamp(1.3rem,2.4vw,2rem);font-weight:700}
-.cv-comprar{min-height:42px;padding:0 20px;border:0;border-radius:10px;background:#fff;color:#15191a;
+.cv-comprar{min-height:42px;padding:0 20px;border:0;border-radius:10px;background:var(--cv-ink);color:var(--cv-bg);
   font:inherit;font-size:.92rem;font-weight:700;cursor:pointer}
-.cvip[data-tema="claro"] .cv-comprar{background:#15191a;color:#fff}
 .cv-capa-w{aspect-ratio:16/9;align-content:center}
 .cv-capa-w b{font-size:1.5rem}
 
@@ -17061,7 +17063,6 @@ Resources:`;for(let t of c){if(!t||typeof t!=`string`)throw Error(`@supabase/aut
 
   var doc = global.document;
   var CAPAS = 'mx360.cvip.capas.v1';
-  var TEMA = 'mx360.cvip.tema';
   var caixa = null, aberto = false, editando = false, capas = null, fio = null;
 
   /* ------------------------------------------------------------- conteúdo */
@@ -17284,9 +17285,6 @@ Resources:`;for(let t of c){if(!t||typeof t!=`string`)throw Error(`@supabase/aut
     caixa = doc.createElement('div');
     caixa.className = 'cvip';
     caixa.hidden = true;
-    var tema = 'escuro';
-    try { tema = global.localStorage.getItem(TEMA) || 'escuro'; } catch (e) {}
-    caixa.setAttribute('data-tema', tema);
     caixa.innerHTML =
       '<aside class="cv-com">' + COMUNIDADES.map(function (c, i) {
         return '<button type="button" class="cv-av' + (i === 0 ? ' on' : '') + '" title="' + esc(c.nome) + '">' +
@@ -17306,7 +17304,7 @@ Resources:`;for(let t of c){if(!t||typeof t!=`string`)throw Error(`@supabase/aut
       '<input type="search" placeholder="Buscar..." aria-label="Buscar módulo ou aula">' +
       '<div class="cv-drop" hidden></div></div>' +
       '<button type="button" class="cv-capas" title="Trocar as capas dos módulos">Capas</button>' +
-      '<button type="button" class="cv-tema" aria-label="Alternar entre tema claro e escuro"></button>' +
+      '<button type="button" class="cv-tema" aria-label="Alternar entre tema claro e escuro" title="Tema claro/escuro da plataforma"></button>' +
       '<button type="button" class="cv-perfil" aria-haspopup="menu">W</button>' +
       '<div class="cv-menu" hidden role="menu">' +
       '<div class="cv-menu-h"><b>Wellington</b><span>✎</span></div>' +
@@ -17429,10 +17427,14 @@ Resources:`;for(let t of c){if(!t||typeof t!=`string`)throw Error(`@supabase/aut
     });
   }
 
+  /* O botão daqui é o mesmo botão de tema da plataforma: troca o tema dela, e esta área acompanha
+     porque usa as mesmas cores. Assim existe uma escolha só, e ela vale em todo lugar. */
   function trocaTema() {
-    var t = caixa.getAttribute('data-tema') === 'escuro' ? 'claro' : 'escuro';
-    caixa.setAttribute('data-tema', t);
-    try { global.localStorage.setItem(TEMA, t); } catch (e) {}
+    var b = doc.querySelector('.topbar [title="Tema claro/escuro"]');
+    if (b) { b.click(); return; }
+    if (global.MXStyle && global.MXStyle.muda) {
+      global.MXStyle.muda('tema', global.MXStyle.valor('tema') === 'altoclaro' ? 'grafite' : 'altoclaro');
+    }
   }
 
   /* --------------------------------------------------------- abrir/fechar */
