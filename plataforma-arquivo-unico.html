@@ -2721,6 +2721,12 @@ html[data-claro="1"] .cv-tema::before{content:"☀"}
 .cv-logo img{width:34px;height:34px;border-radius:9px}
 /* capa oficial já traz o próprio desenho: nada de selo, texto ou faixa por cima */
 .cv-capa[style]{box-shadow:inset 0 0 0 1px rgba(255,255,255,.06)}
+
+/* banner das páginas de produto e brasão da comunidade no destaque */
+.cv-prod-i{position:relative}
+.cv-prod-i .cv-capa-w[style]{border-radius:12px}
+.cv-brasao{display:block;width:118px;height:118px;margin:-10px 0 10px -8px;border-radius:50%;object-fit:cover}
+@media (max-width:900px){.cv-brasao{width:86px;height:86px}}
 </style>
 </head>
 <body>
@@ -17100,26 +17106,26 @@ Resources:`;for(let t of c){if(!t||typeof t!=`string`)throw Error(`@supabase/aut
 
   var PRODUTOS = [
     {
-      id: 'planilhas', nome: 'PLANILHAS DE GESTÃO DE TRADE',
+      banner: 'capas/banner-planilhas.webp', id: 'planilhas', nome: 'PLANILHAS DE GESTÃO DE TRADE',
       chamada: 'Organize. Controle. Decida. Cresça.',
-      modulos: [{ id: 'planilha-estatistica', nome: 'PLANILHA ESTATISTICA', aulas: 1, travado: true }]
+      modulos: [{ img: 'capas/planilha-estatistica.webp', id: 'planilha-estatistica', nome: 'PLANILHA ESTATISTICA', aulas: 1, travado: true }]
     },
     {
-      id: 'gatilhos-mi', nome: 'GATILHOS MILIONÁRIOS',
+      banner: 'capas/banner-gatilhos.webp', id: 'gatilhos-mi', nome: 'GATILHOS MILIONÁRIOS',
       chamada: 'Apenas uma operação para você mudar de vida.',
       modulos: [
-        { id: 'gm-comece', nome: 'COMECE POR AQUI', aulas: 4, travado: true },
+        { img: 'capas/gm-comece.webp', id: 'gm-comece', nome: 'COMECE POR AQUI', aulas: 4, travado: true },
         { img: 'capas/gatilhos.webp', id: 'gm-gatilhos', nome: 'GATILHOS MILIONÁRIOS', aulas: 1, travado: true },
-        { id: 'gm-pratica', nome: 'NA PRÁTICA', aulas: 2, travado: true }
+        { img: 'capas/gm-pratica.webp', id: 'gm-pratica', nome: 'NA PRÁTICA', aulas: 2, travado: true }
       ]
     },
     {
-      id: 'sala-mx', nome: 'SALA AO VIVO MX',
+      banner: 'capas/banner-sala-mx.webp', id: 'sala-mx', nome: 'SALA AO VIVO MX',
       chamada: 'Operando ao vivo com a comunidade, toda semana.',
       modulos: [
-        { id: 'sm-comece', nome: 'COMECE POR AQUI', aulas: 3, travado: true },
-        { id: 'sm-sala', nome: 'SALA AO VIVO MX', aulas: 1, travado: true },
-        { id: 'sm-podcast', nome: 'PODCAST MX', aulas: 2, travado: true }
+        { img: 'capas/sm-comece.webp', id: 'sm-comece', nome: 'COMECE POR AQUI', aulas: 3, travado: true },
+        { img: 'capas/sm-sala.webp', id: 'sm-sala', nome: 'SALA AO VIVO MX', aulas: 1, travado: true },
+        { img: 'capas/sm-podcast.webp', id: 'sm-podcast', nome: 'PODCAST MX', aulas: 2, travado: true }
       ]
     }
   ];
@@ -17203,7 +17209,7 @@ Resources:`;for(let t of c){if(!t||typeof t!=`string`)throw Error(`@supabase/aut
 
   function telaInicio() {
     return '<div class="cv-hero">' +
-      '<div class="cv-hero-t"><span class="cv-marca cv-marca-g">MX<i>COMUNIDADE</i></span>' +
+      '<div class="cv-hero-t"><img class="cv-brasao" src="capas/brasao-mx.webp" alt="MX Comunidade">' +
       '<h2>WYCKOFF <b>+ SMC</b><br>NA PRÁTICA<em>.</em></h2>' +
       '<p class="cv-passos">ENTENDA <i>•</i> PLANEJE <i>•</i> EXECUTE <i>•</i> EVOLUA</p>' +
       '<p class="cv-sub">Do conceito à execução.<br>Aprenda a ler o mercado como ele realmente é<br>' +
@@ -17220,13 +17226,22 @@ Resources:`;for(let t of c){if(!t||typeof t!=`string`)throw Error(`@supabase/aut
       carrossel('Módulos BASE', BASE, true);
   }
 
+  function bannerProduto(p) {
+    var url = leCapas()['banner-' + p.id] || p.banner;
+    if (url) {
+      return '<div class="cv-capa cv-capa-w" role="img" aria-label="' + esc(p.nome) + '" ' +
+        'style="background-image:url(' + esc(url).replace(/[()]/g, '') + ')"></div>';
+    }
+    return '<div class="cv-capa cv-capa-m cv-capa-w"><span class="cv-marca">MX<i>COMUNIDADE</i></span>' +
+      '<b>' + esc(p.nome) + '</b><p>' + esc(p.chamada) + '</p></div>';
+  }
+
   function telaProduto(p) {
     return '<div class="cv-prod">' +
       '<div class="cv-prod-t"><h2>' + esc(p.nome) + '</h2>' +
       '<button type="button" class="cv-comprar">Comprar agora</button></div>' +
-      '<div class="cv-prod-i"><div class="cv-capa cv-capa-m cv-capa-w">' +
-      '<span class="cv-marca">MX<i>COMUNIDADE</i></span><b>' + esc(p.nome) + '</b>' +
-      '<p>' + esc(p.chamada) + '</p></div></div></div>' +
+      '<div class="cv-prod-i">' + bannerProduto(p) +
+      '<button type="button" class="cv-troca" data-troca="banner-' + esc(p.id) + '">Trocar banner</button></div></div>' +
       carrossel('Galeria de Módulos', p.modulos, false);
   }
 
