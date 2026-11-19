@@ -17458,19 +17458,31 @@ Resources:`;for(let t of c){if(!t||typeof t!=`string`)throw Error(`@supabase/aut
   }
 
   function inicia() {
+    /* O menu dos três traços é montado pela plataforma na hora em que ela carrega, e em alguns
+       aparelhos isso acontece depois deste módulo. Por isso a escuta fica no documento inteiro:
+       não importa quando o botão nascer, o toque nele sempre chega aqui. */
+    doc.addEventListener('click', function (e) {
+      var b = e.target.closest ? e.target.closest('.nv-vip') : null;
+      if (!b || !/Comunidade VIP/i.test(b.textContent)) { return; }
+      e.preventDefault();
+      e.stopPropagation();
+      abre();
+    }, true);
+    marca();
+    global.setInterval(marca, 2000);
+  }
+
+  function marca() {
     Array.prototype.forEach.call(doc.querySelectorAll('.nv-vip'), function (b) {
-      if (/Comunidade VIP/i.test(b.textContent)) {
-        b.addEventListener('click', function (e) { e.preventDefault(); abre(); });
-        b.classList.add('nv-vip-on');
-      }
+      if (/Comunidade VIP/i.test(b.textContent)) { b.classList.add('nv-vip-on'); }
     });
   }
 
   global.MXComunidade = { abre: abre, fecha: fecha, inicia: inicia };
 
   if (doc.readyState === 'loading') {
-    doc.addEventListener('DOMContentLoaded', function () { global.setTimeout(inicia, 1500); });
-  } else { global.setTimeout(inicia, 1500); }
+    doc.addEventListener('DOMContentLoaded', inicia);
+  } else { inicia(); }
 })(window);
 </script>
 </body>
