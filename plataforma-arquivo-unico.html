@@ -2494,6 +2494,221 @@ html[data-ct="0"] .ct-chip,html[data-ct="0"] .ct-seg,html[data-ct="0"] .cc-passo
   stroke-linecap:round;stroke-linejoin:round}
 .topbar .tool-ico{display:grid;place-items:center}
 </style>
+<style>/* Comunidade VIP: área de conteúdo dentro da plataforma, com tema escuro e claro próprios. */
+.cvip{position:fixed;inset:0;z-index:9000;display:grid;grid-template-columns:auto auto 1fr;
+  font-family:inherit;color:var(--cv-ink);background:var(--cv-bg);overflow:hidden}
+.cvip[hidden]{display:none}
+.cv-aberto{overflow:hidden}
+
+.cvip[data-tema="escuro"]{--cv-bg:#15191a;--cv-card:#1e2426;--cv-card2:#232a2c;--cv-ink:#e9edec;
+  --cv-mut:#99a3a3;--cv-bd:rgba(255,255,255,.1);--cv-ouro:#c9a227;--cv-ouro2:#e7c766;--cv-som:rgba(0,0,0,.5)}
+.cvip[data-tema="claro"]{--cv-bg:#f4f5f5;--cv-card:#fff;--cv-card2:#eceeee;--cv-ink:#15191a;
+  --cv-mut:#5f6a6a;--cv-bd:rgba(0,0,0,.12);--cv-ouro:#8a6f12;--cv-ouro2:#b89423;--cv-som:rgba(0,0,0,.14)}
+
+/* ---- coluna das comunidades ---- */
+.cv-com{display:flex;flex-direction:column;gap:10px;padding:14px 10px;background:var(--cv-card);
+  border-right:1px solid var(--cv-bd);overflow-y:auto}
+.cv-av{position:relative;width:46px;height:46px;border:2px solid transparent;border-radius:14px;
+  background:var(--cv-card2);color:var(--cv-ink);font:inherit;font-size:.78rem;font-weight:800;cursor:pointer}
+.cv-av.on{border-color:var(--cv-ouro);color:var(--cv-ouro)}
+.cv-av i{position:absolute;right:-3px;bottom:-3px;font-size:.6rem;font-style:normal}
+
+/* ---- menu lateral ---- */
+.cv-nav{display:flex;flex-direction:column;gap:6px;width:84px;padding:14px 8px;
+  background:var(--cv-bg);border-right:1px solid var(--cv-bd)}
+.cv-nav button{display:grid;gap:3px;justify-items:center;padding:9px 4px;border:0;border-radius:12px;
+  background:none;color:var(--cv-mut);font:inherit;font-size:.72rem;cursor:pointer}
+.cv-nav button i{font-size:1.05rem;font-style:normal}
+.cv-nav button:hover{background:var(--cv-card);color:var(--cv-ink)}
+.cv-nav button[aria-current="true"]{background:var(--cv-card2);color:var(--cv-ink)}
+.cv-dobra{opacity:.7}
+.cv-estreito .cv-nav{width:56px}
+.cv-estreito .cv-nav button{font-size:0}
+.cv-estreito .cv-nav button i{font-size:1.15rem}
+
+/* ---- topo ---- */
+.cv-main{display:flex;flex-direction:column;min-width:0;overflow:hidden}
+.cv-topo{display:flex;align-items:center;gap:10px;flex:none;padding:10px 14px;
+  border-bottom:1px solid var(--cv-bd);background:var(--cv-bg)}
+.cv-marca{display:grid;line-height:1;font-weight:900;letter-spacing:.04em}
+.cv-marca i{font-style:normal;font-size:.52em;letter-spacing:.3em;color:var(--cv-ouro)}
+.cv-marca-t{font-size:1.25rem}
+.cv-marca-g{font-size:1.6rem;margin-bottom:14px}
+.cv-afil{flex:none;min-height:38px;padding:0 14px;border:1px solid var(--cv-bd);border-radius:10px;
+  background:var(--cv-card);color:var(--cv-ink);font:inherit;font-size:.84rem;font-weight:700;cursor:pointer}
+.cv-busca{position:relative;flex:1;min-width:0;max-width:620px;margin-left:auto}
+.cv-busca>span{position:absolute;left:12px;top:50%;transform:translateY(-50%);color:var(--cv-mut)}
+.cv-busca input{width:100%;min-height:40px;padding:0 14px 0 34px;border:1px solid var(--cv-bd);
+  border-radius:10px;background:var(--cv-card);color:var(--cv-ink);font:inherit;font-size:.86rem}
+.cv-busca input:focus{outline:2px solid var(--cv-ouro);outline-offset:1px}
+.cv-drop{position:absolute;top:calc(100% + 8px);right:0;width:min(560px,92vw);max-height:60vh;overflow-y:auto;
+  padding:10px;border:1px solid var(--cv-bd);border-radius:14px;background:var(--cv-card);
+  box-shadow:0 18px 40px var(--cv-som);z-index:5}
+.cv-drop h5{margin:6px 8px;color:var(--cv-mut);font-size:.78rem;font-weight:700}
+.cv-drop-v{padding:28px 10px;color:var(--cv-mut);font-size:.86rem;text-align:center;line-height:2}
+.cv-res{display:flex;align-items:center;gap:12px;width:100%;padding:8px;border:0;border-radius:10px;
+  background:none;color:var(--cv-ink);font:inherit;text-align:left;cursor:pointer}
+.cv-res:hover{background:var(--cv-card2)}
+.cv-res-c{display:block;flex:none;width:56px;height:74px;border-radius:6px;overflow:hidden}
+.cv-res-a{display:grid;place-items:center;background:var(--cv-card2);color:var(--cv-mut)}
+.cv-res b{display:block;font-size:.88rem;font-weight:700}
+.cv-res i{display:block;color:var(--cv-mut);font-style:normal;font-size:.76rem}
+.cv-capas,.cv-tema,.cv-perfil,.cv-x{flex:none;width:38px;height:38px;border:1px solid var(--cv-bd);
+  border-radius:10px;background:var(--cv-card);color:var(--cv-ink);font:inherit;font-size:.8rem;cursor:pointer}
+.cv-capas{width:auto;padding:0 12px;font-weight:700}
+.cvip[data-edita="1"] .cv-capas{border-color:var(--cv-ouro);color:var(--cv-ouro)}
+.cv-tema::before{content:"☾"}
+.cvip[data-tema="claro"] .cv-tema::before{content:"☀"}
+.cv-perfil{border-radius:50%;background:var(--cv-ouro);color:#15191a;font-weight:800}
+.cv-menu{position:absolute;top:58px;right:56px;width:290px;padding:8px;border:1px solid var(--cv-bd);
+  border-radius:14px;background:var(--cv-card);box-shadow:0 18px 40px var(--cv-som);z-index:6}
+.cv-menu-h{display:flex;align-items:center;justify-content:space-between;padding:10px 12px;font-weight:700}
+.cv-menu button{display:flex;align-items:center;gap:12px;width:100%;min-height:42px;padding:0 12px;
+  border:0;border-radius:10px;background:none;color:var(--cv-ink);font:inherit;font-size:.88rem;
+  text-align:left;cursor:pointer}
+.cv-menu button:hover{background:var(--cv-card2)}
+.cv-menu button i{font-style:normal;opacity:.8}
+.cv-menu button em{margin-left:auto;font-style:normal;color:var(--cv-mut)}
+
+/* ---- corpo ---- */
+.cv-corpo{flex:1;min-height:0;overflow-y:auto;padding:18px 22px 60px}
+.cv-sec{margin:26px 0}
+.cv-sec-h{display:flex;align-items:center;gap:12px;margin-bottom:12px}
+.cv-sec-h h3{margin:0;font-size:1.12rem;font-weight:700}
+.cv-setas{display:flex;gap:6px;margin-left:auto}
+.cv-setas button{width:34px;height:34px;border:1px solid var(--cv-bd);border-radius:10px;
+  background:var(--cv-card);color:var(--cv-ink);font:inherit;font-size:1.1rem;line-height:1;cursor:pointer}
+.cv-tira{display:flex;gap:16px;overflow-x:auto;scroll-snap-type:x mandatory;padding-bottom:6px}
+.cv-tira::-webkit-scrollbar{height:6px}
+.cv-tira::-webkit-scrollbar-thumb{border-radius:3px;background:var(--cv-bd)}
+.cv-card{position:relative;flex:0 0 212px;scroll-snap-align:start}
+.cv-abre{display:block;position:relative;width:100%;padding:0;border:0;background:none;cursor:pointer}
+.cv-card h4{margin:10px 0 0;font-size:.82rem;font-weight:700;letter-spacing:.02em;
+  overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.cv-cad{position:absolute;top:8px;right:8px;display:grid;place-items:center;width:30px;height:30px;
+  border-radius:8px;background:rgba(0,0,0,.55);font-size:.8rem}
+.cv-vivo{position:absolute;left:8px;bottom:8px;padding:2px 8px;border-radius:5px;
+  background:#d23a4a;color:#fff;font-size:.62rem;font-weight:800}
+.cv-prog{display:block;height:3px;margin-top:8px;border-radius:2px;background:var(--cv-bd)}
+.cv-prog i{display:block;height:100%;border-radius:2px;background:#d23a4a}
+.cv-troca{display:none;position:absolute;left:8px;top:8px;padding:4px 10px;border:0;border-radius:8px;
+  background:var(--cv-ouro);color:#15191a;font:inherit;font-size:.7rem;font-weight:800;cursor:pointer}
+.cvip[data-edita="1"] .cv-troca{display:block}
+
+/* capa provisória, no espírito das capas da comunidade */
+.cv-capa{aspect-ratio:3/4;border-radius:10px;background:#0f1211 center/cover no-repeat;overflow:hidden}
+.cv-capa-m{position:relative;display:grid;align-content:start;gap:8px;padding:16px 14px 0;text-align:center;
+  background:radial-gradient(120% 90% at 50% 0%,#2a2113 0%,#11100e 55%,#0b0c0b 100%)}
+.cv-capa-m .cv-marca{justify-items:center;font-size:.95rem;color:#f3e6c6}
+.cv-mod{color:#b8a877;font-size:.56rem;letter-spacing:.28em;text-transform:uppercase}
+.cv-capa-m b{display:block;margin-top:4px;color:#fff;font-size:1.22rem;font-weight:900;line-height:1.08;
+  letter-spacing:.01em;text-transform:uppercase}
+.cv-capa-m b em{display:block;font-style:normal;
+  background:linear-gradient(180deg,#f3dc9a,#c9a227);-webkit-background-clip:text;background-clip:text;color:transparent}
+.cv-capa-m p{margin:6px 0 0;color:#c9c4b4;font-size:.56rem;line-height:1.5;letter-spacing:.06em;
+  text-transform:uppercase}
+.cv-play{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);display:grid;place-items:center;
+  width:52px;height:52px;border-radius:50%;background:rgba(255,255,255,.92);color:#15191a;font-size:1.1rem}
+.cv-aulas{position:absolute;right:8px;bottom:8px;padding:2px 8px;border-radius:5px;
+  background:rgba(0,0,0,.6);color:#fff;font-size:.68rem;font-weight:700}
+.cv-trilhas{display:flex;gap:16px;flex-wrap:wrap}
+.cv-trilha{flex:0 0 232px}
+.cv-trilha .cv-capa{aspect-ratio:16/10}
+
+/* ---- destaque e produtos ---- */
+.cv-hero{padding:34px 30px;border-radius:18px;
+  background:radial-gradient(90% 120% at 15% 0%,#2a2113 0%,#141514 60%,#0e100f 100%);color:#fff}
+.cv-hero h2{margin:0;font-size:clamp(1.7rem,4vw,3rem);font-weight:900;line-height:1.05;letter-spacing:.01em}
+.cv-hero h2 b{background:linear-gradient(180deg,#f3dc9a,#c9a227);-webkit-background-clip:text;
+  background-clip:text;color:transparent}
+.cv-hero h2 em{font-style:normal;color:var(--cv-ouro)}
+.cv-passos{margin:14px 0 0;color:#e7e2d4;font-size:.86rem;letter-spacing:.22em}
+.cv-passos i{color:var(--cv-ouro);font-style:normal}
+.cv-sub{margin:14px 0 0;color:#cfcabb;font-size:.96rem;line-height:1.6}
+.cv-sub u{color:var(--cv-ouro2);text-decoration:none}
+
+.cv-prod{display:grid;grid-template-columns:1fr minmax(0,46%);align-items:center;gap:24px;
+  margin-top:34px;padding:26px;border-radius:18px;background:var(--cv-card)}
+.cv-prod-t h2{margin:0 0 18px;font-size:clamp(1.3rem,2.4vw,2rem);font-weight:700}
+.cv-comprar{min-height:42px;padding:0 20px;border:0;border-radius:10px;background:#fff;color:#15191a;
+  font:inherit;font-size:.92rem;font-weight:700;cursor:pointer}
+.cvip[data-tema="claro"] .cv-comprar{background:#15191a;color:#fff}
+.cv-capa-w{aspect-ratio:16/9;align-content:center}
+.cv-capa-w b{font-size:1.5rem}
+
+/* ---- módulo aberto ---- */
+.cv-volta{margin-bottom:16px;padding:8px 14px;border:1px solid var(--cv-bd);border-radius:10px;
+  background:var(--cv-card);color:var(--cv-ink);font:inherit;cursor:pointer}
+.cv-mod-h{display:grid;grid-template-columns:200px 1fr;gap:22px;align-items:start}
+.cv-mod-h h2{margin:0 0 8px;font-size:1.5rem}
+.cv-mod-h p{margin:0 0 12px;color:var(--cv-mut)}
+.cv-tag{display:inline-block;margin-right:8px;padding:4px 10px;border:1px solid var(--cv-bd);
+  border-radius:999px;font-size:.76rem;font-weight:700}
+.cv-tag-l{color:var(--cv-ouro);border-color:var(--cv-ouro)}
+.cv-aulas-l{list-style:none;margin:0;padding:0;display:grid;gap:8px}
+.cv-aulas-l li{display:flex;align-items:center;gap:14px;padding:12px 14px;border:1px solid var(--cv-bd);
+  border-radius:12px;background:var(--cv-card)}
+.cv-n{display:grid;place-items:center;width:30px;height:30px;border-radius:50%;
+  background:var(--cv-card2);font-size:.8rem;font-weight:700}
+.cv-aulas-l b{display:block;font-size:.92rem}
+.cv-aulas-l i{color:var(--cv-mut);font-style:normal;font-size:.78rem}
+.cv-vazio{padding:22px;border:1px dashed var(--cv-bd);border-radius:12px;color:var(--cv-mut);text-align:center}
+.cv-grupos{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:16px}
+.cv-grupo{padding:18px;border:1px solid var(--cv-bd);border-radius:14px;background:var(--cv-card)}
+.cv-grupo b{display:block;margin-bottom:6px;font-size:1rem}
+.cv-grupo p{margin:0 0 14px;color:var(--cv-mut);font-size:.88rem;line-height:1.5}
+
+.cv-suporte{position:fixed;right:18px;bottom:18px;z-index:9001;min-height:44px;padding:0 18px;border:0;
+  border-radius:999px;background:var(--cv-card);color:var(--cv-ink);font:inherit;font-size:.88rem;
+  font-weight:700;box-shadow:0 10px 24px var(--cv-som);cursor:pointer}
+
+/* o botão do menu fica em destaque, já que agora leva a algum lugar */
+.nv-vip-on{cursor:pointer}
+
+/* ---- celular ---- */
+@media (max-width:900px){
+  .cvip{grid-template-columns:auto 1fr}
+  .cv-nav{position:fixed;left:0;right:0;bottom:0;z-index:9002;flex-direction:row;width:auto;
+    padding:6px 10px;border-top:1px solid var(--cv-bd);border-right:0;background:var(--cv-card)}
+  .cv-nav button{flex:1}
+  .cv-dobra{display:none}
+  .cv-com{padding:10px 8px}
+  .cv-av{width:40px;height:40px}
+  .cv-corpo{padding:14px 12px 92px}
+  .cv-topo{flex-wrap:wrap}
+  .cv-marca-t{font-size:1rem}
+  .cv-busca{order:5;flex:1 0 100%;max-width:none;margin:4px 0 0}
+  .cv-afil{display:none}
+  .cv-menu{right:10px}
+  .cv-prod{grid-template-columns:1fr}
+  .cv-mod-h{grid-template-columns:140px 1fr;gap:14px}
+  .cv-card{flex-basis:160px}
+  .cv-setas{display:none}
+  .cv-suporte{bottom:76px}
+}
+
+/* a capa provisória ganha o rodapé de ícones e a silhueta de velas das capas de verdade */
+.cv-velas{position:absolute;left:0;right:0;bottom:30px;height:46%;opacity:.5;
+  background:
+    repeating-linear-gradient(90deg,transparent 0 6px,rgba(201,162,39,.28) 6px 9px,transparent 9px 16px),
+    linear-gradient(0deg,rgba(201,162,39,.16),transparent 70%);
+  -webkit-mask-image:linear-gradient(0deg,#000 10%,transparent 92%);
+  mask-image:linear-gradient(0deg,#000 10%,transparent 92%)}
+.cv-pes{position:absolute;left:0;right:0;bottom:0;display:grid;grid-template-columns:repeat(4,1fr);
+  padding:7px 4px;border-top:1px solid rgba(201,162,39,.25);background:rgba(8,9,8,.72)}
+.cv-pes i{display:grid;gap:2px;justify-items:center;color:#cdc6b2;font-style:normal;font-size:.4rem;
+  line-height:1.25;letter-spacing:.04em;text-transform:uppercase}
+.cv-pes b{color:var(--cv-ouro2);font-size:.62rem}
+.cv-capa-w .cv-velas,.cv-capa-w .cv-pes,.cv-trilha .cv-pes,.cv-trilha .cv-velas{display:none}
+.cv-res-c .cv-pes,.cv-res-c .cv-velas,.cv-res-c .cv-mod,.cv-res-c p{display:none}
+.cv-res-c .cv-capa-m{padding:6px}
+.cv-res-c .cv-capa-m b{font-size:.5rem}
+.cv-res-c .cv-marca{font-size:.42rem}
+
+/* nas trilhas o botão de play precisa de contraste: a capa escurece atrás dele */
+.cv-trilha .cv-abre::after{content:"";position:absolute;inset:0;border-radius:10px;background:rgba(0,0,0,.45)}
+.cv-trilha .cv-play,.cv-trilha .cv-aulas{z-index:2}
+</style>
 </head>
 <body>
 <div class="app">
@@ -16834,6 +17049,428 @@ Resources:`;for(let t of c){if(!t||typeof t!=`string`)throw Error(`@supabase/aut
     doc.addEventListener('DOMContentLoaded', function () { global.setTimeout(cabecaNegocios, 1200); });
   } else { global.setTimeout(cabecaNegocios, 1200); }
   global.setInterval(function () { if ($('pane_book') && !$('pane_book').hidden) { desenhaBook(); } }, 1500);
+})(window);
+</script>
+<script>/* MX360 Plataforma: a área da Comunidade VIP, que abre pelo menu dos três traços.
+   É o ecossistema de conteúdo da MX Comunidade dentro da própria plataforma: as trilhas, os módulos
+   em carrossel, as páginas dos produtos e a busca por módulo e por aula.
+   As capas de verdade ficam guardadas no aparelho (o botão "Capas" no topo abre a troca), então
+   enquanto elas não forem colocadas cada cartão desenha uma capa provisória com o nome do módulo. */
+(function (global) {
+  'use strict';
+
+  var doc = global.document;
+  var CAPAS = 'mx360.cvip.capas.v1';
+  var TEMA = 'mx360.cvip.tema';
+  var caixa = null, aberto = false, editando = false, capas = null, fio = null;
+
+  /* ------------------------------------------------------------- conteúdo */
+
+  var TRILHAS = [
+    { id: 'sala-zoom', nome: 'SALA AO VIVO ZOOM', aulas: 1, feito: 0.35 },
+    { id: 'discord', nome: 'DISCORD', aulas: 1, feito: 0.5 }
+  ];
+
+  var BASE = [
+    { id: 'primeiros-passos', nome: 'PRIMEIROS PASSOS', sub: 'O início de uma jornada rumo à consistência.', aulas: 4, feito: 0.3 },
+    { id: 'teoria-dow', nome: 'TEORIA DE DOW', sub: 'Entenda a lógica por trás dos movimentos do mercado.', aulas: 3, feito: 0.2 },
+    { id: 'analise-tecnica', nome: 'ANÁLISE TÉCNICA', sub: 'Aprenda as técnicas e padrões para dominar o mercado.', aulas: 5, feito: 0.15 },
+    { id: 'fibonacci', nome: 'FIBONACCI', sub: 'Domine os níveis e projeções para precificar o mercado.', aulas: 1, feito: 0.1 },
+    { id: 'price-action', nome: 'PRICE ACTION', sub: 'Domine a leitura do mercado e precifique sem indicadores.', aulas: 3, feito: 0.1 },
+    { id: 'smc', nome: 'SMC', sub: 'Domine a estrutura e as pegadas do Smart Money.', aulas: 4, feito: 0.1 },
+    { id: 'elliott', nome: 'ONDAS DE ELLIOTT', sub: 'Domine a harmonia do mercado e as ondas fractais.', aulas: 3, feito: 0 },
+    { id: 'wyckoff', nome: 'WYCKOFF', sub: 'Domine a leitura do mercado e as pegadas do operador comercial.', aulas: 4, feito: 0 },
+    { id: 'mentoria-2026', nome: 'MENTORIA MX360 MAIO 2026', sub: 'Um guia completo para dominar o mercado financeiro em 2026.', aulas: 15, feito: 0 },
+    { id: 'trade-ao-vivo', nome: 'TRADE AO VIVO', sub: 'Operando ao vivo com a comunidade e dominando o mercado.', aulas: 1, feito: 0, vivo: true },
+    { id: 'grupo-discord', nome: 'GRUPO DISCORD', sub: 'Análise, tendências, volume e sinais com a comunidade.', aulas: 1, feito: 0 },
+    { id: 'gatilhos', nome: 'GATILHOS MILIONÁRIOS', sub: 'Saiba exatamente onde e quando clicar para ganhar 2k por mês.', aulas: 1, feito: 0 }
+  ];
+
+  var PRODUTOS = [
+    {
+      id: 'planilhas', nome: 'PLANILHAS DE GESTÃO DE TRADE',
+      chamada: 'Organize. Controle. Decida. Cresça.',
+      modulos: [{ id: 'planilha-estatistica', nome: 'PLANILHA ESTATISTICA', aulas: 1, travado: true }]
+    },
+    {
+      id: 'gatilhos-mi', nome: 'GATILHOS MILIONÁRIOS',
+      chamada: 'Apenas uma operação para você mudar de vida.',
+      modulos: [
+        { id: 'gm-comece', nome: 'COMECE POR AQUI', aulas: 4, travado: true },
+        { id: 'gm-gatilhos', nome: 'GATILHOS MILIONÁRIOS', aulas: 1, travado: true },
+        { id: 'gm-pratica', nome: 'NA PRÁTICA', aulas: 2, travado: true }
+      ]
+    },
+    {
+      id: 'sala-mx', nome: 'SALA AO VIVO MX',
+      chamada: 'Operando ao vivo com a comunidade, toda semana.',
+      modulos: [
+        { id: 'sm-comece', nome: 'COMECE POR AQUI', aulas: 3, travado: true },
+        { id: 'sm-sala', nome: 'SALA AO VIVO MX', aulas: 1, travado: true },
+        { id: 'sm-podcast', nome: 'PODCAST MX', aulas: 2, travado: true }
+      ]
+    }
+  ];
+
+  var AULAS = [
+    { nome: 'ABRINDO CONTA', modulo: 'COMECE POR AQUI', n: 1, min: '02 min' },
+    { nome: 'GATILHO AO VIVO', modulo: 'TRADE AO VIVO', n: 1, min: '27 min' },
+    { nome: 'REGIOES DE TRADE', modulo: 'MENTORIA MX360 MAIO 2026', n: 1, min: '1 hr 28 min' },
+    { nome: 'CORRETIVO ABC', modulo: 'GATILHOS MILIONÁRIOS', n: 1, min: '03 min' }
+  ];
+
+  var COMUNIDADES = [
+    { id: 'mx', sigla: 'MX', nome: 'MX Comunidade' },
+    { id: 'gestao', sigla: 'PG', nome: 'Planilhas de Gestão', travado: true },
+    { id: 'gatilhos', sigla: 'GM', nome: 'Gatilhos Milionários', travado: true },
+    { id: 'sala', sigla: 'SL', nome: 'Sala ao Vivo MX', travado: true },
+    { id: 'podcast', sigla: 'PC', nome: 'Podcast MX', travado: true }
+  ];
+
+  /* --------------------------------------------------------------- apoio */
+
+  function esc(t) {
+    return String(t == null ? '' : t).replace(/[&<>"]/g, function (c) {
+      return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c];
+    });
+  }
+
+  function leCapas() {
+    if (capas) { return capas; }
+    try { capas = JSON.parse(global.localStorage.getItem(CAPAS) || '{}'); } catch (e) { capas = {}; }
+    return capas;
+  }
+  function guardaCapas() {
+    try { global.localStorage.setItem(CAPAS, JSON.stringify(capas)); } catch (e) {}
+  }
+
+  /* a capa provisória: fundo escuro com o nome do módulo, no espírito das capas da comunidade */
+  function capa(m) {
+    var url = leCapas()[m.id];
+    if (url) {
+      return '<div class="cv-capa" style="background-image:url(' + esc(url).replace(/[()]/g, '') + ')"></div>';
+    }
+    var partes = String(m.nome).split(' ');
+    var fim = partes.length > 1 ? partes.pop() : '';
+    return '<div class="cv-capa cv-capa-m">' +
+      '<span class="cv-marca">MX<i>COMUNIDADE</i></span>' +
+      '<span class="cv-mod">[ módulo ]</span>' +
+      '<b>' + esc(partes.join(' ')) + (fim ? '<em>' + esc(fim) + '</em>' : '') + '</b>' +
+      (m.sub ? '<p>' + esc(m.sub) + '</p>' : '') +
+      '<span class="cv-velas" aria-hidden="true"></span>' +
+      '<span class="cv-pes">' +
+      [['⌕', 'Entenda os ciclos'], ['↗', 'Identifique tendências'],
+       ['▮', 'Confirmação e volume'], ['◎', 'Base para tudo']].map(function (i) {
+        return '<i><b>' + i[0] + '</b>' + i[1] + '</i>';
+      }).join('') + '</span>' +
+      '</div>';
+  }
+
+  function cartao(m, prog) {
+    return '<article class="cv-card" data-m="' + esc(m.id) + '">' +
+      '<button type="button" class="cv-abre" aria-label="Abrir ' + esc(m.nome) + '">' + capa(m) +
+      (m.travado ? '<span class="cv-cad" aria-label="Bloqueado">🔒</span>' : '') +
+      (m.vivo ? '<span class="cv-vivo">● LIVE</span>' : '') +
+      '</button>' +
+      '<button type="button" class="cv-troca" data-troca="' + esc(m.id) + '">Trocar capa</button>' +
+      '<h4>' + esc(m.nome) + '</h4>' +
+      (prog ? '<span class="cv-prog"><i style="width:' + Math.round((m.feito || 0) * 100) + '%"></i></span>' : '') +
+      '</article>';
+  }
+
+  function carrossel(titulo, itens, prog) {
+    return '<section class="cv-sec">' +
+      '<div class="cv-sec-h"><h3>' + esc(titulo) + '</h3>' +
+      '<div class="cv-setas"><button type="button" class="cv-ant" aria-label="Voltar">‹</button>' +
+      '<button type="button" class="cv-prox" aria-label="Avançar">›</button></div></div>' +
+      '<div class="cv-tira">' + itens.map(function (m) { return cartao(m, prog); }).join('') + '</div>' +
+      '</section>';
+  }
+
+  /* --------------------------------------------------------------- telas */
+
+  function telaInicio() {
+    return '<div class="cv-hero">' +
+      '<div class="cv-hero-t"><span class="cv-marca cv-marca-g">MX<i>COMUNIDADE</i></span>' +
+      '<h2>WYCKOFF <b>+ SMC</b><br>NA PRÁTICA<em>.</em></h2>' +
+      '<p class="cv-passos">ENTENDA <i>•</i> PLANEJE <i>•</i> EXECUTE <i>•</i> EVOLUA</p>' +
+      '<p class="cv-sub">Do conceito à execução.<br>Aprenda a ler o mercado como ele realmente é<br>' +
+      'e opere com mais <u>clareza, vantagem e consistência</u>.</p></div></div>' +
+      '<section class="cv-sec"><div class="cv-sec-h"><h3>Galeria de trilhas</h3></div>' +
+      '<div class="cv-trilhas">' + TRILHAS.map(function (t) {
+        return '<article class="cv-card cv-trilha" data-m="' + esc(t.id) + '">' +
+          '<button type="button" class="cv-abre" aria-label="Abrir ' + esc(t.nome) + '">' + capa(t) +
+          '<span class="cv-play" aria-hidden="true">▶</span>' +
+          '<span class="cv-aulas">' + t.aulas + '</span></button>' +
+          '<button type="button" class="cv-troca" data-troca="' + esc(t.id) + '">Trocar capa</button>' +
+          '<span class="cv-prog"><i style="width:' + Math.round(t.feito * 100) + '%"></i></span></article>';
+      }).join('') + '</div></section>' +
+      carrossel('Módulos BASE', BASE, true);
+  }
+
+  function telaProduto(p) {
+    return '<div class="cv-prod">' +
+      '<div class="cv-prod-t"><h2>' + esc(p.nome) + '</h2>' +
+      '<button type="button" class="cv-comprar">Comprar agora</button></div>' +
+      '<div class="cv-prod-i"><div class="cv-capa cv-capa-m cv-capa-w">' +
+      '<span class="cv-marca">MX<i>COMUNIDADE</i></span><b>' + esc(p.nome) + '</b>' +
+      '<p>' + esc(p.chamada) + '</p></div></div></div>' +
+      carrossel('Galeria de Módulos', p.modulos, false);
+  }
+
+  function telaGrupos() {
+    return '<section class="cv-sec"><div class="cv-sec-h"><h3>Grupos</h3></div>' +
+      '<div class="cv-grupos">' +
+      '<article class="cv-grupo"><b>Discord da Comunidade</b><p>Análise, tendências, volume e sinais com a turma, todo dia.</p>' +
+      '<button type="button" class="cv-comprar">Entrar</button></article>' +
+      '<article class="cv-grupo"><b>Sala ao Vivo Zoom</b><p>Operação ao vivo com a comunidade nos pregões marcados.</p>' +
+      '<button type="button" class="cv-comprar">Entrar</button></article>' +
+      '</div></section>';
+  }
+
+  function telaEventos() {
+    return '<section class="cv-sec"><div class="cv-sec-h"><h3>Eventos</h3></div>' +
+      '<p class="cv-vazio">Nenhum evento marcado por enquanto. Quando a próxima Sala ao Vivo ou mentoria ' +
+      'for agendada, ela aparece aqui.</p></section>';
+  }
+
+  function telaModulo(id) {
+    var m = acha(id);
+    if (!m) { return '<p class="cv-vazio">Módulo não encontrado.</p>'; }
+    var aulas = AULAS.filter(function (a) { return a.modulo === m.nome; });
+    return '<button type="button" class="cv-volta">‹ Voltar</button>' +
+      '<div class="cv-mod-h">' + capa(m) +
+      '<div><h2>' + esc(m.nome) + '</h2>' + (m.sub ? '<p>' + esc(m.sub) + '</p>' : '') +
+      '<span class="cv-tag">' + (m.aulas || 0) + ' conteúdo(s)</span>' +
+      (m.travado ? '<span class="cv-tag cv-tag-l">🔒 Bloqueado</span>' : '') + '</div></div>' +
+      '<section class="cv-sec"><div class="cv-sec-h"><h3>Conteúdos</h3></div>' +
+      (aulas.length ? '<ul class="cv-aulas-l">' + aulas.map(function (a, i) {
+        return '<li><span class="cv-n">' + (i + 1) + '</span><div><b>' + esc(a.nome) + '</b>' +
+          '<i>▶ ' + esc(a.min) + '</i></div></li>';
+      }).join('') + '</ul>'
+        : '<p class="cv-vazio">As aulas deste módulo ainda não foram publicadas aqui.</p>') +
+      '</section>';
+  }
+
+  function acha(id) {
+    var t = null;
+    TRILHAS.concat(BASE).forEach(function (m) { if (m.id === id) { t = m; } });
+    PRODUTOS.forEach(function (p) { p.modulos.forEach(function (m) { if (m.id === id) { t = m; } }); });
+    return t;
+  }
+
+  /* -------------------------------------------------------------- desenho */
+
+  var vista = 'inicio';
+
+  function corpo() {
+    if (vista === 'grupos') { return telaGrupos(); }
+    if (vista === 'eventos') { return telaEventos(); }
+    if (vista.indexOf('mod:') === 0) { return telaModulo(vista.slice(4)); }
+    return telaInicio() + PRODUTOS.map(telaProduto).join('');
+  }
+
+  function pinta() {
+    var c = caixa.querySelector('.cv-corpo');
+    c.innerHTML = corpo();
+    c.scrollTop = 0;
+    Array.prototype.forEach.call(caixa.querySelectorAll('.cv-nav button[data-v]'), function (b) {
+      b.setAttribute('aria-current', String(b.getAttribute('data-v') === vista));
+    });
+    caixa.setAttribute('data-edita', editando ? '1' : '0');
+  }
+
+  function monta() {
+    caixa = doc.createElement('div');
+    caixa.className = 'cvip';
+    caixa.hidden = true;
+    var tema = 'escuro';
+    try { tema = global.localStorage.getItem(TEMA) || 'escuro'; } catch (e) {}
+    caixa.setAttribute('data-tema', tema);
+    caixa.innerHTML =
+      '<aside class="cv-com">' + COMUNIDADES.map(function (c, i) {
+        return '<button type="button" class="cv-av' + (i === 0 ? ' on' : '') + '" title="' + esc(c.nome) + '">' +
+          esc(c.sigla) + (c.travado ? '<i>🔒</i>' : '') + '</button>';
+      }).join('') + '</aside>' +
+      '<nav class="cv-nav">' +
+      '<button type="button" class="cv-dobra" aria-label="Recolher o menu">▤</button>' +
+      '<button type="button" data-v="inicio" aria-current="true"><i>⌂</i>Início</button>' +
+      '<button type="button" data-v="grupos"><i>👥</i>Grupos</button>' +
+      '<button type="button" data-v="eventos"><i>🗓</i>Eventos</button>' +
+      '</nav>' +
+      '<main class="cv-main">' +
+      '<header class="cv-topo">' +
+      '<span class="cv-marca cv-marca-t">MX<i>COMUNIDADE</i></span>' +
+      '<button type="button" class="cv-afil">+ Afiliar-se</button>' +
+      '<div class="cv-busca"><span aria-hidden="true">⌕</span>' +
+      '<input type="search" placeholder="Buscar..." aria-label="Buscar módulo ou aula">' +
+      '<div class="cv-drop" hidden></div></div>' +
+      '<button type="button" class="cv-capas" title="Trocar as capas dos módulos">Capas</button>' +
+      '<button type="button" class="cv-tema" aria-label="Alternar entre tema claro e escuro"></button>' +
+      '<button type="button" class="cv-perfil" aria-haspopup="menu">W</button>' +
+      '<div class="cv-menu" hidden role="menu">' +
+      '<div class="cv-menu-h"><b>Wellington</b><span>✎</span></div>' +
+      '<button type="button" role="menuitem"><i>🛍</i>Minhas compras</button>' +
+      '<button type="button" role="menuitem"><i>🌐</i>Idioma<em>›</em></button>' +
+      '<button type="button" role="menuitem"><i>📊</i>Acessar dashboard de produtor</button>' +
+      '<button type="button" role="menuitem" class="cv-sai"><i>⇥</i>Sair da conta</button>' +
+      '</div>' +
+      '<button type="button" class="cv-x" aria-label="Voltar para a plataforma">×</button>' +
+      '</header>' +
+      '<div class="cv-corpo"></div>' +
+      '</main>' +
+      '<button type="button" class="cv-suporte">🎧 Suporte</button>';
+    doc.body.appendChild(caixa);
+    liga();
+  }
+
+  /* --------------------------------------------------------------- busca */
+
+  function busca(t) {
+    var q = t.trim().toLowerCase();
+    var d = caixa.querySelector('.cv-drop');
+    if (!q) {
+      d.innerHTML = '<p class="cv-drop-v">⌕<br>Digite um valor para buscar</p>';
+      d.hidden = false;
+      return;
+    }
+    var mods = TRILHAS.concat(BASE);
+    PRODUTOS.forEach(function (p) { mods = mods.concat(p.modulos); });
+    mods = mods.filter(function (m) { return m.nome.toLowerCase().indexOf(q) >= 0; }).slice(0, 6);
+    var aulas = AULAS.filter(function (a) {
+      return (a.nome + ' ' + a.modulo).toLowerCase().indexOf(q) >= 0;
+    }).slice(0, 6);
+    var h = '';
+    if (mods.length) {
+      h += '<h5>Módulo(s)</h5>' + mods.map(function (m) {
+        return '<button type="button" class="cv-res" data-m="' + esc(m.id) + '">' +
+          '<span class="cv-res-c">' + capa(m) + '</span>' +
+          '<span><b>' + esc(m.nome) + '</b><i>' + (m.aulas || 0) + ' Conteúdo(s)</i></span></button>';
+      }).join('');
+    }
+    if (aulas.length) {
+      h += '<h5>Conteúdo(s)</h5>' + aulas.map(function (a) {
+        return '<button type="button" class="cv-res">' +
+          '<span class="cv-res-c cv-res-a">▶</span>' +
+          '<span><b>' + esc(a.nome) + '</b><i>' + esc(a.modulo) + ' – Conteúdo ' + a.n + '</i>' +
+          '<i>▶ ' + esc(a.min) + '</i></span></button>';
+      }).join('');
+    }
+    d.innerHTML = h || '<p class="cv-drop-v">Nada encontrado para “' + esc(t) + '”.</p>';
+    d.hidden = false;
+  }
+
+  /* -------------------------------------------------------------- cliques */
+
+  function liga() {
+    var campo = caixa.querySelector('.cv-busca input');
+    campo.oninput = function () {
+      global.clearTimeout(fio);
+      fio = global.setTimeout(function () { busca(campo.value); }, 140);
+    };
+    campo.onfocus = function () { busca(campo.value); };
+
+    caixa.addEventListener('click', function (e) {
+      var al = function (s) { return e.target.closest ? e.target.closest(s) : null; };
+
+      if (al('.cv-x')) { fecha(); return; }
+      var nav = al('.cv-nav button[data-v]');
+      if (nav) { vista = nav.getAttribute('data-v'); pinta(); return; }
+      if (al('.cv-dobra')) { caixa.classList.toggle('cv-estreito'); return; }
+      if (al('.cv-tema')) { trocaTema(); return; }
+      if (al('.cv-capas')) { editando = !editando; pinta(); return; }
+      if (al('.cv-volta')) { vista = 'inicio'; pinta(); return; }
+
+      var troca = al('[data-troca]');
+      if (troca) {
+        var id = troca.getAttribute('data-troca');
+        var atual = leCapas()[id] || '';
+        var novo = global.prompt('Endereço da imagem de capa (deixe em branco para voltar à capa provisória):', atual);
+        if (novo !== null) {
+          if (novo.trim()) { capas[id] = novo.trim(); } else { delete capas[id]; }
+          guardaCapas(); pinta();
+        }
+        return;
+      }
+
+      var res = al('.cv-res[data-m]');
+      if (res) {
+        vista = 'mod:' + res.getAttribute('data-m');
+        caixa.querySelector('.cv-drop').hidden = true;
+        campo.value = '';
+        pinta();
+        return;
+      }
+
+      var card = al('.cv-abre');
+      if (card) {
+        var art = card.closest('.cv-card');
+        if (art) { vista = 'mod:' + art.getAttribute('data-m'); pinta(); }
+        return;
+      }
+
+      var seta = al('.cv-ant, .cv-prox');
+      if (seta) {
+        var tira = seta.closest('.cv-sec').querySelector('.cv-tira');
+        var passo = (tira.querySelector('.cv-card') || {}).offsetWidth || 240;
+        tira.scrollBy({ left: (seta.classList.contains('cv-prox') ? 1 : -1) * (passo + 16) * 2, behavior: 'smooth' });
+        return;
+      }
+
+      var per = al('.cv-perfil');
+      var menu = caixa.querySelector('.cv-menu');
+      if (per) { menu.hidden = !menu.hidden; return; }
+      if (!al('.cv-menu')) { menu.hidden = true; }
+      if (!al('.cv-busca')) { caixa.querySelector('.cv-drop').hidden = true; }
+    });
+
+    doc.addEventListener('keydown', function (e) {
+      if (aberto && e.key === 'Escape') { fecha(); }
+    });
+  }
+
+  function trocaTema() {
+    var t = caixa.getAttribute('data-tema') === 'escuro' ? 'claro' : 'escuro';
+    caixa.setAttribute('data-tema', t);
+    try { global.localStorage.setItem(TEMA, t); } catch (e) {}
+  }
+
+  /* --------------------------------------------------------- abrir/fechar */
+
+  function abre() {
+    if (!caixa) { monta(); }
+    vista = 'inicio';
+    pinta();
+    caixa.hidden = false;
+    aberto = true;
+    doc.documentElement.classList.add('cv-aberto');
+    var n = doc.querySelector('nav.nav');
+    if (n) { n.setAttribute('data-o', '0'); }
+    var bk = doc.querySelector('.nav-bk');
+    if (bk) { bk.setAttribute('data-o', '0'); }
+  }
+
+  function fecha() {
+    if (!caixa) { return; }
+    caixa.hidden = true;
+    aberto = false;
+    doc.documentElement.classList.remove('cv-aberto');
+  }
+
+  function inicia() {
+    Array.prototype.forEach.call(doc.querySelectorAll('.nv-vip'), function (b) {
+      if (/Comunidade VIP/i.test(b.textContent)) {
+        b.addEventListener('click', function (e) { e.preventDefault(); abre(); });
+        b.classList.add('nv-vip-on');
+      }
+    });
+  }
+
+  global.MXComunidade = { abre: abre, fecha: fecha, inicia: inicia };
+
+  if (doc.readyState === 'loading') {
+    doc.addEventListener('DOMContentLoaded', function () { global.setTimeout(inicia, 1500); });
+  } else { global.setTimeout(inicia, 1500); }
 })(window);
 </script>
 </body>
