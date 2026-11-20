@@ -2521,6 +2521,11 @@ html[data-ct="0"] .ct-chip,html[data-ct="0"] .ct-seg,html[data-ct="0"] .cc-passo
 .topbar .tool-ico svg{width:19px;height:19px;fill:none;stroke:currentColor;stroke-width:1.8;
   stroke-linecap:round;stroke-linejoin:round}
 .topbar .tool-ico{display:grid;place-items:center}
+
+/* origem do fluxo (sempre dado real; diz de onde vem e desde quando) */
+.fx-fonte{margin:8px 0 0;font-size:.68rem;line-height:1.35;color:var(--muted)}
+.fx-fonte[data-ok="true"]::before{content:"";display:inline-block;width:6px;height:6px;margin-right:6px;border-radius:50%;
+  background:#22a447;vertical-align:1px}
 </style>
 <style>/* Comunidade VIP: área de conteúdo dentro da plataforma, com tema escuro e claro próprios. */
 .cvip{position:fixed;inset:0;z-index:9000;display:grid;grid-template-columns:auto auto 1fr;
@@ -3283,8 +3288,9 @@ Resources:`;for(let t of c){if(!t||typeof t!=`string`)throw Error(`@supabase/aut
         if (r.l < u.l) { u.l = r.l; }
         u.c = r.c;
         u.v += r.v || 0;
+        if (r.tb != null && u.tb != null) { u.tb += r.tb; } else { u.tb = undefined; }
       } else {
-        out.push({ t: ini, o: r.o, h: r.h, l: r.l, c: r.c, v: r.v || 0 });
+        out.push({ t: ini, o: r.o, h: r.h, l: r.l, c: r.c, v: r.v || 0, tb: r.tb != null ? r.tb : undefined });
       }
     }
     return out;
@@ -3304,7 +3310,7 @@ Resources:`;for(let t of c){if(!t||typeof t!=`string`)throw Error(`@supabase/aut
              '&limit=' + (limit || 1000);
     return getJSON('/api/v3/klines' + qs).then(function (rows) {
       return rows.map(function (k) {
-        return { t: k[0], o: +k[1], h: +k[2], l: +k[3], c: +k[4], v: +k[5] };
+        return { t: k[0], o: +k[1], h: +k[2], l: +k[3], c: +k[4], v: +k[5], tb: +k[9] };
       });
     });
   }
@@ -3434,19 +3440,20 @@ Resources:`;for(let t of c){if(!t||typeof t!=`string`)throw Error(`@supabase/aut
   /* Stream de um intervalo derivado: ouve o intervalo base e vai somando o balde.
      h.seed (ultima vela do historico) preserva a abertura e o volume do balde ja em curso. */
   function derivStream(symbol, interval, h) {
-    var d = DERIV[interval], ini = -1, ac = null, vFix = 0, sem = h.seed || null, hh = {}, k;
+    var d = DERIV[interval], ini = -1, ac = null, vFix = 0, tbFix = 0, sem = h.seed || null, hh = {}, k;
     for (k in h) { if (Object.prototype.hasOwnProperty.call(h, k)) { hh[k] = h[k]; } }
     hh.onCandle = function (b) {
       var novo = Math.floor(b.t / d.ms) * d.ms;
       if (novo !== ini || !ac) {
         ini = novo;
-        vFix = 0;
+        vFix = 0; tbFix = 0;
         ac = { t: ini, o: b.o, h: b.h, l: b.l, c: b.c, v: 0, x: false };
         if (sem && sem.t === ini) {
           ac.o = sem.o;
           if (sem.h > ac.h) { ac.h = sem.h; }
           if (sem.l < ac.l) { ac.l = sem.l; }
           vFix = Math.max(0, (sem.v || 0) - (b.v || 0));
+          tbFix = Math.max(0, (sem.tb || 0) - (b.tb || 0));
         }
         sem = null;
       }
@@ -3454,9 +3461,10 @@ Resources:`;for(let t of c){if(!t||typeof t!=`string`)throw Error(`@supabase/aut
       if (b.l < ac.l) { ac.l = b.l; }
       ac.c = b.c;
       ac.v = vFix + (b.v || 0);
+      ac.tb = b.tb != null ? tbFix + b.tb : undefined;
       ac.x = !!b.x && b.t + d.bms >= ini + d.ms;
-      if (b.x) { vFix += (b.v || 0); }
-      if (h.onCandle) { h.onCandle({ t: ac.t, o: ac.o, h: ac.h, l: ac.l, c: ac.c, v: ac.v, x: ac.x }); }
+      if (b.x) { vFix += (b.v || 0); tbFix += (b.tb || 0); }
+      if (h.onCandle) { h.onCandle({ t: ac.t, o: ac.o, h: ac.h, l: ac.l, c: ac.c, v: ac.v, tb: ac.tb, x: ac.x }); }
     };
     return openStream(symbol, d.base, hh);
   }
@@ -3469,7 +3477,7 @@ Resources:`;for(let t of c){if(!t||typeof t!=`string`)throw Error(`@supabase/aut
     return socket(s + '@kline_' + interval + '/' + s + '@ticker', 30000, function (stream, d) {
       if (d.e === 'kline' && h.onCandle) {
         var k = d.k;
-        h.onCandle({ t: k.t, o: +k.o, h: +k.h, l: +k.l, c: +k.c, v: +k.v, x: !!k.x });   /* x: vela fechada */
+        h.onCandle({ t: k.t, o: +k.o, h: +k.h, l: +k.l, c: +k.c, v: +k.v, tb: +k.V, x: !!k.x });   /* x: vela fechada; tb: volume agressor comprador */
       } else if (d.e === '24hrTicker' && h.onTicker) {
         h.onTicker({
           last: +d.c, change: +d.p, changePct: +d.P,
@@ -5246,7 +5254,8 @@ Resources:`;for(let t of c){if(!t||typeof t!=`string`)throw Error(`@supabase/aut
       r = rows[i];
       spread = r.h - r.l;
       body = Math.abs(r.c - r.o);
-      s = spread > 0 ? (r.c - r.o) / spread * r.v : 0;
+      s = (r.tb != null && r.tb === r.tb && r.v > 0) ? (2 * r.tb - r.v)
+        : (spread > 0 ? (r.c - r.o) / spread * r.v : 0);   /* real: compra agredida - venda agredida */
       ac = (r.v + s) / 2;
       av = (r.v - s) / 2;
       ra = 1;
@@ -12781,6 +12790,7 @@ Resources:`;for(let t of c){if(!t||typeof t!=`string`)throw Error(`@supabase/aut
     if (global.MXReal && global.MXReal.tenta({
       sym: st.sym, tf: st.tf,
       aplica: function (r) {
+        if (global.MXFluxo && global.MXFluxo.ativo) { global.MXFluxo.ativo(st.sym, 'Binance'); }
         rows = r; api.setData(rows, st.tf);
         if (global.MXStudies) { global.MXStudies.setData(rows, st.tf, st.sym); }
         if (global.MXDraw && global.MXDraw.setSymbol) { global.MXDraw.setSymbol(st.sym, st.tf); }
@@ -12801,7 +12811,21 @@ Resources:`;for(let t of c){if(!t||typeof t!=`string`)throw Error(`@supabase/aut
   }
 
   function demoAleatorio() {
-    /* sem acesso a Binance (ex.: pagina publicada): feed ALEATORIO so para testar a interface */
+    /* Antes aqui nascia um feed ALEATORIO (velas, book e negocios inventados). Agora a plataforma so
+       mostra dado real: sem fonte, avisa, deixa book e negocios vazios e tenta de novo sozinha. */
+    var meu = seq;
+    clearInterval(demoT);
+    $('bookAsks').innerHTML = $('bookBids').innerHTML = $('tradesList').innerHTML = '';
+    if (global.MXFluxo && global.MXFluxo.ativo) { global.MXFluxo.ativo(st.sym, ''); }
+    live('retry', '');
+    msg('Sem conexão com a Binance agora. Nenhum dado é inventado: tentando de novo em 5 s…', true);
+    global.clearTimeout(global.__mxDeNovo);
+    global.__mxDeNovo = global.setTimeout(function tenta() {
+      if (meu !== seq) { return; }
+      if (global.MXReplay && global.MXReplay.active()) { global.__mxDeNovo = global.setTimeout(tenta, 5000); return; }
+      load();
+    }, 5000);
+    return;
     var step = MS[st.tf] || 3e5, now = Math.floor(Date.now() / step) * step, p = PX[st.sym] || 100, vol = p * 0.0015, i, o, cl;
     rows = [];
     for (i = 400; i >= 0; i--) {
@@ -12861,6 +12885,7 @@ Resources:`;for(let t of c){if(!t||typeof t!=`string`)throw Error(`@supabase/aut
     $('bookAsks').innerHTML = $('bookBids').innerHTML = $('tradesList').innerHTML = '';
     put('lgSym', (S.bySymbol(st.sym) || {}).label || st.sym);
     api.setPrecision(prec());
+    if ((F.isFx(st.sym) || (global.MXFonte && global.MXFonte.tem(st.sym))) && global.MXFluxo && global.MXFluxo.ativo) { global.MXFluxo.ativo(st.sym, ''); }
     if (F.isFx(st.sym)) {
       if (st.tf !== '1d') { st.tf = '1d'; save(); sync(); }
       put('lgTf', '1D');
@@ -12889,6 +12914,7 @@ Resources:`;for(let t of c){if(!t||typeof t!=`string`)throw Error(`@supabase/aut
       if (my !== seq) { return; }
       applyRows(r, 'Binance');
       stream = S.openStream(st.sym, st.tf, hnd('Binance'));
+      if (global.MXFluxo && global.MXFluxo.ativo) { global.MXFluxo.ativo(st.sym, 'Binance'); }
       market = S.openMarket(st.sym, {
         onBook: function (b) { if (global.MXReal) { global.MXReal.viuDados(); } book(b); },
         onTrade: function (t) {
@@ -12925,6 +12951,17 @@ Resources:`;for(let t of c){if(!t||typeof t!=`string`)throw Error(`@supabase/aut
       return F.cb.klines(st.sym, st.tf).then(function (r) {
         if (my !== seq) { return; }
         applyRows(r, 'Coinbase'); stream = F.cb.stream(st.sym, st.tf, rows[rows.length - 1], hnd('Coinbase'));
+        if (global.MXFluxo && global.MXFluxo.ativo) { global.MXFluxo.ativo(st.sym, ''); }
+        msg('Velas pela Coinbase. Book, negócios e fluxo só com dado real da Binance: reconectando…', false);
+        (function volta(espera) {
+          global.clearTimeout(global.__mxDeNovo);
+          global.__mxDeNovo = global.setTimeout(function () {
+            if (my !== seq) { return; }
+            if (global.MXReplay && global.MXReplay.active()) { volta(espera); return; }
+            S.fetchKlines(st.sym, st.tf, 2).then(function () { if (my === seq && !(global.MXReplay && global.MXReplay.active())) { load(); } })
+              .catch(function () { if (my === seq) { volta(Math.min(espera * 2, 60000)); } });
+          }, espera);
+        })(10000);
       });
     }).catch(function () { if (my === seq) { demo(); } });
   }
@@ -16083,7 +16120,7 @@ Resources:`;for(let t of c){if(!t||typeof t!=`string`)throw Error(`@supabase/aut
     return pega('/api/v3/klines?symbol=' + sym + '&interval=' + tf + '&limit=2').then(function (k) {
       if (!k || !k.length) { return; }
       k.forEach(function (r) {
-        ponte.vela({ t: +r[0], o: +r[1], h: +r[2], l: +r[3], c: +r[4], v: +r[5] });
+        ponte.vela({ t: +r[0], o: +r[1], h: +r[2], l: +r[3], c: +r[4], v: +r[5], tb: +r[9] });
       });
     });
   }
@@ -16096,17 +16133,19 @@ Resources:`;for(let t of c){if(!t||typeof t!=`string`)throw Error(`@supabase/aut
     });
   }
 
+  /* Negocios agregados (os mesmos do WebSocket, mesmos IDs) em sequencia: a partir do ultimo visto,
+     sem buraco nenhum, mesmo quando passam centenas por segundo. */
   function negocios(sym) {
-    return pega('/api/v3/trades?symbol=' + sym + '&limit=25').then(function (ts) {
+    var q = ultimoId ? '&fromId=' + (ultimoId + 1) + '&limit=1000' : '&limit=60';
+    return pega('/api/v3/aggTrades?symbol=' + sym + q).then(function (ts) {
       if (!ts || !ts.length) { return; }
-      ts.filter(function (t) { return t.id > ultimoId; })
-        .sort(function (a, b) { return a.id - b.id; })
+      ts.filter(function (t) { return t.a > ultimoId; })
+        .sort(function (x, y) { return x.a - y.a; })
         .forEach(function (t) {
-          ultimoId = t.id;
-          /* isBuyerMaker = o comprador estava no livro: quem bateu foi o vendedor */
-          ponte.negocio({ p: +t.price, q: +t.qty, t: +t.time, side: t.isBuyerMaker ? 'down' : 'up' });
+          ultimoId = t.a;
+          /* m = o comprador estava no livro: quem agrediu foi o vendedor */
+          ponte.negocio({ id: t.a, p: +t.p, q: +t.q, t: +t.T, side: t.m ? 'down' : 'up' });
         });
-      if (!ultimoId && ts.length) { ultimoId = ts[ts.length - 1].id; }
     });
   }
 
@@ -16123,7 +16162,7 @@ Resources:`;for(let t of c){if(!t||typeof t!=`string`)throw Error(`@supabase/aut
 
     var S = global.MXData;
     var primeiro = S && S.fetchKlines ? S.fetchKlines(p.sym, p.tf, 1000) : pega('/api/v3/klines?symbol=' + p.sym + '&interval=' + p.tf + '&limit=1000')
-      .then(function (k) { return k.map(function (r) { return { t: +r[0], o: +r[1], h: +r[2], l: +r[3], c: +r[4], v: +r[5] }; }); });
+      .then(function (k) { return k.map(function (r) { return { t: +r[0], o: +r[1], h: +r[2], l: +r[3], c: +r[4], v: +r[5], tb: +r[9] }; }); });
 
     var desistiu = false;
     var prazo = global.setTimeout(function () {   /* 12s sem resposta: devolve para o plano B */
@@ -16178,12 +16217,15 @@ Resources:`;for(let t of c){if(!t||typeof t!=`string`)throw Error(`@supabase/aut
   function liga(p) {
     if (timers.length) { return; }
     ligado = true;
-    function rapido() { if (!doc.hidden && !emReplay()) { precoAgora(p.sym).catch(function () {}); } }
+    function rapido() {
+      if (doc.hidden || emReplay()) { return; }
+      precoAgora(p.sym).catch(function () {});
+      livro(p.sym).catch(function () {});
+      negocios(p.sym).catch(function () {});
+    }
     function medio() {
       if (doc.hidden || emReplay()) { return; }
       velaAtual(p.sym, p.tf).catch(function () {});
-      livro(p.sym).catch(function () {});
-      negocios(p.sym).catch(function () {});
     }
     function lento() { if (!doc.hidden && !emReplay()) { topo(p.sym).catch(function () {}); } }
     rapido(); medio(); lento();
@@ -16764,6 +16806,7 @@ Resources:`;for(let t of c){if(!t||typeof t!=`string`)throw Error(`@supabase/aut
       vela.l = Math.min(vela.l, t.lo);
       vela.c = t.p;
       vela.v = (vela.v || 0) + t.v;
+      if (vela.tb != null) { vela.tb += t.tb; }
       A.api.update(vela);
       A.legenda(vela);
       if (global.MXStudies) { global.MXStudies.update(rows); }
@@ -16787,8 +16830,9 @@ Resources:`;for(let t of c){if(!t||typeof t!=`string`)throw Error(`@supabase/aut
       if (t.p > acum.hi) { acum.hi = t.p; }
       if (t.p < acum.lo) { acum.lo = t.p; }
       acum.v += (t.q || 0);
+      if (t.side === 'up') { acum.tb += (t.q || 0); }
     } else {
-      acum = { t: t.t, p: t.p, hi: t.p, lo: t.p, v: (t.q || 0) };
+      acum = { t: t.t, p: t.p, hi: t.p, lo: t.p, v: (t.q || 0), tb: t.side === 'up' ? (t.q || 0) : 0 };
     }
     /* conta o ritmo, para a barra de estado poder mostrar que está ao vivo */
     var s = Math.floor(Date.now() / 1000);
@@ -17145,24 +17189,146 @@ Resources:`;for(let t of c){if(!t||typeof t!=`string`)throw Error(`@supabase/aut
   /* ------------------------------------------------------------- fluxo */
 
   var JANELAS = [['1m', 60000], ['5m', 300000], ['15m', 900000]];
+  var MIN = 60000;
   var fx = {
-    janela: 300000, neg: [], book: null, cvd: 0, pinta: 0,
-    vies: null, forca: null, cartao: null
+    janela: 300000, neg: [], book: null, pinta: 0,
+    vies: null, forca: null, cartao: null,
+    /* fluxo real: baldes de 1 minuto (compra e venda agredidas, em dinheiro) desde 00:00 UTC */
+    sym: '', fonte: '', min: {}, dia: 0, desde: 0, ultimoId: 0, pronto: false, fila: [], vez: 0, falhou: false
   };
 
-  function fluxo(t) {
-    fx.neg.push({ t: t.t, m: t.p * t.q, compra: t.side === 'up' });
+  var REST = ['https://data-api.binance.vision', 'https://api.binance.com'];
+  function pega(caminho) {
+    var i = 0;
+    function vai() {
+      return global.fetch(REST[i] + caminho, { cache: 'no-store' }).then(function (r) {
+        if (!r.ok) { throw new Error('HTTP ' + r.status); }
+        return r.json();
+      }).catch(function (e) {
+        if (++i < REST.length) { return vai(); }
+        throw e;
+      });
+    }
+    return vai();
+  }
+
+  function diaUTC(ms) { var d = new Date(ms); return Date.UTC(d.getUTCFullYear(), d.getUTCMonth(), d.getUTCDate()); }
+
+  function balde(m) { return fx.min[m] || (fx.min[m] = { c: 0, v: 0 }); }
+
+  /* conta um negócio real no balde do minuto dele e na fita exata dos últimos 15 minutos */
+  function conta(t) {
+    if (t.id) { if (t.id <= fx.ultimoId) { return; } fx.ultimoId = t.id; }
+    var d = diaUTC(t.t);
+    if (d > fx.dia) {                 /* virou o dia em UTC: o CVD recomeça, como nas plataformas */
+      fx.dia = d;
+      Object.keys(fx.min).forEach(function (k) { if (+k < d) { delete fx.min[k]; } });
+    }
+    var m = Math.floor(t.t / MIN) * MIN, din = t.p * t.q, b = balde(m);
+    if (t.side === 'up') { b.c += din; } else { b.v += din; }
+    fx.neg.push({ t: t.t, m: din, compra: t.side === 'up' });
     var corte = Date.now() - 900000;
     while (fx.neg.length && fx.neg[0].t < corte) { fx.neg.shift(); }
   }
 
+  function fluxo(t) {
+    if (!fx.fonte) { return; }
+    if (!fx.pronto) { fx.fila.push(t); return; }   /* o histórico do dia ainda está chegando */
+    conta(t);
+    if (!fx.pinta && livroVisivel()) { fx.pinta = global.setTimeout(function () { fx.pinta = 0; desenhaBook(); }, 250); }
+  }
+
+  /* Histórico real do dia: velas de 1 minuto da Binance trazem o volume agredido pelo comprador
+     (campo 10, em dinheiro); o resto do volume foi agredido pelo vendedor. O minuto em curso vem
+     negócio por negócio (aggTrades), com os mesmos IDs do WebSocket, para nada contar duas vezes. */
+  function historico(vez) {
+    var agora = Date.now(), dia = diaUTC(agora), atual = Math.floor(agora / MIN) * MIN, sym = fx.sym;
+    fx.dia = dia;
+    function velas(desde, juntas) {
+      return pega('/api/v3/klines?symbol=' + sym + '&interval=1m&startTime=' + desde + '&limit=1000').then(function (k) {
+        juntas = juntas.concat(k || []);
+        var u = k && k.length ? +k[k.length - 1][0] : 0;
+        if (k && k.length === 1000 && u + MIN < atual) { return velas(u + MIN, juntas); }
+        return juntas;
+      });
+    }
+    function negocios(q, pg) {
+      return pega('/api/v3/aggTrades?symbol=' + sym + q).then(function (ts) {
+        if (vez !== fx.vez) { return; }
+        (ts || []).forEach(function (t) { conta({ id: t.a, p: +t.p, q: +t.q, t: +t.T, side: t.m ? 'down' : 'up' }); });
+        if (ts && ts.length === 1000 && pg < 8) { return negocios('&fromId=' + (ts[ts.length - 1].a + 1) + '&limit=1000', pg + 1); }
+      });
+    }
+    return velas(dia, []).then(function (k) {
+      if (vez !== fx.vez) { return; }
+      k.forEach(function (r) {
+        var m = +r[0];
+        if (m >= atual) { return; }                       /* o minuto em curso vem pelos negócios */
+        var c = +r[10], tot = +r[7], b = balde(m);
+        b.c = c; b.v = Math.max(0, tot - c);
+      });
+      fx.desde = atual;
+      return negocios('&startTime=' + atual + '&limit=1000', 1);
+    }).then(function () {
+      if (vez !== fx.vez) { return; }
+      fx.pronto = true;
+      var f = fx.fila; fx.fila = [];
+      f.forEach(conta);
+      desenhaBook();
+    }).catch(function () {
+      if (vez !== fx.vez) { return; }
+      /* sem o histórico, o fluxo segue real a partir de agora (e o cartão diz isso) */
+      fx.falhou = true; fx.desde = Date.now(); fx.pronto = true;
+      var f = fx.fila; fx.fila = [];
+      f.forEach(conta);
+      desenhaBook();
+    });
+  }
+
+  /* o gráfico avisa qual ativo está aberto e de onde vem o dado real ('' = sem fluxo real) */
+  function ativo(sym, fonte) {
+    if (sym === fx.sym && (fonte || '') === fx.fonte && fx.fonte) { return; }   /* só mudou o tempo gráfico */
+    if (fonte === 'Binance' && global.MXData) {   /* B3 e outras fontes passam pelo mesmo caminho: só par da Binance tem fluxo */
+      var d = global.MXData.bySymbol ? global.MXData.bySymbol(sym) : null;
+      if ((global.MXData.isB3 && global.MXData.isB3(sym)) || (d && d.src && d.src !== 'binance')) { fonte = ''; }
+    }
+    if (sym === fx.sym && (fonte || '') === fx.fonte && fx.fonte) { return; }
+    fx.vez++;
+    fx.sym = sym; fx.fonte = fonte || ''; fx.min = {}; fx.neg = []; fx.fila = [];
+    fx.ultimoId = 0; fx.pronto = false; fx.falhou = false; fx.desde = 0; fx.book = null;
+    neg.linhas = []; neg.tam = [];
+    if (fx.fonte) { historico(fx.vez); }
+    if (fx.vies) { desenhaBook(); }
+  }
+
+  function livroVisivel() { var p = $('pane_book'); return !!(p && !p.hidden); }
+
   function somaFluxo() {
-    var corte = Date.now() - fx.janela, c = 0, v = 0;
-    for (var i = fx.neg.length - 1; i >= 0; i--) {
-      if (fx.neg[i].t < corte) { break; }
+    var agora = Date.now(), corte = agora - fx.janela, c = 0, v = 0, i, k, m, peso;
+    /* parte coberta negócio por negócio: exata */
+    var limite = Math.max(corte, fx.desde || agora);
+    for (i = fx.neg.length - 1; i >= 0; i--) {
+      if (fx.neg[i].t < limite) { break; }
       if (fx.neg[i].compra) { c += fx.neg[i].m; } else { v += fx.neg[i].m; }
     }
-    return { compra: c, venda: v, delta: c - v };
+    /* parte anterior: baldes de 1 minuto do histórico real (o mais antigo entra pela fração na janela) */
+    for (k in fx.min) {
+      m = +k;
+      if (m >= fx.desde || m + MIN <= corte) { continue; }
+      peso = m >= corte ? 1 : (m + MIN - corte) / MIN;
+      c += fx.min[k].c * peso; v += fx.min[k].v * peso;
+    }
+    var cvd = 0;
+    for (k in fx.min) { if (+k >= fx.dia) { cvd += fx.min[k].c - fx.min[k].v; } }
+    return { compra: c, venda: v, delta: c - v, cvd: cvd };
+  }
+
+  function legendaFonte() {
+    if (!fx.fonte) { return 'Fluxo real indisponível para este ativo: só nos pares da Binance.'; }
+    if (!fx.pronto) { return 'Carregando o fluxo real do dia na Binance…'; }
+    var h = new Date(fx.dia).getHours();
+    return fx.falhou ? 'Binance · negócios reais desde que a página abriu'
+      : 'Binance · negócios reais · CVD desde ' + h + 'h (00:00 UTC)';
   }
 
   function livro(b) {
@@ -17205,7 +17371,8 @@ Resources:`;for(let t of c){if(!t||typeof t!=`string`)throw Error(`@supabase/aut
       '<p class="fx-ba">—</p>' +
       '<div class="fx-lin"><span>Compra</span><b class="fx-fc">—</b><i class="fx-gc"></i></div>' +
       '<div class="fx-lin"><span>Venda</span><b class="fx-fv">—</b><i class="fx-gv"></i></div>' +
-      '<div class="fx-lin fx-fim"><span class="fx-de">Delta —</span><span class="fx-cv">CVD —</span></div>';
+      '<div class="fx-lin fx-fim"><span class="fx-de">Delta —</span><span class="fx-cv">CVD —</span></div>' +
+      '<p class="fx-fonte" data-ok="false">—</p>';
     pane.appendChild(c);
     fx.cartao = c;
 
@@ -17230,6 +17397,7 @@ Resources:`;for(let t of c){if(!t||typeof t!=`string`)throw Error(`@supabase/aut
     cabecaBook();
     if (!fx.vies) { return; }
     var b = fx.book, f = somaFluxo();
+    if (!fx.fonte) { b = null; f = { compra: 0, venda: 0, delta: 0, cvd: 0 }; }
 
     /* --- os quatro sinais: cada um diz compra (1), venda (-1) ou nada (0) --- */
     var compraB = b ? soma(b.bids) : 0, vendaB = b ? soma(b.asks) : 0;
@@ -17237,13 +17405,13 @@ Resources:`;for(let t of c){if(!t||typeof t!=`string`)throw Error(`@supabase/aut
     var sBook = tot > 0 ? (compraB / tot > 0.56 ? 1 : (compraB / tot < 0.44 ? -1 : 0)) : 0;
     var totF = f.compra + f.venda;
     var sAgr = totF > 0 ? (f.compra / totF > 0.55 ? 1 : (f.compra / totF < 0.45 ? -1 : 0)) : 0;
-    var sCvd = f.delta > totF * 0.02 ? 1 : (f.delta < -totF * 0.02 ? -1 : 0);
+    var sCvd = f.cvd > 0 ? 1 : (f.cvd < 0 ? -1 : 0);   /* CVD acumulado do dia, não a janela */
     var corte = Date.now() - fx.janela, ini = null, fim = null;
     for (var i = 0; i < fx.neg.length; i++) {
       if (fx.neg[i].t >= corte) { if (ini == null) { ini = i; } fim = i; }
     }
     var sPre = 0;
-    if (global.MXApp && global.MXApp.rows) {
+    if (fx.fonte && global.MXApp && global.MXApp.rows) {
       var rows = global.MXApp.rows(), u = rows[rows.length - 1];
       if (u) { sPre = u.c > u.o ? 1 : (u.c < u.o ? -1 : 0); }
     }
@@ -17294,16 +17462,22 @@ Resources:`;for(let t of c){if(!t||typeof t!=`string`)throw Error(`@supabase/aut
     var de = cart.querySelector('.fx-de'), cv = cart.querySelector('.fx-cv');
     de.textContent = 'Delta ' + curto(f.delta);
     de.setAttribute('data-d', f.delta > 0 ? 'up' : (f.delta < 0 ? 'down' : 'flat'));
-    cv.textContent = 'CVD ' + curto(f.delta);
-    cv.setAttribute('data-d', f.delta > 0 ? 'up' : (f.delta < 0 ? 'down' : 'flat'));
+    cv.textContent = 'CVD ' + curto(f.cvd);
+    cv.setAttribute('data-d', f.cvd > 0 ? 'up' : (f.cvd < 0 ? 'down' : 'flat'));
+    var ft = cart.querySelector('.fx-fonte');
+    if (ft) { ft.textContent = legendaFonte(); ft.setAttribute('data-ok', String(!!fx.fonte && fx.pronto)); }
   }
 
-  global.MXFluxo = { negocio: negocio, book: livro, desenha: desenhaBook };
+  global.MXFluxo = { negocio: negocio, book: livro, desenha: desenhaBook, ativo: ativo,
+    estado: function () {
+      var f = somaFluxo(), hist = 0, k;
+      for (k in fx.min) { if (+k < fx.desde && +k >= fx.dia) { hist += fx.min[k].c - fx.min[k].v; } }
+      return { desde: fx.desde, dia: fx.dia, cvdHist: hist, sym: fx.sym, fonte: fx.fonte, pronto: fx.pronto, falhou: fx.falhou, minutos: Object.keys(fx.min).length, negocios: fx.neg.length, compra: f.compra, venda: f.venda, delta: f.delta, cvd: f.cvd }; } };
 
   if (doc.readyState === 'loading') {
     doc.addEventListener('DOMContentLoaded', function () { global.setTimeout(cabecaNegocios, 1200); });
   } else { global.setTimeout(cabecaNegocios, 1200); }
-  global.setInterval(function () { if ($('pane_book') && !$('pane_book').hidden) { desenhaBook(); } }, 1500);
+  global.setInterval(function () { if (livroVisivel()) { desenhaBook(); } }, 1000);
 })(window);
 </script>
 <script>/* MX360 Plataforma: a área da Comunidade VIP, que abre pelo menu dos três traços.
