@@ -1846,6 +1846,21 @@ if(r&&r.t&&Date.now()-r.t<2592000000){document.documentElement.setAttribute('dat
   .rpl-float{left:8px;right:8px;bottom:10px;transform:none;justify-content:center;flex-wrap:wrap}
   .rpl-float .rpl-rel{order:-1;width:100%}
 }
+
+/* ativos prontos para replay */
+.rpl-prontos{display:grid;gap:8px;margin:4px 0 2px}
+.rpl-prontos h4{margin:0;font-size:.78rem;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.06em}
+.rpl-ativo{display:grid;grid-template-columns:1fr auto;gap:2px 10px;align-items:center;width:100%;padding:12px 14px;
+  border:1px solid var(--line-strong,rgba(128,128,128,.3));border-radius:12px;background:var(--surface);
+  color:var(--text);font:inherit;text-align:left;cursor:pointer}
+.rpl-ativo:hover{border-color:var(--gold)}
+.rpl-ativo:disabled{cursor:wait;opacity:.75}
+.rpl-ativo b{grid-column:1;font-size:.92rem;font-weight:800}
+.rpl-ativo span{grid-column:1;color:var(--gold);font-size:.74rem;font-weight:700}
+.rpl-ativo i{grid-column:1;color:var(--muted);font-size:.72rem;font-style:normal}
+.rpl-ativo em{grid-column:2;grid-row:1/4;color:var(--gold);font-size:.82rem;font-style:normal;font-weight:800;white-space:nowrap}
+.rpl-ou{display:flex;align-items:center;gap:10px;margin:10px 0 2px;color:var(--muted);font-size:.74rem}
+.rpl-ou::before,.rpl-ou::after{content:"";flex:1;height:1px;background:var(--line-strong,rgba(128,128,128,.3))}
 </style>
 <style>/* MX360 Plataforma: PsicoTrader (RECONSTRUIDO) */
 
@@ -14173,13 +14188,70 @@ Resources:`;for(let t of c){if(!t||typeof t!=`string`)throw Error(`@supabase/aut
     A.devolve();
   }
 
+  /* ------------------------------------------------------- ativos prontos */
+
+  /* Séries que já ficam na plataforma: o aluno escolhe e o replay começa, sem arquivo nenhum.
+     Cada uma vai compactada (.csv.gz) e é descompactada no próprio navegador; aparelho antigo, sem
+     descompactador, baixa a versão .csv normal. Para incluir outra série, basta um item a mais aqui. */
+  var PRONTOS = [
+    { id: 'win-3m', nome: 'Mini Índice (WIN)', sub: 'B3 · 3 minutos', arq: 'replay/win-3m.csv',
+      ini: '29/12/2025', fim: '11/11/2026', velas: 40797, kb: 415 },
+    { id: 'us30-3m', nome: 'US30 · Dow Jones', sub: 'Tickmill · 3 minutos', arq: 'replay/us30-3m.csv',
+      ini: '23/12/2025', fim: '11/11/2026', velas: 100942, kb: 1407 }
+  ];
+
+  function baixaPronto(it, aoProgresso) {
+    var gz = !!global.DecompressionStream;
+    return global.fetch(it.arq + (gz ? '.gz' : ''), { cache: 'force-cache' }).then(function (r) {
+      if (!r.ok) { throw new Error('Não consegui baixar a série de ' + it.nome + '. Confira a internet e tente de novo.'); }
+      var total = +r.headers.get('content-length') || (gz ? it.kb * 1024 : it.kb * 3500);
+      if (!r.body || !r.body.getReader) { return r.arrayBuffer(); }
+      var leitor = r.body.getReader(), partes = [], recebido = 0;
+      function passo() {
+        return leitor.read().then(function (x) {
+          if (x.done) {
+            var tudo = new Uint8Array(recebido), k = 0;
+            partes.forEach(function (p) { tudo.set(p, k); k += p.length; });
+            return tudo.buffer;
+          }
+          partes.push(x.value);
+          recebido += x.value.length;
+          aoProgresso(Math.min(1, recebido / total));
+          return passo();
+        });
+      }
+      return passo();
+    }).then(function (buf) {
+      var u8 = new Uint8Array(buf);
+      /* se o servidor já entregou descompactado, os bytes não começam com a marca do gzip */
+      if (u8[0] === 0x1f && u8[1] === 0x8b) {
+        return new global.Response(new global.Blob([u8]).stream()
+          .pipeThrough(new global.DecompressionStream('gzip'))).blob();
+      }
+      return new global.Blob([u8]);
+    }).then(function (b) {
+      return new global.File([b], it.nome + ' (' + it.sub.split('· ')[1] + ').csv', { type: 'text/csv' });
+    });
+  }
+
+  function listaProntos() {
+    return '<div class="rpl-prontos"><h4>Ativos prontos para replay</h4>' +
+      PRONTOS.map(function (it) {
+        return '<button type="button" class="rpl-ativo" data-pronto="' + it.id + '">' +
+          '<b>' + it.nome + '</b><span>' + it.sub + '</span>' +
+          '<i>' + it.ini + ' a ' + it.fim + ' · ' + n2(it.velas) + ' velas</i>' +
+          '<em data-st>Abrir ›</em></button>';
+      }).join('') + '</div><p class="rpl-ou"><span>ou abra o seu arquivo</span></p>';
+  }
+
   /* ------------------------------------------------------------------- tela */
 
   function desenhaPainel() {
     if (!pane) { return; }
     if (!d) {
       pane.innerHTML = '<div class="rp"><h3>Replay de mercado</h3>' +
-        '<p>Abra um arquivo CSV de velas (qualquer ativo, qualquer tempo gráfico). O replay começa na primeira vela e só anda quando você mandar.</p>' +
+        '<p>Escolha um ativo pronto ou abra um arquivo CSV de velas (qualquer ativo, qualquer tempo gráfico). O replay começa na primeira vela e só anda quando você mandar.</p>' +
+        listaProntos() +
         '<label class="rpl-drop" data-drop><b>Arraste o arquivo aqui</b><span>ou</span>' +
         '<span><button type="button" class="rpl-pick" data-pick>Escolher arquivo CSV</button></span>' +
         '<input type="file" accept=".csv,.txt,text/csv" data-file></label>' +
@@ -14227,6 +14299,25 @@ Resources:`;for(let t of c){if(!t||typeof t!=`string`)throw Error(`@supabase/aut
     alvo.addEventListener('drop', function (ev) {
       var f = ev.dataTransfer && ev.dataTransfer.files && ev.dataTransfer.files[0];
       if (f) { abre(f); }
+    });
+
+    Array.prototype.forEach.call(pane.querySelectorAll('[data-pronto]'), function (b) {
+      b.onclick = function () {
+        var it = null;
+        PRONTOS.forEach(function (x) { if (x.id === b.getAttribute('data-pronto')) { it = x; } });
+        if (!it || b.disabled) { return; }
+        Array.prototype.forEach.call(pane.querySelectorAll('[data-pronto]'), function (o) { o.disabled = true; });
+        var st = b.querySelector('[data-st]');
+        err.textContent = '';
+        st.textContent = 'Baixando…';
+        baixaPronto(it, function (p) { st.textContent = 'Baixando ' + Math.round(p * 100) + '%'; })
+          .then(function (file) { abre(file); })
+          .catch(function (e) {
+            Array.prototype.forEach.call(pane.querySelectorAll('[data-pronto]'), function (o) { o.disabled = false; });
+            st.textContent = 'Abrir ›';
+            err.textContent = (e && e.message) || 'Não consegui baixar a série.';
+          });
+      };
     });
 
     function abre(file) {
