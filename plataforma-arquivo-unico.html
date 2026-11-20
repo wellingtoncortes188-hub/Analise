@@ -2242,6 +2242,28 @@ html[data-admin] .nav .nv-vip{border-color:rgba(var(--gold-rgb),.4)}
 .bl-abertas li button{margin-left:auto;width:22px;height:22px;border:0;border-radius:4px;
   background:rgba(var(--ink-rgb),.1);color:var(--text);font:700 13px Manrope,sans-serif;cursor:pointer}
 .bl-abertas li button:hover{background:#d92b2b;color:#fff}
+
+/* --- cores e detalhes no padrão da referência --- */
+.bl-compra{background:#1fae4b}.bl-compra:hover{background:#19953f}
+.bl-venda{background:#e53935}.bl-venda:hover{background:#cc2f2c}
+.bl-zerar{background:#e53935}.bl-zerar:hover{background:#cc2f2c}
+.bl-inverter{background:#c9cdd1;color:#1b2430}.bl-inverter:hover{background:#b8bdc2}
+.bl-cancelar{background:#c62828}.bl-cancelar:hover{background:#ad2222}
+.bl-sw{background:#4a4f55}
+.bl-sw[aria-checked="true"]{background:#1fae4b}
+.bl-trava{background:#1fae4b}.bl-trava:hover{background:#19953f}
+.bl-trava[aria-pressed="true"]{background:#d92b2b}
+.bl-msg{margin:0;color:#8a6d1c;font-size:.82rem;line-height:1.4;font-weight:600}
+.bl-dl dd[data-dir="up"]{color:#1fae4b}
+.bl-dl dd[data-dir="down"]{color:#e53935}
+.bl-rodape .bl-tag,.bl-conta .bl-tag{display:grid;place-items:center;line-height:1;font-size:12px;text-align:center}
+.bl-campos .bl-larga{grid-column:1/-1}
+.bl-abertas li{display:flex;align-items:center;gap:10px;min-height:32px;padding:0 4px 0 8px;border-radius:5px;background:rgba(var(--ink-rgb),.05);margin-bottom:4px}
+.bl-abertas li b{flex:none;width:12px;font-weight:800}
+.bl-abertas li span{flex:1;min-width:0;color:var(--text);font-size:.82rem}
+.bl-abertas li button{flex:none;width:24px;height:24px;border:0;border-radius:4px;background:none;color:var(--muted);font-size:15px;cursor:pointer}
+.bl-abertas li button:hover{background:#d92b2b;color:#fff}
+.bl-abertas li.bl-vazio{background:none;padding:0;color:var(--muted)}
 </style>
 <style>/* MX360 Plataforma: ordens no gráfico e trilho da direita no visual novo (a pedido). */
 
@@ -2832,35 +2854,7 @@ html.cv-aberto .nav{z-index:9002}
 .topbar .symbol .lg-topo:empty{display:none}
 .topbar .symbol:has(.lg-topo .lg)::before{display:none}
 </style>
-<style>/* Etiqueta da entrada igual a do take e do stop: selo MX360°, lado e quantidade (verde na compra,
-   vermelho na venda), resultado colorido, arrasto e X, tudo na mesma caixa escura de 26 px. */
-.pz-pos .pz-tag,.pz-ord .pz-tag,.pz-cob .pz-tag{gap:0;height:26px;padding:0;border:0;border-radius:5px;background:#1b1f1d;
-  overflow:hidden;box-shadow:0 1px 6px rgba(0,0,0,.35);color:#fff;font:800 11px/1 Manrope,system-ui,sans-serif}
-.pz-pos .pz-tag em,.pz-ord .pz-tag em{display:grid;place-items:center;align-self:stretch;padding:0 7px;border-radius:0;
-  background:#6b5a22;color:#fff;font:800 10px/1 Manrope,system-ui,sans-serif;letter-spacing:.02em}
-.pz-pos .pz-tag b,.pz-ord .pz-tag b,.pz-cob .pz-tag b{display:grid;place-items:center;align-self:stretch;padding:0 8px;
-  color:#fff;font:800 11px/1 Manrope,system-ui,sans-serif;letter-spacing:0}
-.pz-pos[data-lado="C"] .pz-tag b{background:#1f6b3f}
-.pz-pos[data-lado="V"] .pz-tag b{background:#5d2f2f}
-.pz-ord .pz-tag b{background:#5a4a1c}
-.pz-cob .pz-tag b{background:#3a3d40}
-.pz-pos .pz-tag .pz-r,.pz-ord .pz-tag .pz-r,.pz-cob .pz-tag .pz-r{display:grid;place-items:center;align-self:stretch;padding:0 9px;
-  font:700 11px/1 Manrope,system-ui,sans-serif;font-variant-numeric:tabular-nums;color:#fff}
-.pz-pos .pz-tag .pz-r:empty,.pz-ord .pz-tag .pz-r:empty{display:none}
-.pz-pos .pz-tag .pz-r[data-dir="up"],.pz-cob .pz-tag .pz-r[data-dir="up"]{color:#4ade80}
-.pz-pos .pz-tag .pz-r[data-dir="down"],.pz-cob .pz-tag .pz-r[data-dir="down"]{color:#ff8b8b}
-.pz-pos .pz-tag i,.pz-ord .pz-tag i{align-self:stretch;display:grid;place-items:center;width:auto;height:auto;padding:0 7px;
-  border-radius:0;background:rgba(255,255,255,.08);color:#fff;font-style:normal;font-size:13px;opacity:1}
-.pz-pos .pz-tag i.pz-m{background:rgba(255,255,255,.04)}
-.pz-pos .pz-tag i.pz-x:hover,.pz-ord .pz-tag i.pz-x:hover{background:#d92b2b}
-/* a linha: fina e cheia como a do take e do stop, na cor do selo MX360° */
-.pz-pos{color:#a8893a}
-.pz-pos>hr{border-top:1px solid rgba(168,137,58,.85);opacity:1}
-.pz-ord{color:#c79a3a}
-.pz-ord>hr{border-top:1px dashed rgba(199,154,58,.85);opacity:1}
-.pz-cob>hr{border-top:1px dotted rgba(140,145,150,.8)}
-
-/* configuracoes: escolha da marca das operacoes */
+<style>/* configuracoes: escolha da marca das operacoes */
 .mo-txt{margin:0 0 12px;color:var(--muted);font-size:.85rem}
 .mo-op{display:grid;grid-template-columns:repeat(auto-fill,minmax(118px,1fr));gap:8px;margin-bottom:14px}
 .mo-op button{display:flex;flex-direction:column;align-items:center;gap:6px;padding:12px 8px;border:1px solid rgba(var(--ink-rgb),.14);
@@ -2872,7 +2866,58 @@ html.cv-aberto .nav{z-index:9002}
 .mo-ic b{font:800 16px Manrope,sans-serif}
 .mo-ic i{font-style:normal;color:var(--muted)}
 .cm-sw[disabled]{opacity:.35;cursor:not-allowed}
-.pz-pos .pz-tag{left:12px}
+.mo-h{margin-top:22px!important}
+.mo-l small{display:block;margin-top:3px;color:var(--muted);font-size:.76rem;font-weight:500}
+</style>
+<style>/* Linhas das ordens no estilo da referência: rótulo colorido + valor em caixa clara + X separado,
+   preço numa plaquinha da mesma cor na escala, linha fina e cheia. Verde = TP e compra, vermelho = SL e venda. */
+.ct-tp,.pz-pos[data-lado="C"]{--oc:#1fa04b}
+.ct-sl,.pz-pos[data-lado="V"]{--oc:#d23a4a}
+.pz-ord{--oc:#c98a1b}
+.pz-cob{--oc:#8a8f94}
+
+/* ---- take e stop ---- */
+.ct-lvl{border-top:0!important}
+.ct-lvl::before{content:"";position:absolute;top:-.5px;left:var(--l0,0);right:0;border-top:1px solid var(--oc)}
+.ct-tag{left:12px;gap:0!important;height:22px!important;padding:0!important;border-radius:0!important;background:none!important;
+  box-shadow:none!important;overflow:visible!important;color:var(--oc)!important}
+.ct-tag .ct-mx{display:none!important}
+.ct-tag b{height:22px;padding:0 7px!important;border:1px solid var(--oc);border-radius:3px 0 0 3px;background:var(--oc)!important;
+  color:#fff!important;font:800 11px/20px Manrope,system-ui,sans-serif!important}
+.ct-tag .ct-val{height:22px;padding:0 8px!important;border:1px solid var(--oc);border-left:0;border-radius:0 3px 3px 0;
+  background:var(--bg)!important;color:var(--oc)!important;font:700 11px/20px Manrope,system-ui,sans-serif!important}
+.ct-tag i{width:22px;height:22px;margin-left:4px;padding:0!important;border:1px solid var(--oc);border-radius:3px;
+  background:var(--bg)!important;color:var(--oc)!important;font-size:14px!important;line-height:20px}
+.ct-tag i:hover{background:var(--oc)!important;color:#fff!important}
+.ct-ax{background:var(--oc)!important;color:#fff!important;border-radius:2px!important}
+
+/* ---- entrada, ordens pendentes e cobertura ---- */
+.pz-l>hr{border-top:1px solid var(--oc)!important;opacity:1!important}
+.pz-ord>hr{border-top-style:dashed!important}
+.pz-cob>hr{border-top-style:dotted!important}
+.pz-l .pz-tag{gap:0;height:22px;padding:0;border:0;border-radius:0;background:none;box-shadow:none;overflow:visible;color:var(--oc);
+  font:800 11px/1 Manrope,system-ui,sans-serif}
+.pz-l .pz-tag em,.pz-l .pz-tag i.pz-m{display:none!important}
+.pz-l .pz-tag b{display:grid;place-items:center;align-self:stretch;padding:0 7px;border:1px solid var(--oc);border-radius:3px 0 0 3px;
+  background:var(--oc)!important;color:#fff;font:800 11px/1 Manrope,system-ui,sans-serif;letter-spacing:0}
+.pz-l .pz-tag .pz-r{display:grid;place-items:center;align-self:stretch;padding:0 8px;border:1px solid var(--oc);border-left:0;
+  border-radius:0 3px 3px 0;background:var(--bg);color:var(--oc);font:700 11px/1 Manrope,system-ui,sans-serif}
+.pz-l .pz-tag .pz-r:empty{display:none}
+.pz-l .pz-tag .pz-r:empty+i,.pz-l .pz-tag b:last-child{border-radius:3px}
+.pz-l .pz-tag .pz-r[data-dir="up"]{color:#1fa04b}
+.pz-l .pz-tag .pz-r[data-dir="down"]{color:#d23a4a}
+.pz-l .pz-tag i.pz-x{display:grid;place-items:center;align-self:stretch;width:22px;height:auto;margin-left:4px;padding:0;
+  border:1px solid var(--oc);border-radius:3px;background:var(--bg);color:var(--oc);font-style:normal;font-size:14px;opacity:1}
+.pz-l .pz-tag i.pz-x:hover{background:var(--oc);color:#fff}
+.pz-l .pz-ax{background:var(--oc)!important;color:#fff!important;border-radius:2px;height:20px;line-height:20px;font-size:11px;padding:0 7px}
+
+/* Painel lateral encaixado ao lado do gráfico em telas largas (como na referência): o gráfico encolhe,
+   a escala e as etiquetas das ordens ficam visíveis. Em celular estreito ele continua por cima. */
+@media (min-width:700px){
+  .stage:has(.side[data-pro="1"]) .panel{right:calc(44px + min(340px, 100% - 44px))!important;transition:right .2s ease}
+  .stage .side[data-pro="1"]{box-shadow:none}
+  .stage:has(.side[data-pro="1"]) .rhandle{right:calc(50px + min(340px, 100% - 44px))}
+}
 </style>
 </head>
 <body>
@@ -12680,7 +12725,7 @@ Resources:`;for(let t of c){if(!t||typeof t!=`string`)throw Error(`@supabase/aut
     });
     var tp = document.querySelector('.tb-pop');
     if (tp && !tp.hidden && !dentro('.tb-pop') && !dentro('#btnType')) { tp.hidden = true; $('btnType').setAttribute('aria-expanded', 'false'); }
-    if (isOpen() && !dentro('#side') && !dentro('.rrail') && !dentro('.rhandle') && !dentro('.ct-chip')) { $('side').setAttribute('data-pro', '0'); sync(); }
+    if (isOpen() && !(global.matchMedia && global.matchMedia('(min-width: 700px)').matches) && !dentro('#side') && !dentro('.rrail') && !dentro('.rhandle') && !dentro('.ct-chip')) { $('side').setAttribute('data-pro', '0'); sync(); }
   }
   function nav() {
     var bk = mk('div', 'nav-bk'), n = mk('nav', 'nav'), it = [['▥', 'Terminal', 0], ['◍', 'Comunidade', 1], ['▣', 'Sala ao Vivo', 1], ['✦', 'Academia', 1], ['↗', 'Desempenho', 1], ['≡', 'Notícias', 1]];
@@ -13797,9 +13842,10 @@ Resources:`;for(let t of c){if(!t||typeof t!=`string`)throw Error(`@supabase/aut
         var ab = aberto(p), q = Math.abs(p.q), t = el.pos.querySelector('.pz-tag');
         t.querySelector('em').textContent = 'MX360°';
         el.pos.setAttribute('data-lado', p.q > 0 ? 'C' : 'V');
-        t.querySelector('b').textContent = (p.q > 0 ? 'C' : 'V') + ' ' + (q % 1 ? n2(q) : q);
+        t.querySelector('b').textContent = q % 1 ? n2(q) : String(q);   /* a cor diz o lado: verde compra, vermelho venda */
         var r = t.querySelector('.pz-r');
-        r.textContent = dinheiro(ab);
+        if (Math.abs(ab) < 0.005) { ab = 0; }   /* nada de "-0,00" */
+        r.textContent = (ab > 0 ? '+' : '') + dinheiro(ab);
         r.setAttribute('data-dir', dir(ab));
       }
       var cb = cobertura(p);
@@ -13809,10 +13855,6 @@ Resources:`;for(let t of c){if(!t||typeof t!=`string`)throw Error(`@supabase/aut
         tc.querySelector('b').textContent = 'Ponto de Cobertura';
         tc.querySelector('.pz-r').textContent = dinheiro(-cfg.custo * Math.abs(p.q));
         tc.querySelector('.pz-r').setAttribute('data-dir', 'down');
-        /* a etiqueta da cobertura fica sempre logo depois da etiqueta da posição, sem cobrir o X */
-        var tp0 = el.pos.querySelector('.pz-tag');
-        if (tp0 && !el.pos.hidden && global.innerWidth > 620) { tc.style.left = (tp0.offsetLeft + tp0.offsetWidth + 10) + 'px'; }
-        else { tc.style.left = ''; }
       }
     }
 
@@ -15614,7 +15656,27 @@ Resources:`;for(let t of c){if(!t||typeof t!=`string`)throw Error(`@supabase/aut
   function erro(s) {
     erroMsg = s || '';
     if (ui.erro) { ui.erro.textContent = erroMsg; ui.erro.hidden = !erroMsg; }
+    if (erroMsg && ui.msg) { ui.msg.hidden = true; }
   }
+  /* aviso de execução, como na referência: "Compra executada a 59.174,52." */
+  function ok(s) {
+    if (!ui.msg) { return; }
+    ui.msg.textContent = s || '';
+    ui.msg.hidden = !s;
+  }
+  function estrategia() {
+    return cfg.estrategias.filter(function (x) { return x.nome === cfg.estrat; })[0] || null;
+  }
+  /* posição nova (ou virada): a estratégia põe o alvo e o stop a tantos pontos da entrada */
+  function colocaBracket(eraLado) {
+    var s = estrategia(), e = E(), p = e && e.pos;
+    if (!s || !p || !global.MXTrade || !global.MXTrade.setLv) { return; }
+    var lado = p.q > 0 ? 1 : -1;
+    if (eraLado === lado) { return; }                     /* só aumentou a mesma posição */
+    if (s.alvo > 0) { global.MXTrade.setLv('tp', p.avg + lado * s.alvo); }
+    if (s.stop > 0) { global.MXTrade.setLv('sl', p.avg - lado * s.stop); }
+  }
+  function ladoAtual() { var e = E(), p = e && e.pos; return p ? (p.q > 0 ? 1 : -1) : 0; }
 
   /* guarda a posição antes de cada mudança, para saber quantos pontos fecharam */
   function antes() {
@@ -15633,11 +15695,15 @@ Resources:`;for(let t of c){if(!t||typeof t!=`string`)throw Error(`@supabase/aut
     if (!podeEnviar()) { pedeSenha(); return; }
     var q = qtd();
     if (!(q > 0)) { erro('Informe a quantidade.'); return; }
-    var e = E();
+    var e = E(), era = ladoAtual();
     antes();
     var r = global.MXTrade.ordem(side, q);
     depois(e ? e.last : 0);
     erro(r || '');
+    if (!r) {
+      colocaBracket(era);
+      ok((side === 'buy' ? 'Compra' : 'Venda') + ' executada a ' + pr(e ? e.last : 0) + '.');
+    }
     pinta();
   }
 
@@ -15649,6 +15715,7 @@ Resources:`;for(let t of c){if(!t||typeof t!=`string`)throw Error(`@supabase/aut
     var r = global.MXTrade.ordem(p.q > 0 ? 'sell' : 'buy', Math.abs(p.q));
     depois(e.last);
     erro(r || '');
+    if (!r) { ok('Posição zerada a ' + pr(e.last) + '.'); }
     pinta();
   }
 
@@ -15662,6 +15729,7 @@ Resources:`;for(let t of c){if(!t||typeof t!=`string`)throw Error(`@supabase/aut
     depois(e.last);
     if (!r) { r = global.MXTrade.ordem(lado, q); }  /* e abre do outro lado */
     erro(r || '');
+    if (!r) { colocaBracket(0); ok('Posição invertida a ' + pr(e.last) + '.'); }
     pinta();
   }
 
@@ -15670,7 +15738,7 @@ Resources:`;for(let t of c){if(!t||typeof t!=`string`)throw Error(`@supabase/aut
   function aplicaNoPreco() {
     doc.documentElement.setAttribute('data-ct', cfg.noPreco ? '1' : '0');
     if (ui.sw) { ui.sw.setAttribute('aria-checked', String(cfg.noPreco)); }
-    if (ui.aviso) { ui.aviso.hidden = cfg.noPreco; }
+    if (ui.aviso) { ui.aviso.hidden = true; }   /* a chave fica logo ali: não precisa de aviso */
   }
 
   /* --------------------------------------------------------- estratégias */
@@ -15694,13 +15762,15 @@ Resources:`;for(let t of c){if(!t||typeof t!=`string`)throw Error(`@supabase/aut
     bk.className = 'cf-back';
     bk.innerHTML = '<div class="cf-card" role="dialog" aria-modal="true" aria-label="Estratégia">' +
       '<h2 class="cf-title">' + (edita ? 'Editar estratégia' : 'Nova estratégia') + '</h2>' +
-      '<p class="cf-text">Guarda a quantidade e os três atalhos de lote.</p>' +
+      '<p class="cf-text">Guarda a quantidade, os três atalhos de lote e, se quiser, o alvo e o stop que entram sozinhos a cada entrada (em pontos de preço a partir da entrada).</p>' +
       '<div class="cf-campos">' +
       '<label class="larga">Nome<input data-k="nome" value="' + (edita ? atual.nome : '') + '"></label>' +
       '<label>Quantidade<input data-k="q" type="number" step="any" min="0" value="' + (edita ? atual.qtd : cfg.qtd) + '"></label>' +
       '<label>Atalho 1<input data-k="r0" type="number" step="any" min="0" value="' + (edita ? atual.rapidas[0] : cfg.rapidas[0]) + '"></label>' +
       '<label>Atalho 2<input data-k="r1" type="number" step="any" min="0" value="' + (edita ? atual.rapidas[1] : cfg.rapidas[1]) + '"></label>' +
       '<label>Atalho 3<input data-k="r2" type="number" step="any" min="0" value="' + (edita ? atual.rapidas[2] : cfg.rapidas[2]) + '"></label>' +
+      '<label>Alvo (pts)<input data-k="alvo" type="number" step="any" min="0" placeholder="sem alvo" value="' + (edita && atual.alvo ? atual.alvo : '') + '"></label>' +
+      '<label>Stop (pts)<input data-k="stop" type="number" step="any" min="0" placeholder="sem stop" value="' + (edita && atual.stop ? atual.stop : '') + '"></label>' +
       '</div><div class="cf-acts">' +
       (edita ? '<button type="button" class="cf-btn cf-no" data-apaga>Apagar</button>' : '<button type="button" class="cf-btn cf-no" data-x>Cancelar</button>') +
       '<button type="button" class="cf-btn cf-yes" data-ok>Salvar</button></div></div>';
@@ -15719,7 +15789,8 @@ Resources:`;for(let t of c){if(!t||typeof t!=`string`)throw Error(`@supabase/aut
     bk.querySelector('[data-ok]').onclick = function () {
       var nome = String(v('nome')).trim();
       if (!nome) { return; }
-      var nova = { nome: nome, qtd: +v('q') || 0.01, rapidas: [+v('r0') || 0.01, +v('r1') || 0.02, +v('r2') || 0.03] };
+      var nova = { nome: nome, qtd: +v('q') || 0.01, rapidas: [+v('r0') || 0.01, +v('r1') || 0.02, +v('r2') || 0.03],
+        alvo: Math.max(0, +v('alvo') || 0), stop: Math.max(0, +v('stop') || 0) };
       cfg.estrategias = cfg.estrategias.filter(function (x) { return x.nome !== (edita ? atual.nome : nome); });
       cfg.estrategias.push(nova);
       cfg.estrat = nome;
@@ -15739,10 +15810,10 @@ Resources:`;for(let t of c){if(!t||typeof t!=`string`)throw Error(`@supabase/aut
       '<div class="bl-lin bl-conta">' +
       '<span class="bl-tag">S</span>' +
       '<select class="bl-sel" data-k="conta"><option>Simulador</option></select>' +
-      '<button type="button" class="bl-ico" data-k="trava" title="Travar envio" aria-pressed="false">' + ico('lock') + '</button>' +
+      '<button type="button" class="bl-ok bl-trava" data-k="trava" title="Envio liberado (toque para travar)" aria-pressed="false">' + ico('check') + '</button>' +
       '</div>' +
 
-      '<div class="bl-lin bl-senha">' +
+      '<div class="bl-lin bl-senha" data-k="senhaLin" hidden>' +
       '<input class="bl-in" type="password" data-k="senha" placeholder="Crie a senha de envio" autocomplete="new-password">' +
       '<button type="button" class="bl-ico" data-k="olho" title="Mostrar senha">' + ico('eye') + '</button>' +
       '<button type="button" class="bl-ok" data-k="senhaok" title="Confirmar">' + ico('check') + '</button>' +
@@ -15778,6 +15849,7 @@ Resources:`;for(let t of c){if(!t||typeof t!=`string`)throw Error(`@supabase/aut
       '<button type="button" class="bl-sw" role="switch" data-k="sw" aria-checked="true"><i></i></button></div>' +
       '<p class="bl-aviso" data-k="aviso" hidden>Ordem no preço escondida. Para voltar, ligue a chave no Chart Trading.</p>' +
       '<p class="bl-erro" data-k="erro" hidden></p>' +
+      '<p class="bl-msg" data-k="msg" hidden></p>' +
 
       '<div class="bl-res">' +
       '<div class="bl-res-cab"><b>Resultado</b>' +
@@ -15787,6 +15859,7 @@ Resources:`;for(let t of c){if(!t||typeof t!=`string`)throw Error(`@supabase/aut
       '<dl class="bl-dl">' +
       '<div><dt>Qtd</dt><dd data-k="rQtd">—</dd></div>' +
       '<div><dt>Preço médio</dt><dd data-k="rAvg">—</dd></div>' +
+      '<div><dt data-k="rPmRot">PM projetado</dt><dd data-k="rPm">—</dd></div>' +
       '<div><dt>Res. Aberto</dt><dd data-k="rAberto">—</dd></div>' +
       '<div class="bl-fraco"><dt>Res. do Dia</dt><dd data-k="rDia">0,00</dd></div>' +
       '<div class="bl-total"><dt>Total</dt><dd data-k="rTotal">0,00</dd></div>' +
@@ -15795,15 +15868,12 @@ Resources:`;for(let t of c){if(!t||typeof t!=`string`)throw Error(`@supabase/aut
       '<div><b>Simulador</b><span>Nenhuma ordem real é enviada</span></div></div>' +
       '</div>' +
 
-      '<details class="bl-limite"><summary>Ordem limite</summary>' +
+      '<details class="bl-limite" open><summary>Ordem limite</summary>' +
       '<div class="bl-campos">' +
-      '<label>Preço<input data-k="lpx" type="number" step="any" inputmode="decimal"></label>' +
-      '<label>Qtd<input data-k="lq" type="number" step="any" inputmode="decimal" value="' + cfg.qtd + '"></label>' +
-      '<label>Alvo<input data-k="ltp" type="number" step="any" placeholder="opcional"></label>' +
-      '<label>Stop<input data-k="lsl" type="number" step="any" placeholder="opcional"></label>' +
+      '<label class="bl-larga">Preço<input data-k="lpx" type="number" step="any" inputmode="decimal"></label>' +
       '</div>' +
-      '<div class="bl-par"><button type="button" class="bl-b bl-compra" data-k="lcompra">Comprar</button>' +
-      '<button type="button" class="bl-b bl-venda" data-k="lvenda">Vender</button></div>' +
+      '<div class="bl-par"><button type="button" class="bl-b bl-compra" data-k="lcompra">C Limite</button>' +
+      '<button type="button" class="bl-b bl-venda" data-k="lvenda">V Limite</button></div>' +
       '</details>' +
 
       '<div class="bl-abertas"><h4>ORDENS ABERTAS</h4><ul data-k="abertas"><li class="bl-vazio">Nenhuma ordem aberta.</li></ul></div>' +
@@ -15899,7 +15969,7 @@ Resources:`;for(let t of c){if(!t||typeof t!=`string`)throw Error(`@supabase/aut
       });
     };
     ui.trava.onclick = function () {
-      if (!cfg.senha) { erro('Crie a senha de envio para poder travar.'); ui.senha.focus(); return; }
+      if (!cfg.senha) { ui.senhaLin.hidden = false; erro('Crie a senha de envio para poder travar.'); ui.senha.focus(); return; }
       cfg.travada = !cfg.travada;
       salva(); erro(cfg.travada ? 'Envio travado. Digite a senha para destravar.' : '');
       pinta();
@@ -15921,13 +15991,14 @@ Resources:`;for(let t of c){if(!t||typeof t!=`string`)throw Error(`@supabase/aut
     if (!podeEnviar()) { pedeSenha(); return; }
     var e = E();
     function v(k) { var x = ui[k].value; return x === '' ? null : +x; }
-    var px = v('lpx'), q = v('lq'), tp = v('ltp'), sl = v('lsl');
+    var px = v('lpx'), q = qtd(), s = estrategia(), d = side === 'buy' ? 1 : -1;
+    var tp = s && s.alvo > 0 ? px + d * s.alvo : null, sl = s && s.stop > 0 ? px - d * s.stop : null;
     if (!(px > 0)) { erro('Informe o preço da ordem limite.'); return; }
-    if (!(q > 0)) { erro('Informe a quantidade da ordem limite.'); return; }
+    if (!(q > 0)) { erro('Informe a quantidade.'); return; }
     var tipo = e && e.last ? ((side === 'buy') === (px < e.last) ? 'limite' : 'stop') : 'limite';
     var r = global.MXConta.pendente({ side: side, q: q, px: px, tp: tp, sl: sl, tipo: tipo, sym: e && e.sym });
     erro(r || '');
-    if (!r && global.MXShell && global.MXShell.toast) { global.MXShell.toast('Ordem ' + tipo + ' registrada em ' + pr(px)); }
+    if (!r) { ok('Ordem ' + (tipo === 'stop' ? 'stop' : 'limite') + ' de ' + (side === 'buy' ? 'compra' : 'venda') + ' registrada em ' + pr(px) + '.'); }
     pinta();
   }
 
@@ -15942,6 +16013,8 @@ Resources:`;for(let t of c){if(!t||typeof t!=`string`)throw Error(`@supabase/aut
   function pinta() {
     if (!box || !ui.rQtd) { return; }
     var e = E() || { pos: null, aberto: 0, dia: 0, last: 0 };
+    function z(v) { return Math.abs(v) < 0.005 ? 0 : v; }   /* sem "-0,00" vermelho */
+    e = { pos: e.pos, aberto: z(e.aberto || 0), dia: z(e.dia || 0), last: e.last, sym: e.sym, hist: e.hist };
     var p = e.pos, dir = p ? (p.q > 0 ? 1 : -1) : 0;
     var pts = p && e.last ? (e.last - p.avg) * dir : 0;
     var pct = p && p.avg ? (e.last - p.avg) / p.avg * 100 * dir : 0;
@@ -15949,6 +16022,10 @@ Resources:`;for(let t of c){if(!t||typeof t!=`string`)throw Error(`@supabase/aut
     ui.rQtd.textContent = p ? (p.q > 0 ? 'C ' : 'V ') + qtdTexto(Math.abs(p.q)) : '—';
     ui.rQtd.setAttribute('data-dir', p ? (p.q > 0 ? 'up' : 'down') : 'flat');
     ui.rAvg.textContent = p ? pr(p.avg) : '—';
+    /* preço médio se entrar mais uma vez a quantidade da boleta do mesmo lado da posição */
+    var qn = qtd(), ladoTxt = p && p.q < 0 ? 'V' : 'C';
+    ui.rPmRot.textContent = 'PM projetado (+' + ladoTxt + ' ' + qtdTexto(qn) + ')';
+    ui.rPm.textContent = !(qn > 0) || !e.last ? '—' : pr(p ? (Math.abs(p.q) * p.avg + qn * e.last) / (Math.abs(p.q) + qn) : e.last);
     ui.rAberto.textContent = p ? valor(e.aberto, pts, pct) : '—';
     ui.rAberto.setAttribute('data-dir', e.aberto > 0 ? 'up' : e.aberto < 0 ? 'down' : 'flat');
     ui.rDia.textContent = valor(e.dia, ptsHoje(), 0);
@@ -15961,18 +16038,37 @@ Resources:`;for(let t of c){if(!t||typeof t!=`string`)throw Error(`@supabase/aut
       b.setAttribute('aria-pressed', String(b.getAttribute('data-u') === cfg.unidade));
     });
     ui.trava.setAttribute('aria-pressed', String(!!cfg.travada));
+    ui.trava.innerHTML = ico(cfg.travada ? 'lock' : 'check');
+    ui.trava.title = cfg.travada ? 'Envio travado (digite a senha para destravar)' : 'Envio liberado' + (cfg.senha ? ' (toque para travar)' : '');
+    if (cfg.travada) { ui.senhaLin.hidden = false; }
+    else if (cfg.senha) { ui.senhaLin.hidden = true; }
     if (cfg.senha && ui.senha.placeholder.indexOf('Crie') === 0) { ui.senha.placeholder = cfg.travada ? 'Digite a senha de envio' : 'Senha de envio criada'; }
 
     var pend = (global.MXConta && global.MXConta.pendentes && global.MXConta.pendentes()) || [];
     pend = pend.filter(function (o) { return o.sym === e.sym; });
-    ui.abertas.innerHTML = pend.length ? pend.map(function (o) {
-      return '<li><b data-dir="' + (o.side === 'buy' ? 'up' : 'down') + '">' + (o.side === 'buy' ? 'C' : 'V') + ' ' + qtdTexto(o.q) + '</b>' +
-        '<span>' + (o.tipo === 'stop' ? 'stop' : 'limite') + ' ' + pr(o.px) + '</span>' +
-        '<button type="button" data-x="' + o.id + '" aria-label="Cancelar ordem">×</button></li>';
-    }).join('') : '<li class="bl-vazio">Nenhuma ordem aberta.</li>';
-    Array.prototype.forEach.call(ui.abertas.querySelectorAll('[data-x]'), function (b) {
-      b.onclick = function () { global.MXConta.cancela(b.getAttribute('data-x')); global.setTimeout(pinta, 60); };
+    var linhas = [];
+    /* alvo e stop da posição aberta entram como ordens de saída, do lado contrário */
+    var lv = p && global.MXTrade && global.MXTrade.lv ? global.MXTrade.lv() : null;
+    if (p && lv) {
+      var saida = p.q > 0 ? 'V' : 'C', qq = qtdTexto(Math.abs(p.q));
+      if (lv.tp != null) { linhas.push('<li><b data-dir="' + (saida === 'C' ? 'up' : 'down') + '">' + saida + '</b><span>Alvo ' + qq + ' @ ' + pr(lv.tp) + '</span><button type="button" data-lv="tp" aria-label="Cancelar alvo">×</button></li>'); }
+      if (lv.sl != null) { linhas.push('<li><b data-dir="' + (saida === 'C' ? 'up' : 'down') + '">' + saida + '</b><span>Stop ' + qq + ' @ ' + pr(lv.sl) + '</span><button type="button" data-lv="sl" aria-label="Cancelar stop">×</button></li>'); }
+    }
+    pend.forEach(function (o) {
+      linhas.push('<li><b data-dir="' + (o.side === 'buy' ? 'up' : 'down') + '">' + (o.side === 'buy' ? 'C' : 'V') + '</b>' +
+        '<span>' + (o.tipo === 'stop' ? 'Stop' : 'Limite') + ' ' + qtdTexto(o.q) + ' @ ' + pr(o.px) + '</span>' +
+        '<button type="button" data-x="' + o.id + '" aria-label="Cancelar ordem">×</button></li>');
     });
+    var html = linhas.length ? linhas.join('') : '<li class="bl-vazio">Nenhuma ordem aberta.</li>';
+    if (ui.abertas.innerHTML !== html) {
+      ui.abertas.innerHTML = html;
+      Array.prototype.forEach.call(ui.abertas.querySelectorAll('[data-x]'), function (b) {
+        b.onclick = function () { global.MXConta.cancela(b.getAttribute('data-x')); global.setTimeout(pinta, 60); };
+      });
+      Array.prototype.forEach.call(ui.abertas.querySelectorAll('[data-lv]'), function (b) {
+        b.onclick = function () { global.MXTrade.setLv(b.getAttribute('data-lv'), null); global.setTimeout(pinta, 60); };
+      });
+    }
 
     marcaRapidas();
   }
@@ -16058,7 +16154,7 @@ Resources:`;for(let t of c){if(!t||typeof t!=`string`)throw Error(`@supabase/aut
 
   /* -------------------------------------------- etiquetas de alvo e stop */
 
-  var NOMES = { tp: 'TP1', sl: 'Stop' };
+  var NOMES = { tp: 'TP', sl: 'SL' };
 
   function preparaNiveis() {
     var ok = false;
@@ -16110,8 +16206,11 @@ Resources:`;for(let t of c){if(!t||typeof t!=`string`)throw Error(`@supabase/aut
       var m = String(partes[2]).match(/^([+-]?)([\d.]+)\s*(\S+)$/);
       if (m) {
         var n = parseFloat(m[2]);
-        val.textContent = m[3] + ' ' + (m[1] === '-' ? '-' : '') +
-          n.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+        var e = global.MXConta && global.MXConta.estado && global.MXConta.estado(), pq = e && e.pos ? Math.abs(e.pos.q) : 0;
+        var q = pq || (global.MXBoleta && global.MXBoleta.qtd ? global.MXBoleta.qtd() : 0);
+        val.textContent = (m[1] === '-' ? '-' : '+') + m[3] + ' ' +
+          n.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) +
+          (q > 0 ? ' · ' + q.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 4 }) : '');
         val.setAttribute('data-dir', m[1] === '-' ? 'down' : 'up');
       }
       ax.textContent = partes[0];
@@ -18448,12 +18547,22 @@ window.MXLogosMapa = {"0G":"image/admin_mgs_image_upload/20250921/137e9686-843c-
           '<span class="mo-ic">' + (f[2] || '<i>—</i>') + '</span><span>' + f[1] + '</span></button>';
       }).join('') + '</div>' +
       '<div class="cm-g cm-p mo-q"><span>Mostrar a quantidade junto da marca</span>' +
-      '<button type="button" class="cm-sw" aria-pressed="' + mo.qtd + '"' + (mo.forma === 'nenhuma' ? ' disabled' : '') + '></button></div>';
+      '<button type="button" class="cm-sw" aria-pressed="' + mo.qtd + '"' + (mo.forma === 'nenhuma' ? ' disabled' : '') + '></button></div>' +
+      '<h4 class="mo-h">LINHAS DAS ORDENS</h4>' +
+      '<div class="cm-g cm-p mo-l"><span>Estender as linhas até a borda esquerda' +
+      '<small>Desligado, a linha da entrada, do take e do stop começa na etiqueta e vai até a escala.</small></span>' +
+      '<button type="button" class="cm-sw" aria-pressed="' + !!(global.MXLinhas && global.MXLinhas.estende()) + '"></button></div>';
     Array.prototype.forEach.call(cont.querySelectorAll('.mo-op button'), function (b) {
       b.onclick = function () {
         var o = le(); o.forma = b.getAttribute('data-f'); grava(o); painel(cont);
       };
     });
+    var swl = cont.querySelector('.mo-l .cm-sw');
+    swl.onclick = function () {
+      var v = !(global.MXLinhas && global.MXLinhas.estende());
+      if (global.MXLinhas) { global.MXLinhas.estende(v); }
+      swl.setAttribute('aria-pressed', String(v));
+    };
     var sw = cont.querySelector('.mo-q .cm-sw');
     sw.onclick = function () {
       if (sw.disabled) { return; }
@@ -18476,6 +18585,81 @@ window.MXLogosMapa = {"0G":"image/admin_mgs_image_upload/20250921/137e9686-843c-
   /* quem já via as setas: a escolha nova (nenhuma) vale a partir de agora */
   if (doc.readyState !== 'loading' && global.MXTrade && global.MXTrade.marcas) { global.MXTrade.marcas(); }
   else { doc.addEventListener('DOMContentLoaded', function () { if (global.MXTrade && global.MXTrade.marcas) { global.MXTrade.marcas(); } }); }
+})(window);
+</script>
+<script>/* MX360 Plataforma: linhas das ordens no estilo da referência.
+   - Etiquetas encostadas perto da escala: TP e SL numa coluna à direita, a entrada logo à esquerda
+     dessa coluna, as ordens pendentes na mesma coluna do TP/SL.
+   - A linha nasce na etiqueta e vai até a escala. Com a opção "Estender as linhas até a esquerda"
+     (Configurações do gráfico → Chart Trading) ela atravessa o gráfico inteiro. */
+(function (global) {
+  'use strict';
+
+  var doc = global.document;
+  var CHAVE = 'mx360.linhas.esq.v1';
+
+  function $(id) { return doc.getElementById(id); }
+  function esq() { try { return global.localStorage.getItem(CHAVE) === '1'; } catch (e) { return false; } }
+  function aplicaOpcao() { doc.documentElement.setAttribute('data-linhas-esq', esq() ? '1' : '0'); }
+  function grava(v) {
+    try { global.localStorage.setItem(CHAVE, v ? '1' : '0'); } catch (e) {}
+    aplicaOpcao();
+  }
+  function visivel(el) { return !!el && !el.hidden && el.style.display !== 'none' && el.offsetParent !== null; }
+
+  function quadro() {
+    global.requestAnimationFrame(quadro);
+    var ch = $('chart'), A = global.MXApp;
+    if (!ch || !A || !A.api) { return; }
+    var eixo = (A.api.axisW && A.api.axisW()) || 64, W = ch.clientWidth, plot = Math.max(0, W - eixo);
+    var folga = W < 640 ? 10 : 96, ext = esq(), col = 0, itens = [];
+
+    /* coluna da direita: TP, SL e ordens pendentes */
+    ['tp', 'sl'].forEach(function (k) {
+      var el = doc.querySelector('.ct-lvl.ct-' + k), t = el && el.querySelector('.ct-tag');
+      if (!visivel(el) || !t) { return; }
+      itens.push({ el: el, tag: t, w: t.offsetWidth, tipo: 'ct' });
+    });
+    Array.prototype.forEach.call(doc.querySelectorAll('.pz-l.pz-ord'), function (el) {
+      var t = el.querySelector('.pz-tag');
+      if (!visivel(el) || !t) { return; }
+      itens.push({ el: el, tag: t, w: t.offsetWidth, tipo: 'pz' });
+    });
+    itens.forEach(function (it) { col = Math.max(col, it.w); });
+    itens.forEach(function (it) {
+      var x = Math.max(4, plot - folga - it.w);
+      it.tag.style.left = x + 'px';
+      if (it.tipo === 'ct') { it.el.style.setProperty('--l0', (ext ? 0 : x) + 'px'); }
+      else { var hr = it.el.querySelector('hr'); if (hr) { hr.style.left = (ext ? 0 : x) + 'px'; } }
+    });
+
+    /* entrada: logo à esquerda da coluna (ou na própria coluna, se não houver TP/SL) */
+    var pos = doc.querySelector('.pz-l.pz-pos'), xe = null;
+    if (visivel(pos)) {
+      var tp = pos.querySelector('.pz-tag'), we = tp.offsetWidth;
+      xe = col ? plot - folga - col - 16 - we : plot - folga - we;
+      if (xe < 4) { xe = 4; }
+      tp.style.left = xe + 'px';
+      var hr0 = pos.querySelector('hr');
+      if (hr0) { hr0.style.left = (ext ? 0 : xe) + 'px'; }
+    }
+
+    /* ponto de cobertura: à esquerda da entrada */
+    var cob = doc.querySelector('.pz-l.pz-cob');
+    if (visivel(cob)) {
+      var tc = cob.querySelector('.pz-tag'), wc = tc.offsetWidth;
+      var xc = xe != null ? xe - 10 - wc : plot - folga - wc;
+      if (xc < 4) { xc = 4; }
+      tc.style.left = xc + 'px';
+      var hr1 = cob.querySelector('hr');
+      if (hr1) { hr1.style.left = (ext ? 0 : xc) + 'px'; }
+    }
+  }
+
+  aplicaOpcao();
+  global.requestAnimationFrame(quadro);
+
+  global.MXLinhas = { estende: function (v) { if (v != null) { grava(!!v); } return esq(); } };
 })(window);
 </script>
 </body>
