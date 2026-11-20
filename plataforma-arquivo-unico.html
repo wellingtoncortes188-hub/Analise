@@ -12829,7 +12829,10 @@ Resources:`;for(let t of c){if(!t||typeof t!=`string`)throw Error(`@supabase/aut
       if (global.MXReal) {
         global.MXReal.vigia({
           sym: st.sym, tf: st.tf,
+          /* resposta que chega depois de o gráfico mudar (replay aberto, outro ativo, outro tempo)
+             é descartada: senão o preço ao vivo invadia o replay */
           vela: function (c) {
+            if (my !== seq) { return; }
             var l = rows[rows.length - 1];
             if (l && l.t === c.t) { rows[rows.length - 1] = c; } else if (!l || c.t > l.t) { rows.push(c); } else { return; }
             api.update(c); legend(c);
@@ -12837,7 +12840,11 @@ Resources:`;for(let t of c){if(!t||typeof t!=`string`)throw Error(`@supabase/aut
             if (global.MXShell) { global.MXShell.price(c.c); }
             if (global.MXTrade) { global.MXTrade.tick(c.c); }
           },
-          topo: header, livro: book, negocio: trade, estado: live, aviso: msg
+          topo: function (x) { if (my === seq) { header(x); } },
+          livro: function (x) { if (my === seq) { book(x); } },
+          negocio: function (x) { if (my === seq) { trade(x); } },
+          estado: function (a, b) { if (my === seq) { live(a, b); } },
+          aviso: function (x) { if (my === seq) { msg(x); } }
         });
       }
     }).catch(function () {
@@ -14202,7 +14209,14 @@ Resources:`;for(let t of c){if(!t||typeof t!=`string`)throw Error(`@supabase/aut
 
   function baixaPronto(it, aoProgresso) {
     var gz = !!global.DecompressionStream;
-    return global.fetch(it.arq + (gz ? '.gz' : ''), { cache: 'force-cache' }).then(function (r) {
+    function pede(compactado) {
+      return global.fetch(it.arq + (compactado ? '.gz' : ''), { cache: 'force-cache' }).then(function (r) {
+        /* sem a versão compactada no servidor, busca a normal */
+        if (!r.ok && compactado) { gz = false; return pede(false); }
+        return r;
+      });
+    }
+    return pede(gz).then(function (r) {
       if (!r.ok) { throw new Error('Não consegui baixar a série de ' + it.nome + '. Confira a internet e tente de novo.'); }
       var total = +r.headers.get('content-length') || (gz ? it.kb * 1024 : it.kb * 3500);
       if (!r.body || !r.body.getReader) { return r.arrayBuffer(); }
@@ -16084,17 +16098,20 @@ Resources:`;for(let t of c){if(!t||typeof t!=`string`)throw Error(`@supabase/aut
     return pega('/api/v3/ticker/price?symbol=' + sym).then(function (j) { so(+(j && j.price)); });
   }
 
+  /* durante o replay o mercado ao vivo fica em silêncio: nada de consultar a Binance à toa */
+  function emReplay() { return !!(global.MXReplay && global.MXReplay.active && global.MXReplay.active()); }
+
   function liga(p) {
     if (timers.length) { return; }
     ligado = true;
-    function rapido() { if (!doc.hidden) { precoAgora(p.sym).catch(function () {}); } }
+    function rapido() { if (!doc.hidden && !emReplay()) { precoAgora(p.sym).catch(function () {}); } }
     function medio() {
-      if (doc.hidden) { return; }
+      if (doc.hidden || emReplay()) { return; }
       velaAtual(p.sym, p.tf).catch(function () {});
       livro(p.sym).catch(function () {});
       negocios(p.sym).catch(function () {});
     }
-    function lento() { if (!doc.hidden) { topo(p.sym).catch(function () {}); } }
+    function lento() { if (!doc.hidden && !emReplay()) { topo(p.sym).catch(function () {}); } }
     rapido(); medio(); lento();
     timers.push(global.setInterval(rapido, 1000));
     timers.push(global.setInterval(medio, 3000));
