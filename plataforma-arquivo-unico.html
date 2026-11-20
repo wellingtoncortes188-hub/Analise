@@ -2831,9 +2831,9 @@ html.cv-aberto .nav-bk{z-index:9001}
 html.cv-aberto .nav{z-index:9002}
 </style>
 <style>/* logos dos ativos */
-.lg{display:inline-flex;flex:none;width:var(--lg,20px);height:var(--lg,20px);border-radius:50%;overflow:hidden;
+.mxlg{display:inline-flex;flex:none;width:var(--lg,20px);height:var(--lg,20px);border-radius:50%;overflow:hidden;
   align-items:center;justify-content:center;background:rgba(var(--ink-rgb),.06)}
-.lg img{width:100%;height:100%;object-fit:contain;display:block}
+.mxlg img{width:100%;height:100%;object-fit:contain;display:block}
 .lg-selo{display:flex;width:100%;height:100%;align-items:center;justify-content:center;border-radius:50%;color:#fff;
   font:800 calc(var(--lg,20px) * .36)/1 Manrope,sans-serif;letter-spacing:-.02em;text-transform:uppercase}
 .lg-selo[data-t="idx"]{background:linear-gradient(150deg,#1d4f91,#0b2650);font-size:calc(var(--lg,20px) * .3)}
@@ -2842,17 +2842,17 @@ html.cv-aberto .nav{z-index:9002}
 .lg-selo[data-t="oleo"]{background:linear-gradient(150deg,#3b3f45,#111316);font-size:calc(var(--lg,20px) * .3)}
 /* lista de ativos: logo a esquerda do nome */
 .w-sym.w-lg{display:grid;grid-template-columns:22px minmax(0,1fr);column-gap:9px;align-items:center}
-.w-sym.w-lg .lg{grid-row:1/3}
+.w-sym.w-lg .mxlg{grid-row:1/3}
 .w-sym.w-lg b,.w-sym.w-lg i{grid-column:2}
 /* seletor de ativos: logo na frente do nome */
 .at-item{grid-template-columns:auto 1fr auto}
-.at-item>.lg{grid-column:1;grid-row:1/3;align-self:center}
+.at-item>.mxlg{grid-column:1;grid-row:1/3;align-self:center}
 .at-item .at-nome,.at-item .at-sub{grid-column:2}
 .at-item .at-preco,.at-item .at-var{grid-column:3}
 /* topo do grafico: a logo no lugar da lupa */
 .topbar .symbol .lg-topo{position:absolute;left:6px;top:50%;transform:translateY(-50%);z-index:2;display:flex;pointer-events:none}
 .topbar .symbol .lg-topo:empty{display:none}
-.topbar .symbol:has(.lg-topo .lg)::before{display:none}
+.topbar .symbol:has(.lg-topo .mxlg)::before{display:none}
 </style>
 <style>/* configuracoes: escolha da marca das operacoes */
 .mo-txt{margin:0 0 12px;color:var(--muted);font-size:.85rem}
@@ -2918,6 +2918,142 @@ html.cv-aberto .nav{z-index:9002}
   .stage .side[data-pro="1"]{box-shadow:none}
   .stage:has(.side[data-pro="1"]) .rhandle{right:calc(50px + min(340px, 100% - 44px))}
 }
+</style>
+<style>/* ===== Personalizar e Linha de status: esconder/mostrar ===== */
+html[data-ui-off~="mx"] .topbar .brand,
+html[data-ui-off~="busca"] .topbar .symbol,
+html[data-ui-off~="tempos"] .topbar .tf,
+html[data-ui-off~="tipo"] #btnType,
+html[data-ui-off~="ind"] #btnInd,
+html[data-ui-off~="replay"] #btnReplay,
+html[data-ui-off~="alertas"] #btnAlerts,
+html[data-ui-off~="layouts"] #btnLayouts,
+html[data-ui-off~="tema"] #grpVis button[title="Tema claro/escuro"],
+html[data-ui-off~="destacar"] #grpVis button[title^="Abrir a plataforma"],
+html[data-ui-off~="imagem"] #btnShot,
+html[data-ui-off~="cheia"] #btnFull,
+html[data-ui-off~="status"] .topbar .live,
+html[data-ui-off~="perfil"] .topbar .tb-av,
+html[data-ui-off~="tf-1m"] .tf [data-tf="1m"],html[data-ui-off~="tf-3m"] .tf [data-tf="3m"],html[data-ui-off~="tf-5m"] .tf [data-tf="5m"],
+html[data-ui-off~="tf-15m"] .tf [data-tf="15m"],html[data-ui-off~="tf-30m"] .tf [data-tf="30m"],html[data-ui-off~="tf-45m"] .tf [data-tf="45m"],
+html[data-ui-off~="tf-1h"] .tf [data-tf="1h"],html[data-ui-off~="tf-4h"] .tf [data-tf="4h"],html[data-ui-off~="tf-1d"] .tf [data-tf="1d"],
+html[data-ui-off~="tf-1w"] .tf [data-tf="1w"],
+html[data-ui-off~="btnFit"] #btnFit,
+html[data-ui-off~="desenho"] .rail,
+html[data-ui-off~="direita"] .rrail,html[data-ui-off~="direita"] .rhandle,html[data-ui-off~="direita"] #side,
+html[data-ui-off~="abasLayouts"] #wsAbas,
+html[data-ui-off~="carrossel"] #ticker,
+html[data-ui-off~="abasAtivos"] .symtab,
+html[data-ui-off~="stNome"] .legend-title,
+html[data-ui-off~="stOhlc"] #lgO,html[data-ui-off~="stOhlc"] #lgH,html[data-ui-off~="stOhlc"] #lgL,html[data-ui-off~="stOhlc"] #lgC,
+html[data-ui-off~="stOhlc"] .legend-ohlc .lg:has(#lgO),html[data-ui-off~="stOhlc"] .legend-ohlc .lg:has(#lgH),
+html[data-ui-off~="stOhlc"] .legend-ohlc .lg:has(#lgL),html[data-ui-off~="stOhlc"] .legend-ohlc .lg:has(#lgC),
+html[data-ui-off~="stVar"] .legend-ohlc .lg:has(#lgChg),
+html[data-ui-off~="stInd"] .legend .chips,
+html[data-ui-off~="stConta"] #acct,
+html[data-ui-off~="cobertura"] .pz-cob{display:none!important}
+html[data-ui-on~="btnAuto"] #btnAuto,html[data-ui-on~="btnLog"] #btnLog,html[data-ui-on~="btnNow"] #btnNow{display:inline-flex!important}
+html[data-ui-off~="desenho"] .chart{left:0!important}
+html[data-ui-off~="direita"] .stage .panel{right:0!important}
+
+/* ===== controles das abas novas ===== */
+.cfg-l>span:first-child small{display:block;margin-top:3px;color:var(--muted);font-size:.76rem;font-weight:500;line-height:1.35}
+.cfg-dir{display:flex;align-items:center;gap:8px;justify-content:flex-end}
+.cfg-dir i{font-style:normal;color:var(--muted);font-size:.82rem}
+.cfg-in{height:36px;padding:0 10px;border:1px solid rgba(var(--ink-rgb),.2);border-radius:8px;background:var(--bg);color:var(--text);font:500 .9rem Manrope,sans-serif}
+.cfg-num{width:76px}
+.cfg-cor{width:42px;height:34px;padding:2px;border:1px solid rgba(var(--ink-rgb),.2);border-radius:6px;background:var(--bg);cursor:pointer}
+.cfg-txt{margin:0 0 10px;color:var(--muted);font-size:.86rem;line-height:1.45}
+.cfg-b{height:36px;padding:0 14px;border:1px solid rgba(var(--ink-rgb),.2);border-radius:8px;background:rgba(var(--ink-rgb),.05);color:var(--text);font:600 .88rem Manrope,sans-serif;cursor:pointer;white-space:nowrap}
+.cfg-b:hover{background:rgba(var(--ink-rgb),.1)}
+.cfg-pri{border-color:#5b4400;background:#5b4400;color:#fff}.cfg-pri:hover{background:#4a3700}
+.cfg-mod{display:flex;gap:8px;align-items:center;margin-bottom:10px;flex-wrap:wrap}
+.cfg-mod .cfg-in{flex:1;min-width:160px}
+.cfg-lista{list-style:none;margin:0 0 10px;padding:0;display:grid;gap:6px}
+.cfg-lista li{display:flex;align-items:center;gap:8px;padding:8px 10px;border:1px solid rgba(var(--ink-rgb),.12);border-radius:8px}
+.cfg-lista li span{flex:1;min-width:0}
+.cfg-lista li b{display:block;font-size:.9rem}
+.cfg-lista li small{color:var(--muted);font-size:.74rem}
+
+/* ===== confirmação ===== */
+.cfg-cf{position:fixed;inset:0;z-index:9500;display:grid;place-items:center;background:rgba(0,0,0,.35)}
+.cfg-cf-card{width:min(380px,calc(100% - 32px));padding:20px;border-radius:14px;background:var(--bg);color:var(--text);box-shadow:0 18px 48px rgba(0,0,0,.25)}
+.cfg-cf-card p{margin:0 0 16px;font:600 .98rem/1.45 Manrope,sans-serif}
+.cfg-cf-a{display:flex;justify-content:flex-end;gap:8px}
+
+/* ===== contagem regressiva da vela (embaixo da etiqueta do último preço) ===== */
+.cfg-cont{position:absolute;z-index:5;display:flex;pointer-events:none;padding:0 5px;border-radius:2px;
+  background:rgba(var(--ink-rgb),.72);color:var(--bg);font:700 10px/16px Manrope,sans-serif;font-variant-numeric:tabular-nums}
+
+/* ===== menu rápido (tocar e segurar no gráfico) ===== */
+.qm{position:fixed;z-index:9400;min-width:240px;padding:6px;border:1px solid rgba(var(--ink-rgb),.12);border-radius:10px;
+  background:var(--bg);box-shadow:0 12px 32px rgba(0,0,0,.18);display:flex;flex-direction:column}
+.qm button{height:40px;padding:0 14px;border:0;border-radius:7px;background:none;color:var(--text);text-align:left;font:500 .92rem Manrope,sans-serif;cursor:pointer}
+.qm button:hover,.qm button:focus-visible{background:rgba(var(--ink-rgb),.07);outline:0}
+
+/* ===== Trade Pad ===== */
+.tpad{position:fixed;z-index:9300;width:300px;padding:0 10px 10px;border:1px solid rgba(var(--ink-rgb),.14);border-radius:12px;
+  background:var(--bg);color:var(--text);box-shadow:0 14px 36px rgba(0,0,0,.2);font-family:Manrope,sans-serif}
+.tpad-h{display:flex;align-items:center;gap:8px;height:42px;margin:0 -10px 8px;padding:0 6px 0 14px;border-bottom:1px solid rgba(var(--ink-rgb),.1);cursor:move;touch-action:none}
+.tpad-h b{font-size:.92rem}
+.tpad-sym{flex:1;color:#8a6d1c;font-weight:700;font-size:.78rem}
+.tpad-x{width:30px;height:30px;border:0;border-radius:6px;background:none;color:var(--muted);font-size:18px;cursor:pointer}
+.tpad-q{display:grid;grid-template-columns:38px 1fr 38px;height:36px;margin-bottom:8px;border:1px solid rgba(var(--ink-rgb),.18);border-radius:7px;overflow:hidden}
+.tpad-q button{border:0;background:rgba(var(--ink-rgb),.05);color:var(--text);font-size:16px;cursor:pointer}
+.tpad-q input{min-width:0;border:0;background:none;color:var(--text);text-align:center;font:700 .95rem Manrope,sans-serif}
+.tpad-2{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:6px}
+.tpad-2 button{display:flex;flex-direction:column;align-items:center;justify-content:center;height:46px;border:0;border-radius:7px;font:700 .92rem Manrope,sans-serif;cursor:pointer}
+.tpad-2 small{font-size:.68rem;font-weight:600;opacity:.85}
+.tp-c{background:#2f6b4c;color:#fff}.tp-c:hover{background:#285c41}
+.tp-v{background:#6b3f45;color:#fff}.tp-v:hover{background:#5c353a}
+.tp-cl{background:#e6f6ea!important;color:#1f9d4c;border:1px solid #9fd8b0!important}
+.tp-vl{background:#fdecee!important;color:#d23a4a;border:1px solid #f1b3ba!important}
+.tpad-3{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-bottom:8px}
+.tpad-3 button{height:34px;border:1px solid rgba(var(--ink-rgb),.18);border-radius:7px;background:rgba(var(--ink-rgb),.05);color:var(--text);font:700 .82rem Manrope,sans-serif;cursor:pointer}
+.tpad-3 button:hover{background:rgba(var(--ink-rgb),.1)}
+.tpad-st{padding:8px 10px;border-radius:7px;background:rgba(var(--ink-rgb),.05);font-size:.82rem}
+.tpad-st [data-dir="up"]{color:#1f9d4c}.tpad-st [data-dir="down"]{color:#d23a4a}
+.tpad-rod{margin-top:8px;color:var(--muted);font-size:.72rem}
+
+/* ===== Relógio de mercado ===== */
+.relo-bk{position:fixed;inset:0;z-index:9300;display:grid;place-items:center;background:rgba(0,0,0,.35);padding:12px}
+.relo{width:min(900px,100%);max-height:calc(100vh - 24px);overflow:auto;border-radius:14px;background:var(--bg);color:var(--text);box-shadow:0 18px 48px rgba(0,0,0,.25);font-family:Manrope,sans-serif}
+.relo-h{display:flex;align-items:center;gap:16px;padding:14px 16px 14px 20px;border-bottom:1px solid rgba(var(--ink-rgb),.1)}
+.relo-h>b{flex:1;font-size:1.02rem}
+.relo-h span{color:var(--muted);font-size:.8rem}
+.relo-h strong{color:var(--text);font-variant-numeric:tabular-nums}
+.relo-x{width:32px;height:32px;border:0;border-radius:6px;background:none;color:var(--text);font-size:18px;cursor:pointer}
+.relo-abas{display:flex;gap:4px;padding:10px 20px 0}
+.relo-abas button{height:40px;padding:0 16px;border:0;border-bottom:2px solid transparent;background:none;color:var(--text);font:600 .95rem Manrope,sans-serif;cursor:pointer}
+.relo-abas button[aria-selected="true"]{border-bottom-color:#8a6d1c}
+.relo-c{padding:12px 20px}
+.relo-dial{display:flex;align-items:center;justify-content:center;gap:28px;flex-wrap:wrap}
+.relo-svg{width:min(320px,80vw);height:auto}
+.relo-f{fill:rgba(var(--ink-rgb),.03);stroke:rgba(var(--ink-rgb),.25);stroke-width:1}
+.relo-t{stroke:rgba(var(--ink-rgb),.45);stroke-width:1}
+.relo-n{font:600 11px Manrope,sans-serif;fill:var(--text);text-anchor:middle}
+.relo-trilho{fill:none;stroke:rgba(var(--ink-rgb),.06);stroke-width:6}
+.relo-arco{fill:none;stroke:rgba(var(--ink-rgb),.28);stroke-width:6;stroke-linecap:round}
+.relo-arco.on{stroke:#1fae4b}
+.relo-p{stroke:#8a6d1c;stroke-width:2.2;stroke-linecap:round}
+.relo-pc{fill:#8a6d1c}
+.relo-leg{list-style:none;margin:0;padding:0;display:grid;gap:8px;min-width:240px}
+.relo-leg li{display:grid;grid-template-columns:12px 1fr auto;gap:10px;align-items:center;font-size:.84rem}
+.relo-leg i{width:10px;height:10px;border-radius:50%;background:rgba(var(--ink-rgb),.25)}
+.relo-leg i.on{background:#1fae4b}
+.relo-leg span{color:var(--muted);font-variant-numeric:tabular-nums}
+.relo-tab{overflow-x:auto}
+.relo-tab table{width:100%;border-collapse:collapse;font-size:.86rem}
+.relo-tab th{padding:8px 10px;text-align:left;color:var(--muted);font:700 .7rem Manrope,sans-serif;letter-spacing:.06em;text-transform:uppercase;border-bottom:1px solid rgba(var(--ink-rgb),.14)}
+.relo-tab td{padding:10px;border-bottom:1px solid rgba(var(--ink-rgb),.08);white-space:nowrap;font-variant-numeric:tabular-nums}
+.relo-st{display:inline-block;padding:3px 8px;border-radius:6px;background:rgba(var(--ink-rgb),.07);font-size:.76rem;font-weight:600}
+.relo-st.on{background:rgba(31,174,75,.14);color:#167a37}
+.relo-nota{margin:0;padding:4px 20px 16px;color:var(--muted);font-size:.76rem}
+.cm-c h4{text-transform:uppercase}
+.cm-c .cm-p>span:first-child{text-align:left}
+.cfg-cont span,.cfg-cont{text-shadow:none}
+.cfg-cont{width:auto!important;justify-content:flex-start}
+.cfg-cont::before{content:none}
 </style>
 </head>
 <body>
@@ -12673,7 +12809,8 @@ Resources:`;for(let t of c){if(!t||typeof t!=`string`)throw Error(`@supabase/aut
       draw();
     },
     setSymbol: function (s) { sym = s; marks(); draw(); },
-    marcas: function () { marks(); }
+    marcas: function () { marks(); },
+    reinicia: function () { c = { saldo: CAP, pos: {}, dia: 0, hist: [] }; save(); marks(); draw(); }
   };
 })(window);
 </script>
@@ -12821,7 +12958,7 @@ Resources:`;for(let t of c){if(!t||typeof t!=`string`)throw Error(`@supabase/aut
     }
     function mostra(i) {
       Array.prototype.forEach.call(tabs.children, function (b, j) { b.setAttribute('aria-selected', String(i === j)); });
-      if (i === 0) { velas(); } else if (i === 2) { escalas(); } else if (i === 4 && global.MXMarcasOps) { global.MXMarcasOps.painel(cont); } else { cont.innerHTML = '<h4>' + TABS[i].toUpperCase() + '</h4><p class="cm-soon">Em breve.</p>'; }
+      if (i === 0) { velas(); } else if (i === 4 && global.MXMarcasOps) { global.MXMarcasOps.painel(cont); } else if (global.MXConfig && global.MXConfig.tem(TABS[i])) { global.MXConfig.painel(TABS[i], cont); } else if (i === 2) { escalas(); } else { cont.innerHTML = '<h4>' + TABS[i].toUpperCase() + '</h4><p class="cm-soon">Em breve.</p>'; }
     }
     TABS.forEach(function (t, i) { var b = mk('button', '', t); b.type = 'button'; b.onclick = function () { mostra(i); }; tabs.appendChild(b); });
     box.querySelector('.cm-ok').onclick = fecha; box.querySelector('.cm-cn').onclick = desfaz; box.querySelector('.cm-x').onclick = desfaz;
@@ -13252,11 +13389,12 @@ Resources:`;for(let t of c){if(!t||typeof t!=`string`)throw Error(`@supabase/aut
           '30m': '30 minutos', '45m': '45 minutos', '1h': '1 hora', '4h': '4 horas',
           '1d': 'Diário', '1w': 'Semanal' };
         var nome = NOMES[st.tf] || st.tf;
-        api.setWatermark([
+        var linhasMarca = [
           { text: 'MX360°', k: 1 },
           { text: st.sym + ' · ' + nome, k: .30 },
           { text: it.label || st.sym, k: .26 }
-        ]);
+        ];
+        api.setWatermark(global.MXConfig && global.MXConfig.marcaLinhas ? global.MXConfig.marcaLinhas(linhasMarca) : linhasMarca);
       };
       global.MXMarca();
     }
@@ -13703,7 +13841,7 @@ Resources:`;for(let t of c){if(!t||typeof t!=`string`)throw Error(`@supabase/aut
   function leCfg() {
     try {
       var s = JSON.parse(global.localStorage.getItem(MEU) || 'null');
-      if (s) { cfg = { confirmar: s.confirmar !== false, custo: +s.custo || 0, ordens: s.ordens || [] }; }
+      if (s) { cfg = { confirmar: s.confirmar !== false, custo: +s.custo || 0, custoPct: +s.custoPct || 0, ordens: s.ordens || [] }; }
     } catch (e) {}
   }
   function salvaCfg() { try { global.localStorage.setItem(MEU, JSON.stringify(cfg)); } catch (e) {} }
@@ -13729,11 +13867,15 @@ Resources:`;for(let t of c){if(!t||typeof t!=`string`)throw Error(`@supabase/aut
 
   /* O ponto de cobertura e o preco em que a operacao empata depois dos custos: sai do preco medio e
      anda a favor do resultado o tanto que os custos pesam por unidade. */
+  /* a confirmação de zerar/cancelar segue a escolha das Configurações (Chart Trading) */
+  function querConfirmar() { return global.MXConfig ? !!global.MXConfig.valor('confirmaCancel') : cfg.confirmar; }
+  /* custo por unidade para pagar a ida e a volta: em % por lado (Configurações) ou em dinheiro */
+  function custoUnit(p) { return cfg.custoPct > 0 ? p.avg * cfg.custoPct / 100 * 2 : cfg.custo; }
   function cobertura(p) {
     if (!p) { return null; }
-    var custo = cfg.custo * Math.abs(p.q);
-    if (!(custo > 0)) { return null; }
-    return p.avg + (p.q > 0 ? 1 : -1) * (custo / Math.abs(p.q));
+    var cu = custoUnit(p);
+    if (!(cu > 0)) { return null; }
+    return p.avg + (p.q > 0 ? 1 : -1) * cu;
   }
 
   /* ----------------------------------------------------------- faixa de cima */
@@ -13853,7 +13995,7 @@ Resources:`;for(let t of c){if(!t||typeof t!=`string`)throw Error(`@supabase/aut
       else if (poe(el.cob, cb)) {
         var tc = el.cob.querySelector('.pz-tag');
         tc.querySelector('b').textContent = 'Ponto de Cobertura';
-        tc.querySelector('.pz-r').textContent = dinheiro(-cfg.custo * Math.abs(p.q));
+        tc.querySelector('.pz-r').textContent = dinheiro(-custoUnit(p) * Math.abs(p.q));
         tc.querySelector('.pz-r').setAttribute('data-dir', 'down');
       }
     }
@@ -13885,7 +14027,7 @@ Resources:`;for(let t of c){if(!t||typeof t!=`string`)throw Error(`@supabase/aut
       cfg.ordens = cfg.ordens.filter(function (o) { return o.id !== id; });
       salvaCfg();
     }
-    if (!cfg.confirmar) { faz(); return; }
+    if (!querConfirmar()) { faz(); return; }
     dialogo({
       titulo: 'Cancelar Ordem',
       texto: 'A ordem pendente sai do gráfico. A posição aberta, se houver, continua como está.',
@@ -13933,6 +14075,7 @@ Resources:`;for(let t of c){if(!t||typeof t!=`string`)throw Error(`@supabase/aut
     if (sw) {
       sw.onclick = function () {
         cfg.confirmar = sw.getAttribute('aria-checked') !== 'true';
+        if (global.MXConfig) { global.MXConfig.muda('confirmaCancel', cfg.confirmar); }
         sw.setAttribute('aria-checked', String(cfg.confirmar));
         salvaCfg();
       };
@@ -13967,7 +14110,7 @@ Resources:`;for(let t of c){if(!t||typeof t!=`string`)throw Error(`@supabase/aut
       }
       atualiza();
     }
-    if (!cfg.confirmar) { faz(); return; }
+    if (!querConfirmar()) { faz(); return; }
     dialogo({
       titulo: 'Cancelar Ordens + Zerar Posições',
       texto: (pend ? pend + (pend > 1 ? ' ordens pendentes serão canceladas' : ' ordem pendente será cancelada') : 'Nenhuma ordem pendente') +
@@ -14117,7 +14260,11 @@ Resources:`;for(let t of c){if(!t||typeof t!=`string`)throw Error(`@supabase/aut
       return null;
     },
     cancela: cancela,
-    custo: function (v) { if (v != null) { cfg.custo = Math.max(0, +v || 0); salvaCfg(); } return cfg.custo; }
+    custo: function (v) { if (v != null) { cfg.custo = Math.max(0, +v || 0); salvaCfg(); } return cfg.custo; },
+    custoPct: function (v) { if (v != null) { cfg.custoPct = Math.max(0, +v || 0); salvaCfg(); atualiza(); } return cfg.custoPct || 0; },
+    limpa: function () { cfg.ordens = []; salvaCfg(); atualiza(); },
+    /* cancela sem perguntar (quem chama já confirmou) */
+    cancelaDireto: function (id) { cfg.ordens = cfg.ordens.filter(function (o) { return o.id !== id; }); salvaCfg(); atualiza(); }
   };
 
   if (doc.readyState === 'loading') { doc.addEventListener('DOMContentLoaded', inicia); } else { inicia(); }
@@ -15987,11 +16134,11 @@ Resources:`;for(let t of c){if(!t||typeof t!=`string`)throw Error(`@supabase/aut
     ui.lvenda.onclick = function () { limite('sell'); };
   }
 
-  function limite(side) {
+  function limite(side, pxDado) {
     if (!podeEnviar()) { pedeSenha(); return; }
     var e = E();
     function v(k) { var x = ui[k].value; return x === '' ? null : +x; }
-    var px = v('lpx'), q = qtd(), s = estrategia(), d = side === 'buy' ? 1 : -1;
+    var px = pxDado > 0 ? pxDado : v('lpx'), q = qtd(), s = estrategia(), d = side === 'buy' ? 1 : -1;
     var tp = s && s.alvo > 0 ? px + d * s.alvo : null, sl = s && s.stop > 0 ? px - d * s.stop : null;
     if (!(px > 0)) { erro('Informe o preço da ordem limite.'); return; }
     if (!(q > 0)) { erro('Informe a quantidade.'); return; }
@@ -16104,7 +16251,28 @@ Resources:`;for(let t of c){if(!t||typeof t!=`string`)throw Error(`@supabase/aut
     global.setInterval(pinta, 2000);
   }
 
+  /* ações usadas pelo Trade Pad: devolvem o erro (ou '') */
+  function acao(f) { return function () { erroMsg = ''; f.apply(null, arguments); return erroMsg; }; }
+  function cancelaOrdens() {
+    var e = E(), pend = (global.MXConta && global.MXConta.pendentes && global.MXConta.pendentes()) || [];
+    pend = pend.filter(function (o) { return o.sym === (e && e.sym); });
+    if (!pend.length) { erro('Nenhuma ordem pendente.'); return; }
+    pend.forEach(function (o) { if (global.MXConta.cancelaDireto) { global.MXConta.cancelaDireto(o.id); } else { global.MXConta.cancela(o.id); } });
+    ok('Ordens canceladas.');
+    global.setTimeout(pinta, 60);
+  }
   global.MXBoleta = {
+    compra: acao(function () { manda('buy'); }),
+    venda: acao(function () { manda('sell'); }),
+    zerar: acao(zerar),
+    inverter: acao(inverter),
+    limite: acao(function (side, px) { limite(side, px); }),
+    cancelaOrdens: acao(cancelaOrdens),
+    setQtd: function (v) { v = Math.max(0, +v || 0); cfg.qtd = v; if (ui.qtd) { ui.qtd.value = qtdTexto(v); } salva(); marcaRapidas(); sincronizaChip(); },
+    passo: function () { return passo(); },
+    estrategia: function () { return cfg.estrat || ''; },
+    travada: function () { return !!(cfg.senha && cfg.travada); },
+    reinicia: function () { cfg.ptsDia = {}; salva(); ok(''); erro(''); pinta(); },
     inicia: inicia,
     pinta: pinta,
     qtd: qtd,
@@ -17686,6 +17854,7 @@ Resources:`;for(let t of c){if(!t||typeof t!=`string`)throw Error(`@supabase/aut
   }
 
   global.MXFluxo = { negocio: negocio, book: livro, desenha: desenhaBook, ativo: ativo,
+    topo: function () { var b = fx.book; return b && b.bids && b.bids[0] && b.asks && b.asks[0] ? { bid: +b.bids[0][0], ask: +b.asks[0][0] } : null; },
     estado: function () {
       var f = somaFluxo(), hist = 0, k;
       for (k in fx.min) { if (+k < fx.desde && +k >= fx.dia) { hist += fx.min[k].c - fx.min[k].v; } }
@@ -18456,14 +18625,14 @@ window.MXLogosMapa = {"0G":"image/admin_mgs_image_upload/20250921/137e9686-843c-
   function html(id, tam) {
     if (!id) { return ''; }
     var i = info(id);
-    return '<span class="lg" data-lg="' + esc(id) + '" style="--lg:' + (tam || 20) + 'px" aria-hidden="true">' + miolo(i) + '</span>';
+    return '<span class="mxlg" data-lg="' + esc(id) + '" style="--lg:' + (tam || 20) + 'px" aria-hidden="true">' + miolo(i) + '</span>';
   }
 
   function atualiza(id) {
-    Array.prototype.forEach.call(doc.querySelectorAll('.lg[data-lg="' + id + '"]'), function (e) { e.innerHTML = miolo(info(id)); });
+    Array.prototype.forEach.call(doc.querySelectorAll('.mxlg[data-lg="' + id + '"]'), function (e) { e.innerHTML = miolo(info(id)); });
   }
   function atualizaTudo() {
-    Array.prototype.forEach.call(doc.querySelectorAll('.lg[data-lg]'), function (e) {
+    Array.prototype.forEach.call(doc.querySelectorAll('.mxlg[data-lg]'), function (e) {
       if (!e.querySelector('img')) { e.innerHTML = miolo(info(e.getAttribute('data-lg'))); }
     });
   }
@@ -18471,7 +18640,7 @@ window.MXLogosMapa = {"0G":"image/admin_mgs_image_upload/20250921/137e9686-843c-
   /* imagem que não carregou (rede, moeda nova) vira o selo de letras */
   doc.addEventListener('error', function (e) {
     var t = e.target;
-    if (!t || t.tagName !== 'IMG' || !t.parentNode || !t.parentNode.classList || !t.parentNode.classList.contains('lg')) { return; }
+    if (!t || t.tagName !== 'IMG' || !t.parentNode || !t.parentNode.classList || !t.parentNode.classList.contains('mxlg')) { return; }
     var p = t.parentNode;
     p.innerHTML = selo(info(p.getAttribute('data-lg')));
   }, true);
@@ -18557,6 +18726,7 @@ window.MXLogosMapa = {"0G":"image/admin_mgs_image_upload/20250921/137e9686-843c-
         var o = le(); o.forma = b.getAttribute('data-f'); grava(o); painel(cont);
       };
     });
+    if (global.MXConfig && global.MXConfig.ctExtra) { global.MXConfig.ctExtra(cont); }
     var swl = cont.querySelector('.mo-l .cm-sw');
     swl.onclick = function () {
       var v = !(global.MXLinhas && global.MXLinhas.estende());
@@ -18613,6 +18783,7 @@ window.MXLogosMapa = {"0G":"image/admin_mgs_image_upload/20250921/137e9686-843c-
     if (!ch || !A || !A.api) { return; }
     var eixo = (A.api.axisW && A.api.axisW()) || 64, W = ch.clientWidth, plot = Math.max(0, W - eixo);
     var folga = W < 640 ? 10 : 96, ext = esq(), col = 0, itens = [];
+    var aEsq = doc.documentElement.getAttribute('data-ordens-lado') === 'esquerda';
 
     /* coluna da direita: TP, SL e ordens pendentes */
     ['tp', 'sl'].forEach(function (k) {
@@ -18627,7 +18798,7 @@ window.MXLogosMapa = {"0G":"image/admin_mgs_image_upload/20250921/137e9686-843c-
     });
     itens.forEach(function (it) { col = Math.max(col, it.w); });
     itens.forEach(function (it) {
-      var x = Math.max(4, plot - folga - it.w);
+      var x = aEsq ? 12 : Math.max(4, plot - folga - it.w);
       it.tag.style.left = x + 'px';
       if (it.tipo === 'ct') { it.el.style.setProperty('--l0', (ext ? 0 : x) + 'px'); }
       else { var hr = it.el.querySelector('hr'); if (hr) { hr.style.left = (ext ? 0 : x) + 'px'; } }
@@ -18637,7 +18808,7 @@ window.MXLogosMapa = {"0G":"image/admin_mgs_image_upload/20250921/137e9686-843c-
     var pos = doc.querySelector('.pz-l.pz-pos'), xe = null;
     if (visivel(pos)) {
       var tp = pos.querySelector('.pz-tag'), we = tp.offsetWidth;
-      xe = col ? plot - folga - col - 16 - we : plot - folga - we;
+      xe = aEsq ? (col ? 12 + col + 16 : 12) : (col ? plot - folga - col - 16 - we : plot - folga - we);
       if (xe < 4) { xe = 4; }
       tp.style.left = xe + 'px';
       var hr0 = pos.querySelector('hr');
@@ -18648,7 +18819,7 @@ window.MXLogosMapa = {"0G":"image/admin_mgs_image_upload/20250921/137e9686-843c-
     var cob = doc.querySelector('.pz-l.pz-cob');
     if (visivel(cob)) {
       var tc = cob.querySelector('.pz-tag'), wc = tc.offsetWidth;
-      var xc = xe != null ? xe - 10 - wc : plot - folga - wc;
+      var xc = aEsq ? (xe != null ? xe + pos.querySelector('.pz-tag').offsetWidth + 10 : 12) : (xe != null ? xe - 10 - wc : plot - folga - wc);
       if (xc < 4) { xc = 4; }
       tc.style.left = xc + 'px';
       var hr1 = cob.querySelector('hr');
@@ -18660,6 +18831,734 @@ window.MXLogosMapa = {"0G":"image/admin_mgs_image_upload/20250921/137e9686-843c-
   global.requestAnimationFrame(quadro);
 
   global.MXLinhas = { estende: function (v) { if (v != null) { grava(!!v); } return esq(); } };
+})(window);
+</script>
+<script>/* MX360 Plataforma: Configurações do gráfico completas (como no outro projeto).
+   Abas Linha de status, Escalas, Tela, Personalizar e Modelos, e os itens extras do Chart Trading
+   (alinhamento das ordens, ordem no preço, confirmações, ponto de cobertura, reiniciar simulação).
+   Regra: só é aplicado ao gráfico o que o usuário mexeu; o resto continua como o tema manda. */
+(function (global) {
+  'use strict';
+
+  var doc = global.document;
+  var CHAVE = 'mx360.config.v1';
+  var DEF = {
+    /* linha de status */
+    stNome: true, stOhlc: true, stVar: true, stInd: true, stConta: true,
+    /* escalas */
+    ultimoPreco: true, linhaPreco: true, linhaPrecoEstilo: 'tracejada', contagem: false, margemSup: 10, margemInf: 20,
+    segundos: false, espacoDir: 6, fonteTam: 12, fonteCor: 'auto', bordas: true,
+    /* tela */
+    abasAtivos: true, fundoTipo: 'tema', fundoCor: '#ffffff', fundoCor2: '#eef2f0', grV: false, grH: false, grCor: '#808080', grEstilo: 'solida', grInt: 15,
+    cruzModo: 'livre', cruzCor: '#d4a63a', cruzEstilo: 'tracejada', cruzEsp: 1, marca: 'tudo',
+    /* chart trading */
+    alinhamento: 'direita', confirmaEnvio: false, confirmaCancel: true, cobertura: true,
+    /* personalizar (true = aparece) */
+    ui: {
+      mx: true, busca: true, tempos: true, tipo: true, ind: true, replay: true, alertas: true, layouts: true, tema: true,
+      destacar: true, imagem: true, cheia: true, status: true, perfil: true,
+      'tf-1m': true, 'tf-3m': true, 'tf-5m': true, 'tf-15m': true, 'tf-30m': true, 'tf-45m': true, 'tf-1h': true, 'tf-4h': true, 'tf-1d': true, 'tf-1w': true,
+      btnAuto: false, btnLog: false, btnFit: true, btnNow: false, desenho: true, direita: true, abasLayouts: true, carrossel: true
+    }
+  };
+  var cfg = { ui: {} };          /* só o que o usuário mudou */
+
+  function le() {
+    try { var o = JSON.parse(global.localStorage.getItem(CHAVE) || 'null'); if (o && typeof o === 'object') { cfg = o; cfg.ui = cfg.ui || {}; } } catch (e) {}
+  }
+  function grava() { try { global.localStorage.setItem(CHAVE, JSON.stringify(cfg)); } catch (e) {} }
+  function v(k) { return cfg.hasOwnProperty(k) ? cfg[k] : DEF[k]; }
+  function u(k) { return cfg.ui.hasOwnProperty(k) ? cfg.ui[k] : DEF.ui[k]; }
+  function muda(k, val) { cfg[k] = val; grava(); aplica(); }
+  function mudaUi(k, val) { cfg.ui[k] = val; grava(); aplica(); }
+  function tem(k) { return cfg.hasOwnProperty(k); }
+
+  /* ------------------------------------------------------------ aplicar */
+
+  var ESTILO = { solida: 0, pontilhada: 1, tracejada: 2, longa: 3 };
+  function rgba(hex, a) {
+    var m = /^#?([0-9a-f]{6})$/i.exec(hex || '');
+    if (!m) { return hex; }
+    var n = parseInt(m[1], 16);
+    return 'rgba(' + (n >> 16 & 255) + ',' + (n >> 8 & 255) + ',' + (n & 255) + ',' + a + ')';
+  }
+
+  function aplica() {
+    var h = doc.documentElement, A = global.MXApp, api = A && A.api;
+    /* personalizar e linha de status: atributos no html, o CSS esconde/mostra */
+    var off = [], on = [];
+    Object.keys(DEF.ui).forEach(function (k) { if (u(k)) { on.push(k); } else { off.push(k); } });
+    if (!v('stNome')) { off.push('stNome'); }
+    if (!v('stOhlc')) { off.push('stOhlc'); }
+    if (!v('stVar')) { off.push('stVar'); }
+    if (!v('stInd')) { off.push('stInd'); }
+    if (!v('stConta')) { off.push('stConta'); }
+    if (!v('abasAtivos')) { off.push('abasAtivos'); }
+    if (!v('cobertura')) { off.push('cobertura'); }
+    h.setAttribute('data-ui-off', off.join(' '));
+    h.setAttribute('data-ui-on', on.join(' '));
+    h.setAttribute('data-ordens-lado', v('alinhamento'));
+    if (!api || !api.configurar) { return; }
+
+    /* opções do gráfico: só as que o usuário mexeu */
+    var o = {}, ts = {}, ps = {}, lay = {}, s = {};
+    if (tem('segundos')) { ts.secondsVisible = !!v('segundos'); ts.timeVisible = true; }
+    if (tem('espacoDir')) { ts.rightOffset = Math.max(0, +v('espacoDir') || 0); }
+    if (tem('bordas')) { ts.borderVisible = !!v('bordas'); ps.borderVisible = !!v('bordas'); }
+    if (tem('fonteTam')) { lay.fontSize = Math.max(8, Math.min(20, +v('fonteTam') || 12)); }
+    if (tem('fonteCor') && v('fonteCor') !== 'auto') { lay.textColor = v('fonteCor'); }
+    if (tem('fundoTipo') && v('fundoTipo') !== 'tema') {
+      lay.background = v('fundoTipo') === 'gradiente'
+        ? { type: 'gradient', topColor: v('fundoCor'), bottomColor: v('fundoCor2') }
+        : { type: 'solid', color: v('fundoCor') };
+    }
+    if (tem('grV') || tem('grH') || tem('grCor') || tem('grEstilo') || tem('grInt')) {
+      var gc = rgba(v('grCor'), Math.max(0.02, Math.min(1, (+v('grInt') || 15) / 100))), ge = ESTILO[v('grEstilo')] || 0;
+      o.grid = { vertLines: { visible: !!v('grV'), color: gc, style: ge }, horzLines: { visible: !!v('grH'), color: gc, style: ge } };
+    }
+    if (tem('cruzModo') || tem('cruzCor') || tem('cruzEstilo') || tem('cruzEsp')) {
+      var cl = { color: v('cruzCor'), style: ESTILO[v('cruzEstilo')], width: +v('cruzEsp') || 1, labelBackgroundColor: v('cruzCor') };
+      o.crosshair = { mode: v('cruzModo') === 'magnetico' ? 1 : v('cruzModo') === 'oculta' ? 2 : 0, vertLine: cl, horzLine: cl };
+    }
+    if (Object.keys(ts).length) { o.timeScale = ts; }
+    if (Object.keys(lay).length) { o.layout = lay; }
+    try { api.configurar(o); } catch (e) {}
+    if (Object.keys(ps).length || tem('margemSup') || tem('margemInf')) {
+      if (tem('margemSup') || tem('margemInf')) { ps.scaleMargins = { top: (+v('margemSup') || 0) / 100, bottom: (+v('margemInf') || 0) / 100 }; }
+      try { api.escala(ps); } catch (e) {}
+    }
+    if (tem('ultimoPreco')) { s.lastValueVisible = !!v('ultimoPreco'); }
+    if (tem('linhaPreco')) { s.priceLineVisible = !!v('linhaPreco'); }
+    if (tem('linhaPrecoEstilo')) { s.priceLineStyle = ESTILO[v('linhaPrecoEstilo')]; }
+    if (Object.keys(s).length) { try { api.serie(s); } catch (e) {} }
+    if (tem('marca') && global.MXMarca) { try { global.MXMarca(); } catch (e) {} }
+  }
+
+  /* marca d'água: quais linhas aparecem */
+  function marcaLinhas(linhas) {
+    var m = v('marca');
+    if (m === 'nada') { return []; }
+    if (m === 'marca') { return linhas.slice(0, 1); }
+    if (m === 'ativo') { return linhas.slice(1); }
+    return linhas;
+  }
+
+  /* ---------------------------------------------------- contagem regressiva */
+
+  var cont = null;
+  function contagem() {
+    global.setTimeout(contagem, 250);
+    var A = global.MXApp, ch = doc.getElementById('chart');
+    if (!v('contagem') || !A || !ch || (global.MXReplay && global.MXReplay.active && global.MXReplay.active())) { if (cont) { cont.hidden = true; } return; }
+    var r = A.rows ? A.rows() : [];
+    if (r.length < 3) { return; }
+    var ult = r[r.length - 1], passo = r[r.length - 1].t - r[r.length - 2].t, falta = ult.t + passo - Date.now();
+    if (!(passo > 0) || falta < 0 || falta > passo) { if (cont) { cont.hidden = true; } return; }
+    var y = A.api.yOfPrice(ult.c);
+    if (y == null || isNaN(y)) { if (cont) { cont.hidden = true; } return; }
+    if (!cont) { cont = doc.createElement('div'); cont.className = 'cfg-cont'; ch.parentNode.appendChild(cont); }
+    var s = Math.floor(falta / 1000), hh = Math.floor(s / 3600), mm = Math.floor(s % 3600 / 60), ss = s % 60;
+    cont.textContent = (hh ? hh + ':' + ('0' + mm).slice(-2) : mm) + ':' + ('0' + ss).slice(-2);
+    cont.hidden = false;
+    cont.style.top = (ch.offsetTop + y + 12) + 'px';
+    cont.style.left = (ch.offsetLeft + ch.clientWidth - ((A.api.axisW && A.api.axisW()) || 64) + 4) + 'px';
+  }
+
+  /* ---------------------------------------------------------- confirmações */
+
+  var passando = false;
+  function confirma(texto) {
+    return new Promise(function (ok) {
+      var bk = doc.createElement('div');
+      bk.className = 'cfg-cf';
+      bk.innerHTML = '<div class="cfg-cf-card" role="dialog" aria-modal="true"><p></p><div class="cfg-cf-a">' +
+        '<button type="button" class="cfg-b" data-n>Cancelar</button><button type="button" class="cfg-b cfg-pri" data-s>Confirmar</button></div></div>';
+      bk.querySelector('p').textContent = texto;
+      doc.body.appendChild(bk);
+      function fim(r) { bk.remove(); ok(r); }
+      bk.querySelector('[data-s]').onclick = function () { fim(true); };
+      bk.querySelector('[data-n]').onclick = function () { fim(false); };
+      bk.onclick = function (e) { if (e.target === bk) { fim(false); } };
+      bk.querySelector('[data-s]').focus();
+    });
+  }
+  function sym() { var s = doc.getElementById('symbol'); return s ? s.value : ''; }
+  function qtdBoleta() { return global.MXBoleta && global.MXBoleta.qtd ? global.MXBoleta.qtd() : 0; }
+  var ENVIO = '.bl [data-k="compra"],.bl [data-k="venda"],.bl [data-k="lcompra"],.bl [data-k="lvenda"],.ct-chip .cc-go,[data-conf="envio"]';
+  /* "Cancelar ordens + Zerar", o X da posição e o X das ordens pendentes já perguntam pela janela da conta */
+  var CANCELA = '.bl [data-k="zerar"],.bl [data-k="inverter"],.bl-abertas [data-lv],[data-conf="cancel"]';
+  doc.addEventListener('click', function (e) {
+    if (passando) { return; }
+    var t = e.target && e.target.closest ? e.target : null;
+    if (!t) { return; }
+    var el = t.closest(ENVIO), tipo = 'envio';
+    if (!el || !v('confirmaEnvio')) { el = t.closest(CANCELA); tipo = 'cancel'; }
+    if (!el || (tipo === 'envio' ? !v('confirmaEnvio') : !v('confirmaCancel'))) { return; }
+    e.preventDefault(); e.stopPropagation(); e.stopImmediatePropagation();
+    var rot = (el.getAttribute('aria-label') || el.textContent || '').replace(/\s+/g, ' ').trim();
+    var texto = tipo === 'envio'
+      ? 'Enviar ' + rot + ' · ' + String(qtdBoleta()).replace('.', ',') + ' ' + sym() + '?'
+      : (rot === '×' || !rot ? 'Cancelar esta ordem?' : 'Confirmar: ' + rot + '?');
+    confirma(texto).then(function (ok) {
+      if (!ok) { return; }
+      passando = true;
+      try { el.click(); } finally { passando = false; }
+    });
+  }, true);
+  /* o X do take/stop age no toque (pointerdown): confirma e tira o nível direto */
+  doc.addEventListener('pointerdown', function (e) {
+    if (!v('confirmaCancel')) { return; }
+    var i = e.target && e.target.closest ? e.target.closest('.ct-tag i') : null;
+    if (!i) { return; }
+    e.preventDefault(); e.stopPropagation(); e.stopImmediatePropagation();
+    var k = i.closest('.ct-tp') ? 'tp' : 'sl';
+    confirma('Cancelar o ' + (k === 'tp' ? 'take (alvo)' : 'stop') + '?').then(function (ok) {
+      if (ok && global.MXTrade && global.MXTrade.setLv) { global.MXTrade.setLv(k, null); }
+    });
+  }, true);
+
+  /* ------------------------------------------------------------ montagem */
+
+  function esc(s) { return String(s == null ? '' : s).replace(/[&<>"]/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]; }); }
+  function h4(t) { return '<h4>' + esc(t) + '</h4>'; }
+  function sw(k, rot, ui, dica) {
+    var on = ui ? u(k) : v(k);
+    return '<div class="cm-g cm-p cfg-l"><span>' + esc(rot) + (dica ? '<small>' + esc(dica) + '</small>' : '') + '</span>' +
+      '<button type="button" class="cm-sw" data-' + (ui ? 'u' : 'k') + '="' + k + '" aria-pressed="' + !!on + '"></button></div>';
+  }
+  function sel(k, rot, ops, extra) {
+    return '<div class="cm-g cm-p cfg-l"><span>' + esc(rot) + '</span><span class="cfg-dir">' + (extra || '') +
+      '<select class="cfg-in" data-s="' + k + '">' + ops.map(function (o) {
+        return '<option value="' + o[0] + '"' + (String(v(k)) === String(o[0]) ? ' selected' : '') + '>' + esc(o[1]) + '</option>';
+      }).join('') + '</select></span></div>';
+  }
+  function num(k, rot, un, min, max) {
+    return '<div class="cm-g cm-p cfg-l"><span>' + esc(rot) + '</span><span class="cfg-dir"><input class="cfg-in cfg-num" type="number" data-n="' + k + '" min="' + min + '" max="' + max + '" value="' + esc(v(k)) + '">' +
+      (un ? '<i>' + esc(un) + '</i>' : '') + '</span></div>';
+  }
+  function cor(k) { return '<input type="color" class="cfg-cor" data-c="' + k + '" value="' + esc(v(k)) + '">'; }
+  var ESTILOS = [['solida', 'Sólida'], ['tracejada', 'Tracejada'], ['pontilhada', 'Pontilhada']];
+
+  function liga(cont) {
+    Array.prototype.forEach.call(cont.querySelectorAll('[data-k],[data-u]'), function (b) {
+      b.onclick = function () {
+        var k = b.getAttribute('data-k'), ku = b.getAttribute('data-u'), on = b.getAttribute('aria-pressed') !== 'true';
+        b.setAttribute('aria-pressed', String(on));
+        if (k) { muda(k, on); } else { mudaUi(ku, on); }
+      };
+    });
+    Array.prototype.forEach.call(cont.querySelectorAll('[data-s]'), function (s) { s.onchange = function () { muda(s.getAttribute('data-s'), s.value); }; });
+    Array.prototype.forEach.call(cont.querySelectorAll('[data-n]'), function (i) {
+      i.onchange = function () {
+        var n = parseFloat(String(i.value).replace(',', '.'));
+        if (!isFinite(n)) { i.value = v(i.getAttribute('data-n')); return; }
+        n = Math.max(+i.min, Math.min(+i.max, n)); i.value = n; muda(i.getAttribute('data-n'), n);
+      };
+    });
+    Array.prototype.forEach.call(cont.querySelectorAll('[data-c]'), function (c) { c.oninput = function () { muda(c.getAttribute('data-c'), c.value); }; });
+  }
+
+  var PAINEIS = {
+    'Linha de status': function (c) {
+      c.innerHTML = h4('Linha de status (canto superior esquerdo)') +
+        sw('stNome', 'Nome do ativo e tempo gráfico') + sw('stOhlc', 'Abertura, máxima, mínima e fechamento') +
+        sw('stVar', 'Variação da vela') + sw('stInd', 'Indicadores ligados') +
+        h4('Barra da conta') + sw('stConta', 'Barra da conta simulada (posição, resultado e preço médio)');
+    },
+    'Escalas': function (c) {
+      c.innerHTML = h4('Escala de preço') +
+        sw('ultimoPreco', 'Etiqueta do último preço') +
+        '<div class="cm-g cm-p cfg-l"><span>Linha do preço atual</span><span class="cfg-dir">' +
+        '<button type="button" class="cm-sw" data-k="linhaPreco" aria-pressed="' + !!v('linhaPreco') + '"></button>' +
+        '<select class="cfg-in" data-s="linhaPrecoEstilo">' + [['tracejada', 'Tracejada'], ['pontilhada', 'Pontilhada'], ['solida', 'Sólida']].map(function (o) {
+          return '<option value="' + o[0] + '"' + (v('linhaPrecoEstilo') === o[0] ? ' selected' : '') + '>' + o[1] + '</option>'; }).join('') + '</select></span></div>' +
+        sw('contagem', 'Contagem regressiva da vela') +
+        num('margemSup', 'Margem superior', '%', 0, 45) + num('margemInf', 'Margem inferior', '%', 0, 45) +
+        h4('Escala de tempo') + sw('segundos', 'Mostrar segundos') + num('espacoDir', 'Espaço à direita do último candle', 'velas', 0, 100) +
+        h4('Aparência das escalas') +
+        sel('fonteTam', 'Tamanho do texto', [[10, '10'], [11, '11'], [12, '12'], [13, '13'], [14, '14'], [16, '16']]) +
+        sel('fonteCor', 'Cor do texto', [['auto', 'Automática (do tema)'], ['#111111', 'Preta'], ['#ffffff', 'Branca'], ['#8a8f94', 'Cinza'], ['#b8892b', 'Dourada']]) +
+        sw('bordas', 'Bordas das escalas');
+    },
+    'Tela': function (c) {
+      c.innerHTML = h4('Lista de ativos') + sw('abasAtivos', 'Abas de ativos no topo do gráfico (estilo Profit)') +
+        h4('Fundo') + sel('fundoTipo', 'Plano de fundo', [['tema', 'Do tema'], ['solido', 'Sólido'], ['gradiente', 'Gradiente']], cor('fundoCor') + (v('fundoTipo') === 'gradiente' ? cor('fundoCor2') : '')) +
+        h4('Grade') + sw('grV', 'Linhas verticais') + sw('grH', 'Linhas horizontais') +
+        sel('grEstilo', 'Cor e estilo', ESTILOS, cor('grCor')) + num('grInt', 'Intensidade', '%', 2, 100) +
+        h4('Cruz do cursor') + sel('cruzModo', 'Modo', [['livre', 'Livre'], ['magnetico', 'Magnético (gruda no preço)'], ['oculta', 'Oculta']]) +
+        sel('cruzEstilo', 'Cor e estilo', ESTILOS, cor('cruzCor')) + sel('cruzEsp', 'Espessura', [[1, '1 px'], [2, '2 px'], [3, '3 px']]) +
+        h4('Marca d’água') + sel('marca', 'Mostrar no fundo', [['tudo', 'MX360°, ativo e tempo'], ['ativo', 'Só o ativo e o tempo'], ['marca', 'Só MX360°'], ['nada', 'Nada']]);
+      var t = c.querySelector('[data-s="fundoTipo"]');
+      t.onchange = function () { muda('fundoTipo', t.value); PAINEIS.Tela(c); liga(c); };
+    },
+    'Personalizar': function (c) {
+      c.innerHTML = '<p class="cfg-txt">Escolha o que aparece na plataforma. Desligue o que você não usa; dá para voltar a qualquer momento por aqui (ou tocando e segurando no gráfico).</p>' +
+        h4('Barra de cima') + sw('mx', 'Botão MX (ecossistema)', true) + sw('busca', 'Busca de ativo', true) + sw('tempos', 'Tempos gráficos', true) +
+        sw('tipo', 'Tipo de gráfico', true) + sw('ind', 'Indicadores', true) + sw('replay', 'Replay de mercado', true) + sw('alertas', 'Alertas de preço', true) +
+        sw('layouts', 'Layouts salvos', true) + sw('tema', 'Tema claro/escuro', true) + sw('destacar', 'Destacar o gráfico (outra janela)', true) +
+        sw('imagem', 'Salvar imagem', true) + sw('cheia', 'Tela cheia', true) + sw('status', 'Status da conexão', true) + sw('perfil', 'Meu perfil', true) +
+        h4('Tempos gráficos na barra') + [['1m', '1 min'], ['3m', '3 min'], ['5m', '5 min'], ['15m', '15 min'], ['30m', '30 min'], ['45m', '45 min'], ['1h', '1 hora'], ['4h', '4 horas'], ['1d', 'Diário'], ['1w', 'Semanal']]
+          .map(function (t) { return sw('tf-' + t[0], t[1], true); }).join('') +
+        h4('Botões do gráfico (canto de baixo)') + sw('btnAuto', 'Auto (escala)', true) + sw('btnLog', 'Log (escala logarítmica)', true) +
+        sw('btnFit', 'Ajustar', true) + sw('btnNow', 'Agora (último candle)', true) +
+        h4('Painéis') + sw('desenho', 'Barra de ferramentas de desenho (esquerda)', true) + sw('direita', 'Painel da direita', true) +
+        h4('Rodapé') + sw('abasLayouts', 'Abas de layouts', true) + sw('carrossel', 'Carrossel de cotações', true);
+    },
+    'Modelos': function (c) { modelos(c); }
+  };
+
+  function painel(nome, c) {
+    if (!PAINEIS[nome]) { return false; }
+    PAINEIS[nome](c);
+    liga(c);
+    return true;
+  }
+
+  /* Chart Trading: o que vem depois das marcas e das linhas (montado pelo n22) */
+  function ctExtra(c) {
+    var d = doc.createElement('div');
+    var noPreco = global.MXBoleta && global.MXBoleta.noPreco ? global.MXBoleta.noPreco() : true;
+    var custo = global.MXConta && global.MXConta.custoPct ? global.MXConta.custoPct() : 0;
+    d.innerHTML = h4('Ordens no gráfico') +
+      sel('alinhamento', 'Alinhamento das ordens', [['direita', 'Direita'], ['esquerda', 'Esquerda']]) +
+      '<div class="cm-g cm-p cfg-l"><span>Ordem no preço (com TP e SL antes de entrar)</span>' +
+      '<button type="button" class="cm-sw" data-np aria-pressed="' + !!noPreco + '"></button></div>' +
+      h4('Confirmações') + sw('confirmaEnvio', 'Confirmar envio de ordens') + sw('confirmaCancel', 'Confirmar cancelamentos e zerar posição') +
+      h4('Ponto de cobertura') + sw('cobertura', 'Mostrar ponto de cobertura') +
+      '<div class="cm-g cm-p cfg-l"><span>Custo por lado (%)<small>Corretagem e taxas de cada lado da operação, em % do preço. O ponto de cobertura é o preço que paga a ida e a volta.</small></span>' +
+      '<span class="cfg-dir"><input class="cfg-in cfg-num" type="number" step="0.01" min="0" max="5" data-custo value="' + custo + '"></span></div>' +
+      h4('Simulador') +
+      '<div class="cm-g cm-p cfg-l"><span>Apagar posições, ordens e execuções simuladas</span><button type="button" class="cfg-b" data-reinicia>Reiniciar simulação</button></div>';
+    c.appendChild(d);
+    liga(d);
+    var np = d.querySelector('[data-np]');
+    np.onclick = function () {
+      var on = np.getAttribute('aria-pressed') !== 'true';
+      np.setAttribute('aria-pressed', String(on));
+      if (global.MXBoleta && global.MXBoleta.noPreco) { global.MXBoleta.noPreco(on); }
+    };
+    var ci = d.querySelector('[data-custo]');
+    ci.onchange = function () {
+      var n = Math.max(0, Math.min(5, parseFloat(String(ci.value).replace(',', '.')) || 0));
+      ci.value = n;
+      if (global.MXConta && global.MXConta.custoPct) { global.MXConta.custoPct(n); }
+    };
+    d.querySelector('[data-reinicia]').onclick = function () {
+      confirma('Reiniciar a simulação? Posições, ordens pendentes e o histórico simulado serão apagados.').then(function (ok) {
+        if (!ok) { return; }
+        if (global.MXConta && global.MXConta.limpa) { global.MXConta.limpa(); }
+        if (global.MXTrade && global.MXTrade.reinicia) { global.MXTrade.reinicia(); }
+        if (global.MXBoleta && global.MXBoleta.reinicia) { global.MXBoleta.reinicia(); }
+        if (global.MXShell && global.MXShell.toast) { global.MXShell.toast('Simulação reiniciada.'); }
+      });
+    };
+  }
+
+  /* --------------------------------------------------------------- modelos */
+
+  var MOD = 'mx360.modelos.v1';
+  /* o que um modelo guarda: aparência e configurações (nunca senha, chave de API ou conta) */
+  var CHAVES = ['mx360.config.v1', 'mx360.estilo.v1', 'mx360.marcas.ops.v1', 'mx360.linhas.esq.v1', 'mx360.mx2.cfg.v1', 'mx360.estudos.v1'];
+  function foto() {
+    var o = {};
+    CHAVES.forEach(function (k) { try { var x = global.localStorage.getItem(k); if (x != null) { o[k] = x; } } catch (e) {} });
+    return o;
+  }
+  function restaura(o) {
+    CHAVES.forEach(function (k) {
+      try { if (o[k] != null) { global.localStorage.setItem(k, o[k]); } else { global.localStorage.removeItem(k); } } catch (e) {}
+    });
+    global.location.reload();
+  }
+  function lista() { try { return JSON.parse(global.localStorage.getItem(MOD) || '[]') || []; } catch (e) { return []; } }
+  function salvaLista(l) { try { global.localStorage.setItem(MOD, JSON.stringify(l)); } catch (e) {} }
+  function modelos(c) {
+    var l = lista();
+    c.innerHTML = h4('Salvar a configuração atual') +
+      '<div class="cfg-mod"><input class="cfg-in" data-nome placeholder="Nome do modelo (ex.: Pregão WIN)" maxlength="40"><button type="button" class="cfg-b cfg-pri" data-salva>Salvar modelo</button></div>' +
+      h4('Meus modelos') +
+      (l.length ? '<ul class="cfg-lista">' + l.map(function (m, i) {
+        return '<li><span><b>' + esc(m.nome) + '</b><small>' + esc(new Date(m.quando).toLocaleString('pt-BR')) + '</small></span>' +
+          '<button type="button" class="cfg-b" data-aplica="' + i + '">Aplicar</button><button type="button" class="cfg-b" data-apaga="' + i + '" aria-label="Apagar">×</button></li>';
+      }).join('') + '</ul>' : '<p class="cfg-txt">Nenhum modelo salvo ainda.</p>') +
+      h4('Arquivo') +
+      '<div class="cfg-mod"><button type="button" class="cfg-b" data-exp>Exportar arquivo</button><button type="button" class="cfg-b" data-imp>Importar arquivo</button>' +
+      '<input type="file" accept=".json,application/json" data-arq hidden></div>' +
+      '<p class="cfg-txt">Os modelos ficam guardados neste aparelho. Exporte o arquivo para levar a sua configuração para outro computador ou passar para os alunos.</p>';
+    c.querySelector('[data-salva]').onclick = function () {
+      var n = c.querySelector('[data-nome]').value.trim();
+      if (!n) { c.querySelector('[data-nome]').focus(); return; }
+      var ll = lista().filter(function (m) { return m.nome !== n; });
+      ll.unshift({ nome: n, quando: Date.now(), dados: foto() });
+      salvaLista(ll); modelos(c);
+    };
+    Array.prototype.forEach.call(c.querySelectorAll('[data-aplica]'), function (b) {
+      b.onclick = function () { var m = lista()[+b.getAttribute('data-aplica')]; if (m) { restaura(m.dados); } };
+    });
+    Array.prototype.forEach.call(c.querySelectorAll('[data-apaga]'), function (b) {
+      b.onclick = function () { var ll = lista(); ll.splice(+b.getAttribute('data-apaga'), 1); salvaLista(ll); modelos(c); };
+    });
+    c.querySelector('[data-exp]').onclick = function () {
+      var blob = new Blob([JSON.stringify({ mx360: 'modelo', versao: 1, quando: Date.now(), dados: foto() }, null, 2)], { type: 'application/json' });
+      var a = doc.createElement('a');
+      a.href = URL.createObjectURL(blob);
+      a.download = 'mx360-modelo.json';
+      doc.body.appendChild(a); a.click(); a.remove();
+      global.setTimeout(function () { URL.revokeObjectURL(a.href); }, 2000);
+    };
+    var arq = c.querySelector('[data-arq]');
+    c.querySelector('[data-imp]').onclick = function () { arq.click(); };
+    arq.onchange = function () {
+      var f = arq.files && arq.files[0];
+      if (!f) { return; }
+      f.text().then(function (t) {
+        var o = JSON.parse(t);
+        if (!o || o.mx360 !== 'modelo' || !o.dados) { throw new Error('arquivo'); }
+        var d = {};
+        CHAVES.forEach(function (k) { if (typeof o.dados[k] === 'string') { d[k] = o.dados[k]; } });
+        restaura(d);
+      }).catch(function () { if (global.MXShell && global.MXShell.toast) { global.MXShell.toast('Esse arquivo não é um modelo do MX360°.'); } });
+    };
+  }
+
+  /* --------------------------------------------- janela: cancelar desfaz tudo */
+
+  var foto0 = null;
+  new global.MutationObserver(function () {
+    var bk = doc.querySelector('.cm-bk');
+    if (bk && !bk.__cfg) {
+      bk.__cfg = true;
+      foto0 = JSON.stringify(cfg);
+      var desfaz = function () { if (foto0 != null) { cfg = JSON.parse(foto0); cfg.ui = cfg.ui || {}; grava(); aplica(); } };
+      bk.addEventListener('click', function (e) {
+        if (e.target.closest('.cm-cn') || e.target.closest('.cm-x') || e.target === bk) { desfaz(); }
+        if (e.target.closest('.cm-r')) { cfg = { ui: {} }; grava(); aplica(); }
+      }, true);
+    }
+  }).observe(doc.body, { childList: true });
+
+  /* ------------------------------------------------------------------ início */
+
+  le();
+  aplica();
+  global.setTimeout(contagem, 1000);
+  /* o gráfico nasce depois deste arquivo: aplica de novo quando ele existir */
+  (function espera(n) {
+    if (global.MXApp && global.MXApp.api && global.MXApp.api.configurar) { aplica(); return; }
+    if (n < 60) { global.setTimeout(function () { espera(n + 1); }, 250); }
+  })(0);
+
+  global.MXConfig = { tem: function (n) { return !!PAINEIS[n]; }, painel: painel, ctExtra: ctExtra, aplica: aplica, valor: v, ui: u, muda: muda, marcaLinhas: marcaLinhas, confirma: confirma };
+})(window);
+</script>
+<script>/* MX360 Plataforma: atalhos rápidos do gráfico.
+   - Tocar e segurar (ou botão direito) no gráfico abre o menu: Configurações do gráfico, Tema e cores,
+     Modelos de configuração, Trade Pad e Relógio de mercado.
+   - Trade Pad: boleta flutuante e arrastável (mercado, no bid/ask, zerar, inverter, cancelar).
+   - Relógio de mercado: relógio de 24 h com o pregão de cada bolsa e a tabela com quanto falta para abrir
+     ou fechar, no horário de Brasília (com horário de verão de cada país). */
+(function (global) {
+  'use strict';
+
+  var doc = global.document;
+  function $(id) { return doc.getElementById(id); }
+  function esc(s) { return String(s == null ? '' : s).replace(/[&<>"]/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]; }); }
+  function n2(v, c) { return (+v || 0).toLocaleString('pt-BR', { minimumFractionDigits: c, maximumFractionDigits: c }); }
+  function casas() { var a = global.MXApp; return (a && a.api && a.api.precision && a.api.precision()) || 2; }
+  function toast(t) { if (global.MXShell && global.MXShell.toast) { global.MXShell.toast(t); } }
+
+  /* ============================================================ menu rápido */
+
+  var menu = null;
+  function fechaMenu() { if (menu) { menu.remove(); menu = null; } }
+  function abreConfig(aba) {
+    var b = doc.querySelector('button[title="Configurações do gráfico"]');
+    if (!b) { return; }
+    b.click();
+    if (!aba) { return; }
+    global.setTimeout(function () {
+      var t = Array.prototype.filter.call(doc.querySelectorAll('.cm-t > button'), function (x) { return x.textContent.trim() === aba; })[0];
+      if (t) { t.click(); }
+    }, 60);
+  }
+  var ITENS = [
+    ['Configurações do gráfico…', function () { abreConfig(''); }],
+    ['Tema e cores…', function () { abreConfig('Temas e cores'); }],
+    ['Modelos de configuração…', function () { abreConfig('Modelos'); }],
+    ['Trade Pad', function () { pad.abre(); }],
+    ['Relógio de mercado', function () { relogio.abre(); }]
+  ];
+  function abreMenu(x, y) {
+    fechaMenu();
+    menu = doc.createElement('div');
+    menu.className = 'qm';
+    menu.setAttribute('role', 'menu');
+    menu.innerHTML = ITENS.map(function (it, i) { return '<button type="button" role="menuitem" data-i="' + i + '">' + esc(it[0]) + '</button>'; }).join('');
+    doc.body.appendChild(menu);
+    var w = menu.offsetWidth, h = menu.offsetHeight;
+    menu.style.left = Math.max(6, Math.min(global.innerWidth - w - 6, x)) + 'px';
+    menu.style.top = Math.max(6, Math.min(global.innerHeight - h - 6, y)) + 'px';
+    Array.prototype.forEach.call(menu.children, function (b) {
+      b.onclick = function () { var f = ITENS[+b.getAttribute('data-i')][1]; fechaMenu(); f(); };
+    });
+    menu.firstChild.focus();
+  }
+  /* não abre o menu por cima de etiquetas de ordem, da ordem no preço ou de caixas do indicador */
+  function lugarLivre(t) {
+    return !(t.closest('.pz-tag,.ct-tag,.ct-chip,.mx2-st,.legend,.tools,.mx2c,.rpl-float,.qm,.tpad,.relo'));
+  }
+  doc.addEventListener('contextmenu', function (e) {
+    var ch = $('chart');
+    if (!ch || !ch.parentNode.contains(e.target) || !lugarLivre(e.target)) { return; }
+    e.preventDefault();
+    abreMenu(e.clientX, e.clientY);
+  });
+  var lp = null;
+  doc.addEventListener('pointerdown', function (e) {
+    if (menu && !menu.contains(e.target)) { fechaMenu(); }
+    if (e.pointerType === 'mouse') { return; }
+    var ch = $('chart');
+    if (!ch || !ch.parentNode.contains(e.target) || !lugarLivre(e.target)) { return; }
+    var x0 = e.clientX, y0 = e.clientY;
+    lp = { x: x0, y: y0, t: global.setTimeout(function () { lp = null; abreMenu(x0, y0); if (global.navigator.vibrate) { try { global.navigator.vibrate(12); } catch (z) {} } }, 550) };
+  }, true);
+  doc.addEventListener('pointermove', function (e) {
+    if (lp && Math.abs(e.clientX - lp.x) + Math.abs(e.clientY - lp.y) > 10) { global.clearTimeout(lp.t); lp = null; }
+  }, true);
+  ['pointerup', 'pointercancel'].forEach(function (ev) { doc.addEventListener(ev, function () { if (lp) { global.clearTimeout(lp.t); lp = null; } }, true); });
+  doc.addEventListener('keydown', function (e) { if (e.key === 'Escape') { fechaMenu(); } });
+
+  /* ===================================================== janelas flutuantes */
+
+  function arrasta(box, alca, chave) {
+    try {
+      var p = JSON.parse(global.localStorage.getItem(chave) || 'null');
+      if (p) { box.style.left = p.x + 'px'; box.style.top = p.y + 'px'; }
+    } catch (e) {}
+    var d = null;
+    alca.addEventListener('pointerdown', function (e) {
+      if (e.target.closest('button')) { return; }
+      d = { x: e.clientX - box.offsetLeft, y: e.clientY - box.offsetTop };
+      try { alca.setPointerCapture(e.pointerId); } catch (z) {}
+      e.preventDefault();
+    });
+    alca.addEventListener('pointermove', function (e) {
+      if (!d) { return; }
+      var x = Math.max(0, Math.min(global.innerWidth - box.offsetWidth, e.clientX - d.x));
+      var y = Math.max(0, Math.min(global.innerHeight - 40, e.clientY - d.y));
+      box.style.left = x + 'px'; box.style.top = y + 'px';
+    });
+    alca.addEventListener('pointerup', function () {
+      if (!d) { return; }
+      d = null;
+      try { global.localStorage.setItem(chave, JSON.stringify({ x: box.offsetLeft, y: box.offsetTop })); } catch (z) {}
+    });
+  }
+
+  /* ================================================================ Trade Pad */
+
+  var pad = (function () {
+    var box = null, tm = 0;
+    function E() { return (global.MXConta && global.MXConta.estado && global.MXConta.estado()) || null; }
+    function B() { return global.MXBoleta || {}; }
+    function topo() { return global.MXFluxo && global.MXFluxo.topo ? global.MXFluxo.topo() : null; }
+    function fecha() { if (box) { box.remove(); box = null; global.clearInterval(tm); } }
+    function pinta() {
+      if (!box) { return; }
+      var e = E(), p = e && e.pos, t = topo(), c = casas();
+      box.querySelector('.tpad-sym').textContent = (doc.getElementById('symbol') || {}).value || '';
+      var q = box.querySelector('[data-q]');
+      if (doc.activeElement !== q && B().qtd) { q.value = n2(B().qtd(), B().qtd() % 1 ? 2 : 0); }
+      box.querySelector('[data-bidpx]').textContent = t ? n2(t.bid, c) : '—';
+      box.querySelector('[data-askpx]').textContent = t ? n2(t.ask, c) : '—';
+      var st = box.querySelector('.tpad-st');
+      if (p) {
+        var ab = e.aberto || 0;
+        st.innerHTML = '<b data-dir="' + (p.q > 0 ? 'up' : 'down') + '">' + (p.q > 0 ? 'C' : 'V') + ' ' + n2(Math.abs(p.q), 2) + '</b> @ ' + n2(p.avg, c) +
+          ' · <span data-dir="' + (ab > 0.004 ? 'up' : ab < -0.004 ? 'down' : 'flat') + '">' + (ab > 0.004 ? '+' : '') + 'US$ ' + n2(Math.abs(ab) < 0.005 ? 0 : ab, 2) + '</span>';
+      } else { st.textContent = 'Sem posição'; }
+      var est = B().estrategia ? B().estrategia() : '';
+      var trava = B().travada ? B().travada() : false;
+      box.querySelector('.tpad-rod').textContent = 'Estratégia: ' + (est || 'nenhuma') + ' · ' + (trava ? 'envio travado (senha)' : 'envio liberado');
+    }
+    function abre() {
+      if (box) { box.style.display = ''; pinta(); return; }
+      box = doc.createElement('div');
+      box.className = 'tpad';
+      box.innerHTML = '<div class="tpad-h"><b>Trade Pad</b><span class="tpad-sym"></span><button type="button" class="tpad-x" aria-label="Fechar">×</button></div>' +
+        '<div class="tpad-q"><button type="button" data-m>−</button><input data-q inputmode="decimal" aria-label="Quantidade"><button type="button" data-p>+</button></div>' +
+        '<div class="tpad-2"><button type="button" class="tp-c" data-a="compra" data-conf="envio" aria-label="Compra a mercado">Compra<small>Mercado</small></button>' +
+        '<button type="button" class="tp-v" data-a="venda" data-conf="envio" aria-label="Venda a mercado">Venda<small>Mercado</small></button></div>' +
+        '<div class="tpad-2"><button type="button" class="tp-cl" data-a="bid" data-conf="envio" aria-label="Compra no bid">Compra no Bid<small data-bidpx>—</small></button>' +
+        '<button type="button" class="tp-vl" data-a="ask" data-conf="envio" aria-label="Venda no ask">Venda no Ask<small data-askpx>—</small></button></div>' +
+        '<div class="tpad-3"><button type="button" data-a="zerar" data-conf="cancel" aria-label="Zerar posição">Zerar</button>' +
+        '<button type="button" data-a="inverter" data-conf="cancel" aria-label="Inverter posição">Inverter</button>' +
+        '<button type="button" data-a="cancelar" data-conf="cancel" aria-label="Cancelar ordens pendentes">Cancelar</button></div>' +
+        '<div class="tpad-st">Sem posição</div><div class="tpad-rod"></div>';
+      doc.body.appendChild(box);
+      box.style.left = Math.max(8, (global.innerWidth - 300) / 2) + 'px';
+      box.style.top = Math.max(60, global.innerHeight * 0.32) + 'px';
+      arrasta(box, box.querySelector('.tpad-h'), 'mx360.tradepad.pos.v1');
+      box.querySelector('.tpad-x').onclick = fecha;
+      var q = box.querySelector('[data-q]');
+      function poeQ(n) { if (B().setQtd) { B().setQtd(n); } pinta(); }
+      box.querySelector('[data-m]').onclick = function () { poeQ(Math.max(0, (B().qtd ? B().qtd() : 0) - (B().passo ? B().passo() : 0.01))); };
+      box.querySelector('[data-p]').onclick = function () { poeQ((B().qtd ? B().qtd() : 0) + (B().passo ? B().passo() : 0.01)); };
+      q.onchange = function () { var n = parseFloat(String(q.value).replace(/\./g, '').replace(',', '.')); if (n > 0) { poeQ(n); } };
+      Array.prototype.forEach.call(box.querySelectorAll('[data-a]'), function (b) {
+        b.onclick = function () {
+          var a = b.getAttribute('data-a'), t = topo(), r = '';
+          if (a === 'compra' && B().compra) { r = B().compra(); }
+          else if (a === 'venda' && B().venda) { r = B().venda(); }
+          else if (a === 'bid') { if (!t) { toast('Sem book agora para saber o bid.'); return; } r = B().limite ? B().limite('buy', t.bid) : ''; }
+          else if (a === 'ask') { if (!t) { toast('Sem book agora para saber o ask.'); return; } r = B().limite ? B().limite('sell', t.ask) : ''; }
+          else if (a === 'zerar' && B().zerar) { r = B().zerar(); }
+          else if (a === 'inverter' && B().inverter) { r = B().inverter(); }
+          else if (a === 'cancelar' && B().cancelaOrdens) { r = B().cancelaOrdens(); }
+          if (r) { toast(r); }
+          pinta();
+        };
+      });
+      tm = global.setInterval(pinta, 400);
+      pinta();
+    }
+    return { abre: abre, fecha: fecha };
+  })();
+
+  /* ======================================================= Relógio de mercado */
+
+  var MERCADOS = [
+    { n: 'B3 Futuros', cid: 'São Paulo', tz: 'America/Sao_Paulo', a: '09:00', f: '18:25' },
+    { n: 'B3 Ações', cid: 'São Paulo', tz: 'America/Sao_Paulo', a: '10:00', f: '17:55' },
+    { n: 'NYSE / Nasdaq', cid: 'Nova York', tz: 'America/New_York', a: '09:30', f: '16:00' },
+    { n: 'CME', cid: 'Chicago', tz: 'America/Chicago', a: '08:30', f: '15:15' },
+    { n: 'LSE', cid: 'Londres', tz: 'Europe/London', a: '08:00', f: '16:30' },
+    { n: 'Xetra', cid: 'Frankfurt', tz: 'Europe/Berlin', a: '09:00', f: '17:30' },
+    { n: 'TSE', cid: 'Tóquio', tz: 'Asia/Tokyo', a: '09:00', f: '15:30' },
+    { n: 'HKEX', cid: 'Hong Kong', tz: 'Asia/Hong_Kong', a: '09:30', f: '16:00' },
+    { n: 'ASX', cid: 'Sydney', tz: 'Australia/Sydney', a: '10:00', f: '16:00' }
+  ];
+  var CASA = 'America/Sao_Paulo';
+
+  /* partes da data num fuso */
+  var fmts = {};
+  function partes(ms, tz) {
+    var f = fmts[tz] || (fmts[tz] = new Intl.DateTimeFormat('en-US', { timeZone: tz, hourCycle: 'h23', year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit', second: '2-digit', weekday: 'short' }));
+    var o = {};
+    f.formatToParts(new Date(ms)).forEach(function (p) { o[p.type] = p.value; });
+    return { y: +o.year, m: +o.month, d: +o.day, h: +o.hour % 24, mi: +o.minute, s: +o.second, wd: o.weekday };
+  }
+  /* "09:00 de tal dia no fuso X" em milissegundos UTC (acerta o horário de verão) */
+  function emUtc(y, m, d, hh, mm, tz) {
+    var chute = Date.UTC(y, m - 1, d, hh, mm);
+    for (var i = 0; i < 2; i++) {
+      var p = partes(chute, tz), visto = Date.UTC(p.y, p.m - 1, p.d, p.h, p.mi);
+      chute += Date.UTC(y, m - 1, d, hh, mm) - visto;
+    }
+    return chute;
+  }
+  function hm(s) { var x = s.split(':'); return [+x[0], +x[1]]; }
+  /* pregões de hoje em diante (dias úteis no fuso da bolsa) */
+  function sessoes(mk, agora) {
+    var out = [], p0 = partes(agora, mk.tz), a = hm(mk.a), f = hm(mk.f);
+    for (var k = -1; k < 9; k++) {
+      var base = Date.UTC(p0.y, p0.m - 1, p0.d + k), dd = new Date(base);
+      var wd = dd.getUTCDay();
+      if (wd === 0 || wd === 6) { continue; }
+      var y = dd.getUTCFullYear(), m = dd.getUTCMonth() + 1, d = dd.getUTCDate();
+      out.push({ a: emUtc(y, m, d, a[0], a[1], mk.tz), f: emUtc(y, m, d, f[0], f[1], mk.tz) });
+    }
+    return out;
+  }
+  function estado(mk, agora) {
+    var ss = sessoes(mk, agora), i;
+    for (i = 0; i < ss.length; i++) { if (agora >= ss[i].a && agora < ss[i].f) { return { aberta: true, ate: ss[i].f }; } }
+    for (i = 0; i < ss.length; i++) { if (ss[i].a > agora) { return { aberta: false, ate: ss[i].a }; } }
+    return { aberta: false, ate: null };
+  }
+  function falta(ms) { var m = Math.max(0, Math.round(ms / 60000)), h = Math.floor(m / 60); return (h ? h + 'h' : '') + ('0' + (m % 60)).slice(-2) + (h ? '' : ' min'); }
+  /* horário de abertura e fechamento no fuso de Brasília (hoje ou no próximo pregão) */
+  function noSeuHorario(mk, agora) {
+    var ss = sessoes(mk, agora), s = ss.filter(function (x) { return x.f > agora; })[0] || ss[0];
+    var pa = partes(s.a, CASA), pf = partes(s.f, CASA);
+    return { a: ('0' + pa.h).slice(-2) + ':' + ('0' + pa.mi).slice(-2), f: ('0' + pf.h).slice(-2) + ':' + ('0' + pf.mi).slice(-2), ha: pa.h + pa.mi / 60, hf: pf.h + pf.mi / 60 };
+  }
+
+  var relogio = (function () {
+    var box = null, tm = 0, aba = 'relogio';
+    function fecha() { if (box) { box.remove(); box = null; global.clearInterval(tm); } }
+    function arco(cx, cy, r, h0, h1) {
+      if (h1 <= h0) { h1 += 24; }
+      var a0 = h0 / 24 * 2 * Math.PI, a1 = h1 / 24 * 2 * Math.PI, grande = (h1 - h0) > 12 ? 1 : 0;
+      var x0 = cx + r * Math.sin(a0), y0 = cy - r * Math.cos(a0), x1 = cx + r * Math.sin(a1), y1 = cy - r * Math.cos(a1);
+      return 'M' + x0.toFixed(1) + ' ' + y0.toFixed(1) + 'A' + r + ' ' + r + ' 0 ' + grande + ' 1 ' + x1.toFixed(1) + ' ' + y1.toFixed(1);
+    }
+    function pinta() {
+      if (!box) { return; }
+      var agora = Date.now(), pb = partes(agora, CASA), pu = partes(agora, 'UTC');
+      function hms(p) { return ('0' + p.h).slice(-2) + ':' + ('0' + p.mi).slice(-2) + ':' + ('0' + p.s).slice(-2); }
+      box.querySelector('[data-br]').textContent = hms(pb);
+      box.querySelector('[data-utc]').textContent = hms(pu);
+      var corpo = box.querySelector('.relo-c');
+      var info = MERCADOS.map(function (mk) { return { mk: mk, st: estado(mk, agora), sh: noSeuHorario(mk, agora) }; });
+      if (aba === 'relogio') {
+        var cx = 160, cy = 160, svg = '<svg viewBox="0 0 320 320" class="relo-svg" aria-label="Relógio de 24 horas com os pregões">';
+        svg += '<circle cx="160" cy="160" r="150" class="relo-f"/>';
+        for (var h = 0; h < 24; h++) {
+          var an = h / 24 * 2 * Math.PI, r1 = 150, r2 = h % 3 ? 143 : 136;
+          svg += '<line x1="' + (cx + r1 * Math.sin(an)).toFixed(1) + '" y1="' + (cy - r1 * Math.cos(an)).toFixed(1) + '" x2="' + (cx + r2 * Math.sin(an)).toFixed(1) + '" y2="' + (cy - r2 * Math.cos(an)).toFixed(1) + '" class="relo-t"/>';
+          if (h % 3 === 0) { svg += '<text x="' + (cx + 124 * Math.sin(an)).toFixed(1) + '" y="' + (cy - 124 * Math.cos(an) + 4).toFixed(1) + '" class="relo-n">' + ('0' + h).slice(-2) + '</text>'; }
+        }
+        info.forEach(function (it, i) {
+          var r = 110 - i * 9;
+          svg += '<circle cx="160" cy="160" r="' + r + '" class="relo-trilho"/>';
+          svg += '<path d="' + arco(cx, cy, r, it.sh.ha, it.sh.hf) + '" class="relo-arco' + (it.st.aberta ? ' on' : '') + '"><title>' + esc(it.mk.n) + '</title></path>';
+        });
+        var ha = (pb.h + pb.mi / 60) / 24 * 2 * Math.PI;
+        svg += '<line x1="160" y1="160" x2="' + (cx + 132 * Math.sin(ha)).toFixed(1) + '" y2="' + (cy - 132 * Math.cos(ha)).toFixed(1) + '" class="relo-p"/><circle cx="160" cy="160" r="5" class="relo-pc"/></svg>';
+        corpo.innerHTML = '<div class="relo-dial">' + svg + '<ul class="relo-leg">' + info.map(function (it) {
+          return '<li><i class="' + (it.st.aberta ? 'on' : '') + '"></i><b>' + esc(it.mk.n) + '</b><span>' + it.sh.a + '–' + it.sh.f + '</span></li>';
+        }).join('') + '</ul></div>';
+      } else {
+        corpo.innerHTML = '<div class="relo-tab"><table><thead><tr><th>Mercado</th><th>Cidade</th><th>Horário local</th><th>No seu horário</th><th>Status</th></tr></thead><tbody>' +
+          info.map(function (it) {
+            var s = it.st, txt = s.ate == null ? '—' : (s.aberta ? 'Aberta · fecha em ' : 'Fechada · abre em ') + falta(s.ate - agora);
+            return '<tr><td>' + esc(it.mk.n) + '</td><td>' + esc(it.mk.cid) + '</td><td>' + it.mk.a + '–' + it.mk.f + '</td><td>' + it.sh.a + '–' + it.sh.f + '</td>' +
+              '<td><span class="relo-st' + (s.aberta ? ' on' : '') + '">' + txt + '</span></td></tr>';
+          }).join('') + '</tbody></table></div>';
+      }
+    }
+    function abre() {
+      if (box) { return; }
+      box = doc.createElement('div');
+      box.className = 'relo-bk';
+      box.innerHTML = '<div class="relo" role="dialog" aria-modal="true" aria-label="Relógio de mercado">' +
+        '<div class="relo-h"><b>Relógio de mercado</b><span>Brasília <strong data-br></strong></span><span>UTC <strong data-utc></strong></span>' +
+        '<button type="button" class="relo-x" aria-label="Fechar">×</button></div>' +
+        '<div class="relo-abas" role="tablist"><button type="button" role="tab" data-aba="relogio" aria-selected="true">Relógio</button>' +
+        '<button type="button" role="tab" data-aba="mercados" aria-selected="false">Mercados</button></div>' +
+        '<div class="relo-c"></div>' +
+        '<p class="relo-nota">Verde: bolsa aberta agora. Horário regular de cada bolsa (sem leilões, after-market e feriados).</p></div>';
+      doc.body.appendChild(box);
+      box.querySelector('.relo-x').onclick = fecha;
+      box.onclick = function (e) { if (e.target === box) { fecha(); } };
+      Array.prototype.forEach.call(box.querySelectorAll('[data-aba]'), function (b) {
+        b.onclick = function () {
+          aba = b.getAttribute('data-aba');
+          Array.prototype.forEach.call(box.querySelectorAll('[data-aba]'), function (x) { x.setAttribute('aria-selected', String(x === b)); });
+          pinta();
+        };
+      });
+      aba = 'relogio';
+      tm = global.setInterval(pinta, 1000);
+      pinta();
+    }
+    return { abre: abre, fecha: fecha, estado: estado, mercados: MERCADOS };
+  })();
+
+  doc.addEventListener('keydown', function (e) { if (e.key === 'Escape') { relogio.fecha(); } });
+
+  global.MXAtalhos = { menu: abreMenu, tradePad: pad, relogio: relogio };
 })(window);
 </script>
 </body>
