@@ -15723,7 +15723,7 @@ Resources:`;for(let t of c){if(!t||typeof t!=`string`)throw Error(`@supabase/aut
   var MEU = 'mx360.boleta.v1';
   var cfg = {
     qtd: 0.01, rapidas: [0.01, 0.02, 0.03], estrat: '', estrategias: [],
-    senha: '', travada: false, noPreco: true, unidade: 'pts', ptsDia: {}
+    senha: '', travada: false, noPreco: true, autoOff: false, unidade: 'pts', ptsDia: {}
   };
   var box = null, ui = {}, cache = null, erroMsg = '';
 
@@ -16090,7 +16090,7 @@ Resources:`;for(let t of c){if(!t||typeof t!=`string`)throw Error(`@supabase/aut
     ui.inverter.onclick = inverter;
     ui.cancelar.onclick = function () { if (global.MXConta) { global.MXConta.zerar(); } };
 
-    ui.sw.onclick = function () { cfg.noPreco = ui.sw.getAttribute('aria-checked') !== 'true'; salva(); aplicaNoPreco(); };
+    ui.sw.onclick = function () { cfg.noPreco = ui.sw.getAttribute('aria-checked') !== 'true'; cfg.autoOff = false; salva(); aplicaNoPreco(); };
 
     ui.olho.onclick = function () {
       var v = ui.senha.type === 'password';
@@ -16163,6 +16163,7 @@ Resources:`;for(let t of c){if(!t||typeof t!=`string`)throw Error(`@supabase/aut
     function z(v) { return Math.abs(v) < 0.005 ? 0 : v; }   /* sem "-0,00" vermelho */
     e = { pos: e.pos, aberto: z(e.aberto || 0), dia: z(e.dia || 0), last: e.last, sym: e.sym, hist: e.hist };
     var p = e.pos, dir = p ? (p.q > 0 ? 1 : -1) : 0;
+    automatico(!!p);
     var pts = p && e.last ? (e.last - p.avg) * dir : 0;
     var pct = p && p.avg ? (e.last - p.avg) / p.avg * 100 * dir : 0;
 
@@ -16218,6 +16219,21 @@ Resources:`;for(let t of c){if(!t||typeof t!=`string`)throw Error(`@supabase/aut
     }
 
     marcaRapidas();
+  }
+
+  /* Ordem no preço automática: abriu operação, ela se esconde (menos linhas na tela); zerou, ela volta.
+     Se o usuário mexer na chave com a operação aberta, vale a escolha dele. */
+  var tinhaPos = null;
+  function automatico(temPos) {
+    if (tinhaPos === null) {
+      tinhaPos = temPos;
+      if (!temPos && cfg.autoOff) { cfg.noPreco = true; cfg.autoOff = false; salva(); aplicaNoPreco(); }
+      return;
+    }
+    if (temPos === tinhaPos) { return; }
+    tinhaPos = temPos;
+    if (temPos && cfg.noPreco) { cfg.noPreco = false; cfg.autoOff = true; salva(); aplicaNoPreco(); }
+    else if (!temPos && cfg.autoOff) { cfg.noPreco = true; cfg.autoOff = false; salva(); aplicaNoPreco(); }
   }
 
   /* ------------------------------------------------------------------ liga */
@@ -16276,7 +16292,7 @@ Resources:`;for(let t of c){if(!t||typeof t!=`string`)throw Error(`@supabase/aut
     inicia: inicia,
     pinta: pinta,
     qtd: qtd,
-    noPreco: function (v) { if (v != null) { cfg.noPreco = !!v; salva(); aplicaNoPreco(); } return cfg.noPreco; }
+    noPreco: function (v) { if (v != null) { cfg.noPreco = !!v; cfg.autoOff = false; salva(); aplicaNoPreco(); } return cfg.noPreco; }
   };
 
   if (doc.readyState === 'loading') { doc.addEventListener('DOMContentLoaded', function () { global.setTimeout(inicia, 500); }); }
@@ -18775,6 +18791,18 @@ window.MXLogosMapa = {"0G":"image/admin_mgs_image_upload/20250921/137e9686-843c-
     try { global.localStorage.setItem(CHAVE, v ? '1' : '0'); } catch (e) {}
     aplicaOpcao();
   }
+  /* qual linha está sendo arrastada agora (take, stop, entrada ou ordem pendente) */
+  var arrastando = null;
+  doc.addEventListener('pointerdown', function (e) {
+    var t = e.target && e.target.closest ? e.target.closest('.ct-tag,.pz-tag') : null;
+    if (!t || e.target.closest('.ct-tag i,.pz-tag i.pz-x')) { return; }
+    arrastando = t.closest('.ct-lvl,.pz-l');
+  }, true);
+  ['pointerup', 'pointercancel'].forEach(function (ev) {
+    doc.addEventListener(ev, function () { arrastando = null; }, true);
+  });
+  function estende(el) { return esq() || el === arrastando; }
+
   function visivel(el) { return !!el && !el.hidden && el.style.display !== 'none' && el.offsetParent !== null; }
 
   function quadro() {
@@ -18800,8 +18828,9 @@ window.MXLogosMapa = {"0G":"image/admin_mgs_image_upload/20250921/137e9686-843c-
     itens.forEach(function (it) {
       var x = aEsq ? 12 : Math.max(4, plot - folga - it.w);
       it.tag.style.left = x + 'px';
-      if (it.tipo === 'ct') { it.el.style.setProperty('--l0', (ext ? 0 : x) + 'px'); }
-      else { var hr = it.el.querySelector('hr'); if (hr) { hr.style.left = (ext ? 0 : x) + 'px'; } }
+      var ex = ext || it.el === arrastando;
+      if (it.tipo === 'ct') { it.el.style.setProperty('--l0', (ex ? 0 : x) + 'px'); }
+      else { var hr = it.el.querySelector('hr'); if (hr) { hr.style.left = (ex ? 0 : x) + 'px'; } }
     });
 
     /* entrada: logo à esquerda da coluna (ou na própria coluna, se não houver TP/SL) */
@@ -18812,7 +18841,7 @@ window.MXLogosMapa = {"0G":"image/admin_mgs_image_upload/20250921/137e9686-843c-
       if (xe < 4) { xe = 4; }
       tp.style.left = xe + 'px';
       var hr0 = pos.querySelector('hr');
-      if (hr0) { hr0.style.left = (ext ? 0 : xe) + 'px'; }
+      if (hr0) { hr0.style.left = (estende(pos) ? 0 : xe) + 'px'; }
     }
 
     /* ponto de cobertura: à esquerda da entrada */
