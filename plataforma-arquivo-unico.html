@@ -2832,6 +2832,48 @@ html.cv-aberto .nav{z-index:9002}
 .topbar .symbol .lg-topo:empty{display:none}
 .topbar .symbol:has(.lg-topo .lg)::before{display:none}
 </style>
+<style>/* Etiqueta da entrada igual a do take e do stop: selo MX360°, lado e quantidade (verde na compra,
+   vermelho na venda), resultado colorido, arrasto e X, tudo na mesma caixa escura de 26 px. */
+.pz-pos .pz-tag,.pz-ord .pz-tag,.pz-cob .pz-tag{gap:0;height:26px;padding:0;border:0;border-radius:5px;background:#1b1f1d;
+  overflow:hidden;box-shadow:0 1px 6px rgba(0,0,0,.35);color:#fff;font:800 11px/1 Manrope,system-ui,sans-serif}
+.pz-pos .pz-tag em,.pz-ord .pz-tag em{display:grid;place-items:center;align-self:stretch;padding:0 7px;border-radius:0;
+  background:#6b5a22;color:#fff;font:800 10px/1 Manrope,system-ui,sans-serif;letter-spacing:.02em}
+.pz-pos .pz-tag b,.pz-ord .pz-tag b,.pz-cob .pz-tag b{display:grid;place-items:center;align-self:stretch;padding:0 8px;
+  color:#fff;font:800 11px/1 Manrope,system-ui,sans-serif;letter-spacing:0}
+.pz-pos[data-lado="C"] .pz-tag b{background:#1f6b3f}
+.pz-pos[data-lado="V"] .pz-tag b{background:#5d2f2f}
+.pz-ord .pz-tag b{background:#5a4a1c}
+.pz-cob .pz-tag b{background:#3a3d40}
+.pz-pos .pz-tag .pz-r,.pz-ord .pz-tag .pz-r,.pz-cob .pz-tag .pz-r{display:grid;place-items:center;align-self:stretch;padding:0 9px;
+  font:700 11px/1 Manrope,system-ui,sans-serif;font-variant-numeric:tabular-nums;color:#fff}
+.pz-pos .pz-tag .pz-r:empty,.pz-ord .pz-tag .pz-r:empty{display:none}
+.pz-pos .pz-tag .pz-r[data-dir="up"],.pz-cob .pz-tag .pz-r[data-dir="up"]{color:#4ade80}
+.pz-pos .pz-tag .pz-r[data-dir="down"],.pz-cob .pz-tag .pz-r[data-dir="down"]{color:#ff8b8b}
+.pz-pos .pz-tag i,.pz-ord .pz-tag i{align-self:stretch;display:grid;place-items:center;width:auto;height:auto;padding:0 7px;
+  border-radius:0;background:rgba(255,255,255,.08);color:#fff;font-style:normal;font-size:13px;opacity:1}
+.pz-pos .pz-tag i.pz-m{background:rgba(255,255,255,.04)}
+.pz-pos .pz-tag i.pz-x:hover,.pz-ord .pz-tag i.pz-x:hover{background:#d92b2b}
+/* a linha: fina e cheia como a do take e do stop, na cor do selo MX360° */
+.pz-pos{color:#a8893a}
+.pz-pos>hr{border-top:1px solid rgba(168,137,58,.85);opacity:1}
+.pz-ord{color:#c79a3a}
+.pz-ord>hr{border-top:1px dashed rgba(199,154,58,.85);opacity:1}
+.pz-cob>hr{border-top:1px dotted rgba(140,145,150,.8)}
+
+/* configuracoes: escolha da marca das operacoes */
+.mo-txt{margin:0 0 12px;color:var(--muted);font-size:.85rem}
+.mo-op{display:grid;grid-template-columns:repeat(auto-fill,minmax(118px,1fr));gap:8px;margin-bottom:14px}
+.mo-op button{display:flex;flex-direction:column;align-items:center;gap:6px;padding:12px 8px;border:1px solid rgba(var(--ink-rgb),.14);
+  border-radius:10px;background:none;color:var(--text);font:600 .82rem Manrope,sans-serif;cursor:pointer}
+.mo-op button:hover{background:rgba(var(--ink-rgb),.05)}
+.mo-op button[aria-checked="true"]{border-color:var(--primary);background:rgba(var(--primary-rgb),.1);box-shadow:inset 0 0 0 1px var(--primary)}
+.mo-ic{display:flex;gap:4px;align-items:center;justify-content:center;height:24px}
+.mo-ic svg{width:20px;height:20px}
+.mo-ic b{font:800 16px Manrope,sans-serif}
+.mo-ic i{font-style:normal;color:var(--muted)}
+.cm-sw[disabled]{opacity:.35;cursor:not-allowed}
+.pz-pos .pz-tag{left:12px}
+</style>
 </head>
 <body>
 <div class="app">
@@ -4194,7 +4236,8 @@ Resources:`;for(let t of c){if(!t||typeof t!=`string`)throw Error(`@supabase/aut
           if (l === null || l < 0) { return; }
           var buy = m.side === 'buy';
           /* com preco: a seta fica exatamente no preco da execucao (compra com a ponta para cima, venda para baixo) */
-          if (m.price > 0) { out.push({ time: barTimes[Math.min(n - 1, Math.floor(l + 1e-9))], position: buy ? 'atPriceBottom' : 'atPriceTop', price: m.price, color: buy ? UP : DOWN, shape: buy ? 'arrowUp' : 'arrowDown', text: m.text || '' }); return; }
+          var forma = m.shape || (buy ? 'arrowUp' : 'arrowDown'), seta = forma === 'arrowUp' || forma === 'arrowDown';
+          if (m.price > 0) { out.push({ time: barTimes[Math.min(n - 1, Math.floor(l + 1e-9))], position: seta ? (buy ? 'atPriceBottom' : 'atPriceTop') : 'atPriceMiddle', price: m.price, color: m.color || (buy ? UP : DOWN), shape: forma, size: m.size || 1, text: m.text || '' }); return; }
           out.push({ time: barTimes[Math.min(n - 1, Math.floor(l + 1e-9))], position: buy ? 'belowBar' : 'aboveBar', color: buy ? UP : DOWN, shape: buy ? 'arrowUp' : 'arrowDown', text: m.text || '' });
         });
         out.sort(function (a, b) { return a.time - b.time; });
@@ -12534,7 +12577,12 @@ Resources:`;for(let t of c){if(!t||typeof t!=`string`)throw Error(`@supabase/aut
     if (global.MXShell) { global.MXShell.toast((why === 'TP' ? 'Take atingido: ' : 'Stop atingido: ') + f(r) + ' US$'); }
   }
   function marks() {
-    if (api && api.setMarkers) { api.setMarkers(c.hist.filter(function (h) { return h.sym === sym; }).map(function (h) { return { t: h.t, side: h.side, price: h.p, text: f(h.q, 4) }; })); }
+    if (!api || !api.setMarkers) { return; }
+    var mo = global.MXMarcasOps ? global.MXMarcasOps.le() : { forma: 'nenhuma', qtd: false };
+    if (mo.forma === 'nenhuma') { api.setMarkers([]); return; }
+    api.setMarkers(c.hist.filter(function (h) { return h.sym === sym; }).map(function (h) {
+      return global.MXMarcasOps.marca(h, mo, f(h.q, 4));
+    }));
   }
 
   function draw() {
@@ -12574,7 +12622,8 @@ Resources:`;for(let t of c){if(!t||typeof t!=`string`)throw Error(`@supabase/aut
       if (p && p.q) { var d = p.q > 0 ? 1 : -1; if (p.tp != null && (px - p.tp) * d >= 0) { fecha(p.tp, 'TP'); return; } if (p.sl != null && (px - p.sl) * d <= 0) { fecha(p.sl, 'SL'); return; } }
       draw();
     },
-    setSymbol: function (s) { sym = s; marks(); draw(); }
+    setSymbol: function (s) { sym = s; marks(); draw(); },
+    marcas: function () { marks(); }
   };
 })(window);
 </script>
@@ -12722,7 +12771,7 @@ Resources:`;for(let t of c){if(!t||typeof t!=`string`)throw Error(`@supabase/aut
     }
     function mostra(i) {
       Array.prototype.forEach.call(tabs.children, function (b, j) { b.setAttribute('aria-selected', String(i === j)); });
-      if (i === 0) { velas(); } else if (i === 2) { escalas(); } else { cont.innerHTML = '<h4>' + TABS[i].toUpperCase() + '</h4><p class="cm-soon">Em breve.</p>'; }
+      if (i === 0) { velas(); } else if (i === 2) { escalas(); } else if (i === 4 && global.MXMarcasOps) { global.MXMarcasOps.painel(cont); } else { cont.innerHTML = '<h4>' + TABS[i].toUpperCase() + '</h4><p class="cm-soon">Em breve.</p>'; }
     }
     TABS.forEach(function (t, i) { var b = mk('button', '', t); b.type = 'button'; b.onclick = function () { mostra(i); }; tabs.appendChild(b); });
     box.querySelector('.cm-ok').onclick = fecha; box.querySelector('.cm-cn').onclick = desfaz; box.querySelector('.cm-x').onclick = desfaz;
@@ -13741,7 +13790,8 @@ Resources:`;for(let t of c){if(!t||typeof t!=`string`)throw Error(`@supabase/aut
       var pxArr = arrasto && arrasto.tipo === 'posicao' ? precoEm(arrasto.y) : 0;
       if (poe(el.pos, pxArr > 0 ? pxArr : p.avg)) {
         var ab = aberto(p), q = Math.abs(p.q), t = el.pos.querySelector('.pz-tag');
-        t.querySelector('em').textContent = 'Sim';
+        t.querySelector('em').textContent = 'MX360°';
+        el.pos.setAttribute('data-lado', p.q > 0 ? 'C' : 'V');
         t.querySelector('b').textContent = (p.q > 0 ? 'C' : 'V') + ' ' + (q % 1 ? n2(q) : q);
         var r = t.querySelector('.pz-r');
         r.textContent = dinheiro(ab);
@@ -13754,6 +13804,10 @@ Resources:`;for(let t of c){if(!t||typeof t!=`string`)throw Error(`@supabase/aut
         tc.querySelector('b').textContent = 'Ponto de Cobertura';
         tc.querySelector('.pz-r').textContent = dinheiro(-cfg.custo * Math.abs(p.q));
         tc.querySelector('.pz-r').setAttribute('data-dir', 'down');
+        /* a etiqueta da cobertura fica sempre logo depois da etiqueta da posição, sem cobrir o X */
+        var tp0 = el.pos.querySelector('.pz-tag');
+        if (tp0 && !el.pos.hidden && global.innerWidth > 620) { tc.style.left = (tp0.offsetLeft + tp0.offsetWidth + 10) + 'px'; }
+        else { tc.style.left = ''; }
       }
     }
 
@@ -18337,6 +18391,86 @@ window.MXLogosMapa = {"0G":"image/admin_mgs_image_upload/20250921/137e9686-843c-
   global.setTimeout(topo, 400);
 
   global.MXLogos = { html: html, atualiza: atualiza, info: info };
+})(window);
+</script>
+<script>/* MX360 Plataforma: marcas das operações no gráfico (Configurações do gráfico → Chart Trading).
+   Por padrão nenhuma marca aparece quando uma operação abre ou fecha; o usuário escolhe se quer
+   setas, círculos, quadrados ou as letras C / V, e se a quantidade vai junto. */
+(function (global) {
+  'use strict';
+
+  var doc = global.document;
+  var CHAVE = 'mx360.marcas.ops.v1';
+  var PADRAO = { forma: 'nenhuma', qtd: false };
+  var FORMAS = [
+    ['nenhuma', 'Nenhuma', ''],
+    ['setas', 'Setas', '<svg viewBox="0 0 24 24"><path d="M12 4 5 13h4.5v7h5v-7H19z" fill="#22a447"/></svg><svg viewBox="0 0 24 24"><path d="M12 20 5 11h4.5V4h5v7H19z" fill="#d23a4a"/></svg>'],
+    ['circulos', 'Círculos', '<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="6" fill="#22a447"/></svg><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="6" fill="#d23a4a"/></svg>'],
+    ['quadrados', 'Quadrados', '<svg viewBox="0 0 24 24"><rect x="6" y="6" width="12" height="12" rx="1.5" fill="#22a447"/></svg><svg viewBox="0 0 24 24"><rect x="6" y="6" width="12" height="12" rx="1.5" fill="#d23a4a"/></svg>'],
+    ['letras', 'Letras C / V', '<b style="color:#22a447">C</b><b style="color:#d23a4a">V</b>']
+  ];
+
+  function le() {
+    try {
+      var o = JSON.parse(global.localStorage.getItem(CHAVE) || 'null');
+      if (o && typeof o.forma === 'string') { return { forma: o.forma, qtd: !!o.qtd }; }
+    } catch (e) {}
+    return { forma: PADRAO.forma, qtd: PADRAO.qtd };
+  }
+  function grava(o) {
+    try { global.localStorage.setItem(CHAVE, JSON.stringify(o)); } catch (e) {}
+    if (global.MXTrade && global.MXTrade.marcas) { global.MXTrade.marcas(); }
+  }
+
+  /* uma execução do histórico vira uma marca do gráfico na forma escolhida */
+  function marca(h, mo, qtdTxt) {
+    var buy = h.side === 'buy', txt = mo.qtd ? qtdTxt : '';
+    var m = { t: h.t, side: h.side, price: h.p, text: txt };
+    if (mo.forma === 'circulos') { m.shape = 'circle'; }
+    else if (mo.forma === 'quadrados') { m.shape = 'square'; }
+    else if (mo.forma === 'letras') { m.shape = 'circle'; m.size = 0.01; m.text = (buy ? 'C' : 'V') + (txt ? ' ' + txt : ''); }
+    else { m.shape = buy ? 'arrowUp' : 'arrowDown'; }
+    return m;
+  }
+
+  function painel(cont) {
+    var mo = le();
+    cont.innerHTML = '<h4>CHART TRADING</h4>' +
+      '<p class="mo-txt">Marca no gráfico quando uma operação abre ou fecha.</p>' +
+      '<div class="mo-op" role="radiogroup" aria-label="Marca das operações">' +
+      FORMAS.map(function (f) {
+        return '<button type="button" role="radio" data-f="' + f[0] + '" aria-checked="' + (mo.forma === f[0]) + '">' +
+          '<span class="mo-ic">' + (f[2] || '<i>—</i>') + '</span><span>' + f[1] + '</span></button>';
+      }).join('') + '</div>' +
+      '<div class="cm-g cm-p mo-q"><span>Mostrar a quantidade junto da marca</span>' +
+      '<button type="button" class="cm-sw" aria-pressed="' + mo.qtd + '"' + (mo.forma === 'nenhuma' ? ' disabled' : '') + '></button></div>';
+    Array.prototype.forEach.call(cont.querySelectorAll('.mo-op button'), function (b) {
+      b.onclick = function () {
+        var o = le(); o.forma = b.getAttribute('data-f'); grava(o); painel(cont);
+      };
+    });
+    var sw = cont.querySelector('.mo-q .cm-sw');
+    sw.onclick = function () {
+      if (sw.disabled) { return; }
+      var o = le(); o.qtd = !o.qtd; grava(o); sw.setAttribute('aria-pressed', String(o.qtd));
+    };
+  }
+
+  global.MXMarcasOps = { le: le, marca: marca, painel: painel, FORMAS: FORMAS };
+
+  /* janela de Configurações: a aba "Temas e cores" entra no meio das outras, e o destaque contava
+     pela posição (marcava a aba de cima). Agora fica marcada exatamente a aba tocada. */
+  doc.addEventListener('click', function (e) {
+    var b = e.target && e.target.closest ? e.target.closest('.cm-t > button') : null;
+    if (!b) { return; }
+    global.setTimeout(function () {
+      Array.prototype.forEach.call(b.parentNode.children, function (x) { x.setAttribute('aria-selected', String(x === b)); });
+    }, 0);
+  });
+
+  /* quem já via as setas: a escolha nova (nenhuma) vale a partir de agora */
+  if (doc.readyState !== 'loading' && global.MXTrade && global.MXTrade.marcas) { global.MXTrade.marcas(); }
+  else { doc.addEventListener('DOMContentLoaded', function () { if (global.MXTrade && global.MXTrade.marcas) { global.MXTrade.marcas(); } }); }
 })(window);
 </script>
 </body>
