@@ -5344,7 +5344,7 @@ Resources:`;for(let t of c){if(!t||typeof t!=`string`)throw Error(`@supabase/aut
      agressao compradora e vendedora, gatilhos de compra e venda e projecoes (TP1, TP2 e Stop).
      Retorna listas do tamanho de rows; buy e sell sao booleanos, os niveis ficam nulos fora dos sinais. */
   function mx360v2(rows, o) {
-    var P = { mediaN: 20, atrN: 14, deltaPct: 0.30, volMult: 1.5, corpoAtr: 0.5, spreadAtr: 0.6, useRatio: true, ratioBuy: 3.0, ratioSell: 2.2, tp1Mult: 1, tp2Mult: 2, stopMult: 0 }, k;
+    var P = { mediaN: 20, atrN: 14, deltaPct: 0.30, volMult: 1.5, corpoAtr: 0.5, spreadAtr: 0.6, useRatio: true, ratioBuy: 3.0, ratioSell: 2.2, tp1Mult: 1, tp2Mult: 2, stopMult: 0, agressao: 'estimada' }, k;
     if (o) { for (k in o) { if (o.hasOwnProperty(k)) { P[k] = o[k]; } } }
     var len = rows.length, vm = sma(col(rows, 'v'), P.mediaN), media = sma(col(rows, 'c'), P.mediaN), a = atr(rows, P.atrN);
     var buy = new Array(len), sell = new Array(len), saldo = new Array(len), ratio = new Array(len);
@@ -5354,8 +5354,8 @@ Resources:`;for(let t of c){if(!t||typeof t!=`string`)throw Error(`@supabase/aut
       r = rows[i];
       spread = r.h - r.l;
       body = Math.abs(r.c - r.o);
-      s = (r.tb != null && r.tb === r.tb && r.v > 0) ? (2 * r.tb - r.v)
-        : (spread > 0 ? (r.c - r.o) / spread * r.v : 0);   /* real: compra agredida - venda agredida */
+      s = (P.agressao === 'real' && r.tb != null && r.tb === r.tb && r.v > 0) ? (2 * r.tb - r.v)   /* real (opcao): compra agredida - venda agredida, da Binance */
+        : (spread > 0 ? (r.c - r.o) / spread * r.v : 0);   /* original: estimada pelo corpo da vela, como no indicador validado */
       ac = (r.v + s) / 2;
       av = (r.v - s) / 2;
       ra = 1;
@@ -6861,6 +6861,7 @@ Resources:`;for(let t of c){if(!t||typeof t!=`string`)throw Error(`@supabase/aut
   var CFG_KEY = 'mx360.mx2.cfg.v1';
   var CFG_DEF = {
     mediaN: 20, atrN: 14, deltaPct: 30, volMult: 1.5, corpoAtr: 0.5, spreadAtr: 0.6, useRatio: true, ratioBuy: 3, ratioSell: 2.2,
+    agressao: 'estimada',
     tp1Mult: 1, tp2Mult: 2, stopMult: 0, exit: 'tp1', be: false,
     showArrows: true, showBars: true, showLines: true, showFlow: true, showNotes: true, showAcct: true,
     mkBuyTxt: 'MX360°', mkSellTxt: 'MX360°', mkBuyPos: 'baixo', mkSellPos: 'cima', mkBuyCor: '', mkSellCor: '', mkSize: 12, mkGap: 20,
@@ -6873,7 +6874,7 @@ Resources:`;for(let t of c){if(!t||typeof t!=`string`)throw Error(`@supabase/aut
     lots: [0.0001, 1000000, 0], pv: [0, 1000000, 0], mkSize: [8, 64, 1], mkGap: [0, 200, 1]
   };
   /* campos que mudam sinais, alvos ou saidas: quando um deles muda, o motor das operacoes e refeito do zero */
-  var CFG_SIG = ['mediaN', 'atrN', 'deltaPct', 'volMult', 'corpoAtr', 'spreadAtr', 'useRatio', 'ratioBuy', 'ratioSell',
+  var CFG_SIG = ['mediaN', 'atrN', 'deltaPct', 'volMult', 'corpoAtr', 'spreadAtr', 'useRatio', 'ratioBuy', 'ratioSell', 'agressao',
     'tp1Mult', 'tp2Mult', 'stopMult', 'exit', 'be'];
   var cfgNf = new Intl.NumberFormat('pt-BR', { maximumFractionDigits: 4 });
   /* texto da marca: qualquer simbolo, palavra ou frase, numa linha so e ate 24 caracteres */
@@ -6905,6 +6906,7 @@ Resources:`;for(let t of c){if(!t||typeof t!=`string`)throw Error(`@supabase/aut
       o[k] = v;
     }
     o.exit = o.exit === 'tp1' ? 'tp1' : 'tp2';
+    o.agressao = o.agressao === 'real' ? 'real' : 'estimada';
     o.mkBuyTxt = cfgTexto(o.mkBuyTxt);
     o.mkSellTxt = cfgTexto(o.mkSellTxt);
     o.mkBuyPos = o.mkBuyPos === 'cima' ? 'cima' : 'baixo';
@@ -6932,7 +6934,7 @@ Resources:`;for(let t of c){if(!t||typeof t!=`string`)throw Error(`@supabase/aut
   function sigOpts() {
     return { mediaN: cfg.mediaN, atrN: cfg.atrN, deltaPct: cfg.deltaPct / 100, volMult: cfg.volMult, corpoAtr: cfg.corpoAtr,
       spreadAtr: cfg.spreadAtr, useRatio: cfg.useRatio, ratioBuy: cfg.ratioBuy, ratioSell: cfg.ratioSell,
-      tp1Mult: cfg.tp1Mult, tp2Mult: cfg.tp2Mult, stopMult: cfg.stopMult };
+      tp1Mult: cfg.tp1Mult, tp2Mult: cfg.tp2Mult, stopMult: cfg.stopMult, agressao: cfg.agressao };
   }
   /* moeda e multiplicador dos pontos (valor por ponto do ativo, ou o digitado, vezes os lotes) */
   function mx2Cur() { return cfg.cur === 'usd' ? 'US$ ' : (cfg.cur === 'brl' ? 'R$ ' : (mx2B3() ? 'R$ ' : 'US$ ')); }
@@ -7961,6 +7963,9 @@ Resources:`;for(let t of c){if(!t||typeof t!=`string`)throw Error(`@supabase/aut
     cfNum(body, 'mkSize', 'Tamanho da marca', 'Em pixels (padrão 14).');
     cfNum(body, 'mkGap', 'Distância da vela', 'Em pixels (padrão 8).');
     cfSec(body, 'Sinal');
+    cfSel(body, 'agressao', 'Agressão usada no sinal',
+      'Original: estimada pelo corpo da vela, como no indicador validado. Real: volume agressor informado pela Binance (só nos pares da Binance; nos outros ativos e no replay vale a estimada). Os parâmetros padrão foram calibrados para a estimada.',
+      [['estimada', 'Estimada (original)'], ['real', 'Real da Binance']]);
     cfNum(body, 'mediaN', 'Média de volume e de preço', 'Em velas (padrão 20).');
     cfNum(body, 'atrN', 'ATR', 'Em velas (padrão 14).');
     cfNum(body, 'deltaPct', 'Saldo mínimo de agressão', 'Em % do volume médio (padrão 30).');
