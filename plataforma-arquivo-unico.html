@@ -1861,6 +1861,19 @@ if(r&&r.t&&Date.now()-r.t<2592000000){document.documentElement.setAttribute('dat
 .rpl-ativo em{grid-column:2;grid-row:1/4;color:var(--gold);font-size:.82rem;font-style:normal;font-weight:800;white-space:nowrap}
 .rpl-ou{display:flex;align-items:center;gap:10px;margin:10px 0 2px;color:var(--muted);font-size:.74rem}
 .rpl-ou::before,.rpl-ou::after{content:"";flex:1;height:1px;background:var(--line-strong,rgba(128,128,128,.3))}
+
+/* selo do ativo pronto (identifica o indice sem usar marca registrada) */
+.rpl-ativo{grid-template-columns:auto 1fr auto}
+.rpl-ativo b,.rpl-ativo span,.rpl-ativo i{grid-column:2}
+.rpl-ativo em{grid-column:3}
+.rpl-selo{grid-column:1;grid-row:1/4;display:flex;flex-direction:column;align-items:center;justify-content:center;
+  width:54px;height:54px;border-radius:12px;text-decoration:none;line-height:1;color:#fff;
+  box-shadow:inset 0 0 0 1px rgba(255,255,255,.16)}
+.rpl-selo strong{font-size:.86rem;font-weight:900;letter-spacing:.02em}
+.rpl-selo small{margin-top:4px;font-size:.6rem;font-weight:800;letter-spacing:.08em;opacity:.85}
+.rpl-selo[data-cor="dj"]{background:linear-gradient(150deg,#1d4f91,#0b2650)}
+.rpl-selo[data-cor="b3"]{background:linear-gradient(150deg,#14833b,#0a4d22)}
+.rpl-selo[data-cor="b3"] small{color:#ffd84a;opacity:1}
 </style>
 <style>/* MX360 Plataforma: PsicoTrader (RECONSTRUIDO) */
 
@@ -3310,52 +3323,110 @@ Resources:`;for(let t of c){if(!t||typeof t!=`string`)throw Error(`@supabase/aut
 
   /* Socket generico: reconecta sozinho (backoff ate 10 s), alterna de host e
      derruba conexoes mudas (watchdog). Entrega (nomeDoStream, dados). */
+  /* Conexão com a Binance. Abre os endereços em corrida: o primeiro já na hora e os outros em
+     seguida, um a cada 700 ms; fica com o primeiro que ENTREGAR dados e fecha o resto. Não existe
+     mais prazo curto para a conexão abrir: no 4G o aperto de mão seguro pode levar vários segundos,
+     e derrubar cedo deixava a plataforma presa na busca de reserva, com book e negócios atrasados.
+     O endereço que funcionou fica lembrado no aparelho e é o primeiro da próxima vez. */
+  var WS_PREF = 'mx360.ws.host';
+  global.MXWS = global.MXWS || { host: '', msgs: 0, porSeg: 0 };
+  (function () {
+    var ant = 0;
+    setInterval(function () { global.MXWS.porSeg = global.MXWS.msgs - ant; ant = global.MXWS.msgs; }, 1000);
+  })();
+
+  function hostsEmOrdem() {
+    var pref = '';
+    try { pref = localStorage.getItem(WS_PREF) || ''; } catch (e) {}
+    var l = WS_HOSTS.slice();
+    if (pref && l.indexOf(pref) > 0) { l.splice(l.indexOf(pref), 1); l.unshift(pref); }
+    return l;
+  }
+
   function socket(streams, staleMs, onData, onStatus) {
-    var ws = null, stopped = false, retry = 0, hostIdx = 0, timer = null, watchdog = null;
+    var ws = null, stopped = false, retry = 0, timer = null, watchdog = null, rodada = 0;
 
     function status(s) { if (onStatus) { onStatus(s); } }
 
     function arm() {
       clearTimeout(watchdog);
-      watchdog = setTimeout(function () { try { ws.close(); } catch (e) {} }, staleMs);
+      watchdog = setTimeout(function () { try { if (ws) { ws.close(); } } catch (e) {} }, staleMs);
     }
 
     function schedule() {
       if (stopped) { return; }
+      clearTimeout(timer);
       status('retry');
       retry++;
-      hostIdx++;
-      timer = setTimeout(connect, Math.min(600 * Math.pow(1.5, retry), 5000));
+      timer = setTimeout(connect, Math.min(500 * Math.pow(1.5, retry), 5000));
+    }
+
+    function entrega(ev) {
+      arm();
+      global.MXWS.msgs++;
+      var msg;
+      try { msg = JSON.parse(ev.data); } catch (e) { return; }
+      if (msg && msg.data) { onData(msg.stream || '', msg.data); }
     }
 
     function connect() {
       if (stopped) { return; }
+      var minha = ++rodada, abertos = [], venceu = false, falhas = 0, hosts = hostsEmOrdem(), esperas = [];
       status(retry ? 'retry' : 'connecting');
-      var url = WS_HOSTS[hostIdx % WS_HOSTS.length] + '/stream?streams=' + streams;
-      try { ws = new WebSocket(url); } catch (e) { schedule(); return; }
-      var esteWs = ws;
-      /* rede que engole a conexao sem responder: nao vale esperar, o proximo endereco pode abrir */
-      var abrindo = setTimeout(function () {
-        if (esteWs.readyState !== 1) { try { esteWs.close(); } catch (e) {} }
-      }, 4000);
-      ws.onopen = function () { clearTimeout(abrindo); retry = 0; status('live'); arm(); };
-      ws.onmessage = function (ev) {
-        arm();
-        var msg;
-        try { msg = JSON.parse(ev.data); } catch (e) { return; }
-        if (msg && msg.data) { onData(msg.stream || '', msg.data); }
-      };
-      ws.onerror = function () { try { ws.close(); } catch (e) {} };
-      ws.onclose = function () { clearTimeout(abrindo); clearTimeout(watchdog); schedule(); };
+
+      function desiste() {
+        esperas.forEach(clearTimeout);
+        abertos.forEach(function (w) { try { w.close(); } catch (e) {} });
+      }
+
+      /* nenhum endereço entregou nada em 15 s: recomeça a rodada inteira */
+      esperas.push(setTimeout(function () { if (!venceu && minha === rodada) { desiste(); schedule(); } }, 15000));
+
+      hosts.forEach(function (host, k) {
+        esperas.push(setTimeout(function () {
+          if (stopped || venceu || minha !== rodada) { return; }
+          var w;
+          try { w = new WebSocket(host + '/stream?streams=' + streams); } catch (e) { falhas++; return; }
+          abertos.push(w);
+          w.onmessage = function (ev) {
+            if (stopped || minha !== rodada) { try { w.close(); } catch (e) {} return; }
+            if (!venceu) {
+              /* primeiro a entregar dados ganha a rodada */
+              venceu = true;
+              ws = w;
+              esperas.forEach(clearTimeout);
+              abertos.forEach(function (o) { if (o !== w) { try { o.close(); } catch (e) {} } });
+              retry = 0;
+              global.MXWS.host = host;
+              try { localStorage.setItem(WS_PREF, host); } catch (e) {}
+              status('live');
+              w.onclose = function () {
+                if (ws !== w) { return; }      /* só a conexão que está valendo pode pedir reconexão */
+                ws = null;
+                clearTimeout(watchdog);
+                schedule();
+              };
+            }
+            if (w === ws) { entrega(ev); }
+          };
+          w.onerror = function () { try { w.close(); } catch (e) {} };
+          w.onclose = function () {
+            if (venceu || minha !== rodada) { return; }
+            falhas++;
+            if (falhas >= hosts.length) { desiste(); schedule(); }   /* todos falharam: tenta de novo */
+          };
+        }, k * 700));
+      });
     }
 
     connect();
     return {
       close: function () {
         stopped = true;
+        rodada++;
         clearTimeout(timer);
         clearTimeout(watchdog);
-        try { ws.close(); } catch (e) {}
+        try { if (ws) { ws.close(); } } catch (e) {}
       }
     };
   }
@@ -12761,7 +12832,7 @@ Resources:`;for(let t of c){if(!t||typeof t!=`string`)throw Error(`@supabase/aut
     rows = r; src = name; api.setData(rows, st.tf);
     if (global.MXStudies) { global.MXStudies.setData(rows, st.tf, st.sym); }
     if (global.MXDraw && global.MXDraw.setSymbol) { global.MXDraw.setSymbol(st.sym, st.tf); }
-    if (global.MXShell && global.MXShell.quote) { global.MXShell.quote((S.bySymbol(st.sym) || {}).label || st.sym, st.tf, null); }
+    if (global.MXShell && global.MXShell.quote) { global.MXShell.quote(((global.MXData && global.MXData.bySymbol ? global.MXData.bySymbol(st.sym) : null) || {}).label || st.sym, st.tf, null); }
     if (global.MXTrade) { global.MXTrade.setSymbol(st.sym); if (rows.length) { global.MXTrade.tick(rows[rows.length - 1].c); } }
     legend(rows[rows.length - 1]); msg('');
   }
@@ -12847,8 +12918,10 @@ Resources:`;for(let t of c){if(!t||typeof t!=`string`)throw Error(`@supabase/aut
           aviso: function (x) { if (my === seq) { msg(x); } }
         });
       }
-    }).catch(function () {
+    }).catch(function (e) {
       if (my !== seq) { return; }
+      global.MXErroBinance = { quando: new Date().toISOString(), erro: String(e && (e.stack || e.message) || e) };
+      if (global.console && console.warn) { console.warn('MX360: caminho da Binance falhou', e); }
       return F.cb.klines(st.sym, st.tf).then(function (r) {
         if (my !== seq) { return; }
         applyRows(r, 'Coinbase'); stream = F.cb.stream(st.sym, st.tf, rows[rows.length - 1], hnd('Coinbase'));
@@ -14201,9 +14274,9 @@ Resources:`;for(let t of c){if(!t||typeof t!=`string`)throw Error(`@supabase/aut
      Cada uma vai compactada (.csv.gz) e é descompactada no próprio navegador; aparelho antigo, sem
      descompactador, baixa a versão .csv normal. Para incluir outra série, basta um item a mais aqui. */
   var PRONTOS = [
-    { id: 'win-3m', nome: 'Mini Índice (WIN)', sub: 'B3 · 3 minutos', arq: 'replay/win-3m.csv',
+    { id: 'win-3m', selo: ['WIN', 'B3'], cor: 'b3', nome: 'Mini Índice (WIN)', sub: 'Ibovespa futuro · B3 · 3 minutos', arq: 'replay/win-3m.csv',
       ini: '29/12/2025', fim: '11/11/2026', velas: 40797, kb: 415 },
-    { id: 'us30-3m', nome: 'US30 · Dow Jones', sub: 'Tickmill · 3 minutos', arq: 'replay/us30-3m.csv',
+    { id: 'us30-3m', selo: ['DJIA', 'US30'], cor: 'dj', nome: 'US30 · Dow Jones', sub: 'Dow Jones Industrial Average · Tickmill · 3 minutos', arq: 'replay/us30-3m.csv',
       ini: '23/12/2025', fim: '11/11/2026', velas: 100942, kb: 1407 }
   ];
 
@@ -14252,6 +14325,7 @@ Resources:`;for(let t of c){if(!t||typeof t!=`string`)throw Error(`@supabase/aut
     return '<div class="rpl-prontos"><h4>Ativos prontos para replay</h4>' +
       PRONTOS.map(function (it) {
         return '<button type="button" class="rpl-ativo" data-pronto="' + it.id + '">' +
+          (it.selo ? '<u class="rpl-selo" data-cor="' + it.cor + '" aria-hidden="true"><strong>' + it.selo[0] + '</strong><small>' + it.selo[1] + '</small></u>' : '') +
           '<b>' + it.nome + '</b><span>' + it.sub + '</span>' +
           '<i>' + it.ini + ' a ' + it.fim + ' · ' + n2(it.velas) + ' velas</i>' +
           '<em data-st>Abrir ›</em></button>';
@@ -16740,6 +16814,18 @@ Resources:`;for(let t of c){if(!t||typeof t!=`string`)throw Error(`@supabase/aut
   if (global.document.readyState === 'loading') {
     global.document.addEventListener('DOMContentLoaded', function () { global.setTimeout(inicia, 300); });
   } else { global.setTimeout(inicia, 300); }
+})(window);
+
+/* No selo "Ao vivo", ao passar o dedo ou o mouse: em qual endereço da Binance a conexão está e
+   quantas mensagens por segundo chegam. Serve para conferir à distância se o tempo real está valendo. */
+(function (global) {
+  'use strict';
+  global.setInterval(function () {
+    var el = global.document.getElementById('live'), w = global.MXWS;
+    if (!el || !w) { return; }
+    el.title = w.host ? 'Tempo real por ' + w.host.replace('wss://', '') + ' · ' + w.porSeg + ' mensagens/s'
+      : 'Sem conexão em tempo real no momento';
+  }, 2000);
 })(window);
 </script>
 <script>/* MX360 Plataforma: a lista de ativos (watchlist) com tudo o que existe no seletor, em categorias.
