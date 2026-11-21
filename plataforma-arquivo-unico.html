@@ -19398,25 +19398,51 @@ window.MXLogosMapa = {"0G":"image/admin_mgs_image_upload/20250921/137e9686-843c-
   function lugarLivre(t) {
     return !(t.closest('.pz-tag,.ct-tag,.ct-chip,.mx2-st,.legend,.tools,.mx2c,.rpl-float,.qm,.tpad,.relo'));
   }
+  function noGrafico(t) { var ch = $('chart'); return !!ch && ch.parentNode.contains(t) && lugarLivre(t); }
+
+  /* Botão direito do mouse: abre na hora. O "toque longo" do próprio celular (que dispara até com o dedo
+     deslizando devagar) é ignorado; no toque quem decide é o cronômetro abaixo. */
+  var ultimoToque = 0;
   doc.addEventListener('contextmenu', function (e) {
-    var ch = $('chart');
-    if (!ch || !ch.parentNode.contains(e.target) || !lugarLivre(e.target)) { return; }
+    if (!noGrafico(e.target)) { return; }
     e.preventDefault();
+    if (Date.now() - ultimoToque < 1500) { return; }
     abreMenu(e.clientX, e.clientY);
   });
-  var lp = null;
+
+  /* Toque: só abre com o dedo PARADO por 600 ms, com um dedo só. Deslizar (mover a escala, rolar o
+     gráfico), dar zoom com dois dedos ou soltar antes cancela. Tolerância de 6 px para o tremor do dedo. */
+  var lp = null, dedos = {};
+  function cancela() { if (lp) { global.clearTimeout(lp.t); lp = null; } }
   doc.addEventListener('pointerdown', function (e) {
     if (menu && !menu.contains(e.target)) { fechaMenu(); }
     if (e.pointerType === 'mouse') { return; }
-    var ch = $('chart');
-    if (!ch || !ch.parentNode.contains(e.target) || !lugarLivre(e.target)) { return; }
-    var x0 = e.clientX, y0 = e.clientY;
-    lp = { x: x0, y: y0, t: global.setTimeout(function () { lp = null; abreMenu(x0, y0); if (global.navigator.vibrate) { try { global.navigator.vibrate(12); } catch (z) {} } }, 550) };
+    ultimoToque = Date.now();
+    dedos[e.pointerId] = 1;
+    cancela();
+    if (Object.keys(dedos).length > 1 || !noGrafico(e.target)) { return; }
+    var x0 = e.clientX, y0 = e.clientY, id = e.pointerId;
+    lp = { id: id, x: x0, y: y0, t: global.setTimeout(function () {
+      if (!lp || lp.id !== id || Object.keys(dedos).length !== 1) { lp = null; return; }
+      lp = null;
+      abreMenu(x0, y0);
+      if (global.navigator.vibrate) { try { global.navigator.vibrate(12); } catch (z) {} }
+    }, 600) };
   }, true);
   doc.addEventListener('pointermove', function (e) {
-    if (lp && Math.abs(e.clientX - lp.x) + Math.abs(e.clientY - lp.y) > 10) { global.clearTimeout(lp.t); lp = null; }
+    if (e.pointerType !== 'mouse') { ultimoToque = Date.now(); }
+    if (lp && (e.pointerId !== lp.id || Math.abs(e.clientX - lp.x) > 6 || Math.abs(e.clientY - lp.y) > 6)) { cancela(); }
   }, true);
-  ['pointerup', 'pointercancel'].forEach(function (ev) { doc.addEventListener(ev, function () { if (lp) { global.clearTimeout(lp.t); lp = null; } }, true); });
+  /* reforço: alguns celulares entregam o deslize só como touchmove */
+  doc.addEventListener('touchmove', function (e) {
+    var t = e.touches && e.touches[0];
+    if (!lp) { return; }
+    if (e.touches.length > 1 || (t && (Math.abs(t.clientX - lp.x) > 6 || Math.abs(t.clientY - lp.y) > 6))) { cancela(); }
+  }, { capture: true, passive: true });
+  doc.addEventListener('wheel', cancela, { capture: true, passive: true });
+  ['pointerup', 'pointercancel'].forEach(function (ev) {
+    doc.addEventListener(ev, function (e) { delete dedos[e.pointerId]; cancela(); }, true);
+  });
   doc.addEventListener('keydown', function (e) { if (e.key === 'Escape') { fechaMenu(); } });
 
   /* ===================================================== janelas flutuantes */
