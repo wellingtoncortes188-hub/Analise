@@ -13061,7 +13061,7 @@ Resources:`;for(let t of c){if(!t||typeof t!=`string`)throw Error(`@supabase/aut
     var go = chip.querySelector('.cc-go'), q = chip.querySelector('input'); qty = q;
     chip.querySelector('.cc-tp').onclick = function () { toggleLv('tp'); };
     chip.querySelector('.cc-sl').onclick = function () { toggleLv('sl'); };
-    chip.querySelector('.cc-sw').onclick = function () { chipSide = chipSide === 'buy' ? 'sell' : 'buy'; if (!lvNow()) { pend = { tp: null, sl: null }; } go.dataset.s = chipSide; go.textContent = chipSide === 'buy' ? 'Comprar' : 'Vender'; };
+    chip.querySelector('.cc-sw').onclick = function () { chipSide = chipSide === 'buy' ? 'sell' : 'buy'; if (!lvNow()) { var ref = lastPx; pend = { tp: pend.tp != null && ref > 0 ? 2 * ref - pend.tp : null, sl: pend.sl != null && ref > 0 ? 2 * ref - pend.sl : null }; } go.dataset.s = chipSide; go.textContent = chipSide === 'buy' ? 'Comprar' : 'Vender'; };
     go.onclick = function () {
       var tem = !!lvNow(), e = global.MXTrade && global.MXTrade.ordem(chipSide, parseFloat(q.value), tem ? undefined : pend.tp, tem ? undefined : pend.sl);
       go.title = e || ''; if (e) { toast(e); } else { pend = { tp: null, sl: null }; }
@@ -15967,12 +15967,21 @@ Resources:`;for(let t of c){if(!t||typeof t!=`string`)throw Error(`@supabase/aut
     if (!p) { erro('Nenhuma posição para inverter.'); return; }
     if (!podeEnviar()) { pedeSenha(); return; }
     var q = Math.abs(p.q), lado = p.q > 0 ? 'sell' : 'buy';
+    var lv0 = global.MXTrade.lv ? global.MXTrade.lv() : null, avg0 = p.avg;
     antes();
     var r = global.MXTrade.ordem(lado, q);          /* zera */
     depois(e.last);
     if (!r) { r = global.MXTrade.ordem(lado, q); }  /* e abre do outro lado */
     erro(r || '');
-    if (!r) { colocaBracket(0); ok('Posição invertida a ' + pr(e.last) + '.'); }
+    if (!r) {
+      /* o take e o stop que já estavam no gráfico trocam de lado (mesmas distâncias da nova entrada) */
+      var e2 = E(), p2 = e2 && e2.pos;
+      if (p2 && lv0 && (lv0.tp != null || lv0.sl != null)) {
+        if (lv0.tp != null) { global.MXTrade.setLv('tp', p2.avg - (lv0.tp - avg0)); }
+        if (lv0.sl != null) { global.MXTrade.setLv('sl', p2.avg - (lv0.sl - avg0)); }
+      } else { colocaBracket(0); }
+      ok('Posição invertida a ' + pr(e.last) + '.');
+    }
     pinta();
   }
 
