@@ -2869,47 +2869,76 @@ html.cv-aberto .nav{z-index:9002}
 .mo-h{margin-top:22px!important}
 .mo-l small{display:block;margin-top:3px;color:var(--muted);font-size:.76rem;font-weight:500}
 </style>
-<style>/* Linhas das ordens no estilo da referência: rótulo colorido + valor em caixa clara + X separado,
-   preço numa plaquinha da mesma cor na escala, linha fina e cheia. Verde = TP e compra, vermelho = SL e venda. */
-.ct-tp,.pz-pos[data-lado="C"]{--oc:#1fa04b}
-.ct-sl,.pz-pos[data-lado="V"]{--oc:#d23a4a}
+<style>/* Linhas das ordens no estilo da referência.
+   TP verde-azulado, SL laranja, entrada verde na compra e vermelha na venda.
+   Etiqueta: botão redondo de tirar (TP/SL) ou ✕ e ⇅ (entrada), alça colorida, quantidade | resultado com ponta.
+   Ponto de ancoragem perto da escala; plaquinha da escala contornada no TP/SL e cheia na entrada. */
+.ct-tp{--oc:#0f9d8a}
+.ct-sl{--oc:#f08c00}
+.pz-pos[data-lado="C"]{--oc:#1fa04b}
+.pz-pos[data-lado="V"]{--oc:#e5404f}
 .pz-ord{--oc:#c98a1b}
 .pz-cob{--oc:#8a8f94}
 
-/* ---- take e stop ---- */
+/* --- a linha (estilo escolhido nas configurações) --- */
 .ct-lvl{border-top:0!important}
-.ct-lvl::before{content:"";position:absolute;top:-.5px;left:var(--l0,0);right:0;border-top:1px solid var(--oc)}
-.ct-tag{left:12px;gap:0!important;height:22px!important;padding:0!important;border-radius:0!important;background:none!important;
-  box-shadow:none!important;overflow:visible!important;color:var(--oc)!important}
-.ct-tag .ct-mx{display:none!important}
-.ct-tag b{height:22px;padding:0 7px!important;border:1px solid var(--oc);border-radius:3px 0 0 3px;background:var(--oc)!important;
-  color:#fff!important;font:800 11px/20px Manrope,system-ui,sans-serif!important}
-.ct-tag .ct-val{height:22px;padding:0 8px!important;border:1px solid var(--oc);border-left:0;border-radius:0 3px 3px 0;
-  background:var(--bg)!important;color:var(--oc)!important;font:700 11px/20px Manrope,system-ui,sans-serif!important}
-.ct-tag i{width:22px;height:22px;margin-left:4px;padding:0!important;border:1px solid var(--oc);border-radius:3px;
-  background:var(--bg)!important;color:var(--oc)!important;font-size:14px!important;line-height:20px}
-.ct-tag i:hover{background:var(--oc)!important;color:#fff!important}
-.ct-ax{background:var(--oc)!important;color:#fff!important;border-radius:2px!important}
+.ct-lvl::before,.pz-l>hr{content:"";position:absolute;top:-.5px;right:0;height:1px!important;border:0!important;margin:0;opacity:1!important;
+  background:var(--oc);--tr:var(--oc)}
+.ct-lvl::before{left:var(--l0,0)}
+.pz-l>hr{left:0}
+html[data-la="tracejada"] .ct-lvl::before,html[data-la="tracejada"] .pz-ord>hr,html[data-le="tracejada"] .pz-pos>hr{background:repeating-linear-gradient(90deg,var(--oc) 0 7px,transparent 7px 11px)}
+html[data-la="pontilhada"] .ct-lvl::before,html[data-la="pontilhada"] .pz-ord>hr,html[data-le="pontilhada"] .pz-pos>hr{background:repeating-linear-gradient(90deg,var(--oc) 0 2px,transparent 2px 5px)}
+html[data-la="tracoponto"] .ct-lvl::before,html[data-la="tracoponto"] .pz-ord>hr,html[data-le="tracoponto"] .pz-pos>hr{background:repeating-linear-gradient(90deg,var(--oc) 0 9px,transparent 9px 12px,var(--oc) 12px 14px,transparent 14px 17px)}
+.pz-cob>hr{background:repeating-linear-gradient(90deg,var(--oc) 0 2px,transparent 2px 5px)!important}
 
-/* ---- entrada, ordens pendentes e cobertura ---- */
-.pz-l>hr{border-top:1px solid var(--oc)!important;opacity:1!important}
-.pz-ord>hr{border-top-style:dashed!important}
-.pz-cob>hr{border-top-style:dotted!important}
-.pz-l .pz-tag{gap:0;height:22px;padding:0;border:0;border-radius:0;background:none;box-shadow:none;overflow:visible;color:var(--oc);
-  font:800 11px/1 Manrope,system-ui,sans-serif}
-.pz-l .pz-tag em,.pz-l .pz-tag i.pz-m{display:none!important}
-.pz-l .pz-tag b{display:grid;place-items:center;align-self:stretch;padding:0 7px;border:1px solid var(--oc);border-radius:3px 0 0 3px;
+/* --- ponto de ancoragem --- */
+.ol-no{position:absolute;top:0;width:7px;height:7px;margin:-3.5px 0 0 -3.5px;border:1.5px solid var(--oc);border-radius:50%;background:var(--bg);pointer-events:none;box-sizing:border-box}
+.ol-no-q{border-radius:1px;background:var(--oc)}
+.ol-ponte{position:fixed;z-index:7;width:0;border-left:1.5px solid #1fa04b;pointer-events:none;transform:translateX(-.75px)}
+.ol-ponte[data-lado="V"]{border-left-color:#e5404f}
+.ol-ponte[hidden]{display:none}
+
+/* --- etiqueta do take e do stop --- */
+.ct-tag{left:12px;gap:0!important;height:20px!important;padding:0!important;border-radius:0!important;background:none!important;
+  box-shadow:none!important;overflow:visible!important;color:var(--oc)!important;align-items:center}
+.ct-tag .ct-mx{display:none!important}
+.ct-tag i{order:-2;width:18px;height:18px;margin-right:10px;padding:0!important;border:1.5px solid var(--oc);border-radius:50%;
+  background:var(--bg)!important;color:transparent!important;font-size:0!important;position:relative;box-sizing:border-box}
+.ct-tag i::before{content:"";position:absolute;left:3.5px;right:3.5px;top:50%;height:1.5px;margin-top:-.75px;background:var(--oc)}
+.ct-tag i:hover{background:var(--oc)!important}.ct-tag i:hover::before{background:#fff}
+.ct-tag b{order:-1;width:16px;height:20px;padding:0!important;border:0;border-radius:3px 0 0 3px;background:var(--oc)!important;
+  color:transparent!important;font-size:0!important;position:relative}
+.ct-tag b::before{content:"";position:absolute;left:5px;top:5px;width:6px;height:10px;
+  background:radial-gradient(circle,#fff 0 1px,transparent 1.3px) 0 0/3px 3.3px}
+.ct-tag .ct-val{position:relative;display:flex!important;align-items:center;gap:0;height:20px;padding:0 10px 0 0!important;
+  border:1px solid var(--oc);border-left:0;border-right:0;border-radius:0!important;background:var(--bg)!important;
+  color:var(--oc)!important;font:700 11px/18px Manrope,system-ui,sans-serif!important}
+.ct-tag .ct-val::after{content:"";position:absolute;right:-7px;top:2.5px;width:13px;height:13px;border-top:1px solid var(--oc);
+  border-right:1px solid var(--oc);background:var(--bg);transform:rotate(45deg)}
+.ct-val .ol-q,.pz-r .ol-q{padding:0 7px;border-right:1px solid rgba(var(--ink-rgb),.18);font-weight:600}
+.ct-val .ol-v,.pz-r .ol-v{position:relative;z-index:1;padding-left:7px}
+.ct-val small,.pz-r small{font-size:.78em;font-weight:700;margin-left:2px}
+.ct-ax{background:var(--bg)!important;color:var(--oc)!important;border:1px solid var(--oc);border-radius:1px!important;box-shadow:3px 0 0 var(--oc)}
+
+/* --- etiqueta da entrada, das pendentes e da cobertura --- */
+.pz-l .pz-tag{gap:0;height:20px;padding:0;border:0;border-radius:0;background:none;box-shadow:none;overflow:visible;color:var(--oc);
+  font:800 11px/1 Manrope,system-ui,sans-serif;align-items:center}
+.pz-l .pz-tag em{display:none!important}
+.pz-l .pz-tag i.pz-x{order:-3;display:grid;place-items:center;width:20px;height:20px;margin:0 6px 0 0;padding:0;border:0;border-radius:50%;
+  background:var(--oc);color:#fff;font-style:normal;font-size:13px;line-height:1;opacity:1}
+.pz-l .pz-tag i.pz-x:hover{filter:brightness(.9)}
+.pz-l .pz-tag i.pz-m{order:-2;display:grid!important;place-items:center;width:20px;height:20px;margin:0 10px 0 0;border:1.5px solid var(--oc);
+  border-radius:50%;background:var(--bg);color:var(--oc);font-style:normal;font-size:11px;line-height:1;opacity:1;box-sizing:border-box}
+.pz-l .pz-tag b{order:-1;display:grid;place-items:center;align-self:stretch;padding:0 8px;border:1px solid var(--oc);border-radius:3px 0 0 3px;
   background:var(--oc)!important;color:#fff;font:800 11px/1 Manrope,system-ui,sans-serif;letter-spacing:0}
 .pz-l .pz-tag .pz-r{display:grid;place-items:center;align-self:stretch;padding:0 8px;border:1px solid var(--oc);border-left:0;
   border-radius:0 3px 3px 0;background:var(--bg);color:var(--oc);font:700 11px/1 Manrope,system-ui,sans-serif}
 .pz-l .pz-tag .pz-r:empty{display:none}
-.pz-l .pz-tag .pz-r:empty+i,.pz-l .pz-tag b:last-child{border-radius:3px}
 .pz-l .pz-tag .pz-r[data-dir="up"]{color:#1fa04b}
-.pz-l .pz-tag .pz-r[data-dir="down"]{color:#d23a4a}
-.pz-l .pz-tag i.pz-x{display:grid;place-items:center;align-self:stretch;width:22px;height:auto;margin-left:4px;padding:0;
-  border:1px solid var(--oc);border-radius:3px;background:var(--bg);color:var(--oc);font-style:normal;font-size:14px;opacity:1}
-.pz-l .pz-tag i.pz-x:hover{background:var(--oc);color:#fff}
-.pz-l .pz-ax{background:var(--oc)!important;color:#fff!important;border-radius:2px;height:20px;line-height:20px;font-size:11px;padding:0 7px}
+.pz-l .pz-tag .pz-r[data-dir="down"]{color:#e5404f}
+.pz-ord .pz-tag i.pz-x,.pz-cob .pz-tag i.pz-x{width:18px;height:18px;font-size:12px}
+.pz-l .pz-ax{background:var(--oc)!important;color:#fff!important;border-radius:1px;height:20px;line-height:20px;font-size:11px;padding:0 7px}
+.pz-ord .pz-ax,.pz-cob .pz-ax{background:var(--bg)!important;color:var(--oc)!important;border:1px solid var(--oc)}
 
 /* Painel lateral encaixado ao lado do gráfico em telas largas (como na referência): o gráfico encolhe,
    a escala e as etiquetas das ordens ficam visíveis. Em celular estreito ele continua por cima. */
@@ -13984,10 +14013,11 @@ Resources:`;for(let t of c){if(!t||typeof t!=`string`)throw Error(`@supabase/aut
         var ab = aberto(p), q = Math.abs(p.q), t = el.pos.querySelector('.pz-tag');
         t.querySelector('em').textContent = 'MX360°';
         el.pos.setAttribute('data-lado', p.q > 0 ? 'C' : 'V');
-        t.querySelector('b').textContent = q % 1 ? n2(q) : String(q);   /* a cor diz o lado: verde compra, vermelho venda */
+        t.querySelector('b').textContent = (p.q < 0 ? '−' : '') + q.toLocaleString('pt-BR', { minimumFractionDigits: q % 1 ? 2 : 0, maximumFractionDigits: 4 });   /* a cor diz o lado; venda com sinal de menos */
         var r = t.querySelector('.pz-r');
         if (Math.abs(ab) < 0.005) { ab = 0; }   /* nada de "-0,00" */
-        r.textContent = (ab > 0 ? '+' : '') + dinheiro(ab);
+        var htmlR = '<span class="ol-v">' + (ab > 0 ? '+' : ab < 0 ? '−' : '') + n2(Math.abs(ab)) + ' <small>' + (moeda() === 'US$' ? 'USD' : moeda()) + '</small></span>';
+        if (r.innerHTML !== htmlR) { r.innerHTML = htmlR; }
         r.setAttribute('data-dir', dir(ab));
       }
       var cb = cobertura(p);
@@ -16392,9 +16422,11 @@ Resources:`;for(let t of c){if(!t||typeof t!=`string`)throw Error(`@supabase/aut
         var n = parseFloat(m[2]);
         var e = global.MXConta && global.MXConta.estado && global.MXConta.estado(), pq = e && e.pos ? Math.abs(e.pos.q) : 0;
         var q = pq || (global.MXBoleta && global.MXBoleta.qtd ? global.MXBoleta.qtd() : 0);
-        val.textContent = (m[1] === '-' ? '-' : '+') + m[3] + ' ' +
-          n.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) +
-          (q > 0 ? ' · ' + q.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 4 }) : '');
+        /* "0,01 | +0,30 USD", como na referência */
+        var un = m[3] === 'US$' ? 'USD' : m[3];
+        var html = (q > 0 ? '<span class="ol-q">' + q.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 4 }) + '</span>' : '') +
+          '<span class="ol-v">' + (m[1] === '-' ? '−' : '+') + n.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' <small>' + un + '</small></span>';
+        if (val.innerHTML !== html) { val.innerHTML = html; }
         val.setAttribute('data-dir', m[1] === '-' ? 'down' : 'up');
       }
       ax.textContent = partes[0];
@@ -18774,10 +18806,11 @@ window.MXLogosMapa = {"0G":"image/admin_mgs_image_upload/20250921/137e9686-843c-
 })(window);
 </script>
 <script>/* MX360 Plataforma: linhas das ordens no estilo da referência.
-   - Etiquetas encostadas perto da escala: TP e SL numa coluna à direita, a entrada logo à esquerda
-     dessa coluna, as ordens pendentes na mesma coluna do TP/SL.
-   - A linha nasce na etiqueta e vai até a escala. Com a opção "Estender as linhas até a esquerda"
-     (Configurações do gráfico → Chart Trading) ela atravessa o gráfico inteiro. */
+   - Etiquetas de TP, SL, entrada e ordens pendentes numa coluna alinhada pela direita, com um ponto de
+     ancoragem de cada linha perto da escala (círculo no TP/SL, quadrado na entrada).
+   - Tocar na ordem da operação liga os três pontos (entrada, TP e SL) com uma linha vertical.
+   - A linha nasce na etiqueta e vai até a escala; ao arrastar, a linha arrastada atravessa o gráfico.
+     Com a opção "Estender as linhas até a esquerda" ela atravessa sempre. */
 (function (global) {
   'use strict';
 
@@ -18791,75 +18824,100 @@ window.MXLogosMapa = {"0G":"image/admin_mgs_image_upload/20250921/137e9686-843c-
     try { global.localStorage.setItem(CHAVE, v ? '1' : '0'); } catch (e) {}
     aplicaOpcao();
   }
-  /* qual linha está sendo arrastada agora (take, stop, entrada ou ordem pendente) */
-  var arrastando = null;
+
+  /* qual linha está sendo arrastada; e se a operação está selecionada (linha vertical ligando os pontos) */
+  var arrastando = null, selecionada = false;
   doc.addEventListener('pointerdown', function (e) {
     var t = e.target && e.target.closest ? e.target.closest('.ct-tag,.pz-tag') : null;
+    if (t && t.closest('.pz-pos')) { selecionada = true; }
+    else if (!t) { selecionada = false; }
     if (!t || e.target.closest('.ct-tag i,.pz-tag i.pz-x')) { return; }
     arrastando = t.closest('.ct-lvl,.pz-l');
   }, true);
   ['pointerup', 'pointercancel'].forEach(function (ev) {
     doc.addEventListener(ev, function () { arrastando = null; }, true);
   });
-  function estende(el) { return esq() || el === arrastando; }
 
   function visivel(el) { return !!el && !el.hidden && el.style.display !== 'none' && el.offsetParent !== null; }
+  function no(el, cls) {
+    var n = el.querySelector(':scope > .ol-no');
+    if (!n) { n = doc.createElement('span'); n.className = 'ol-no ' + cls; el.appendChild(n); }
+    return n;
+  }
+  var ponte = null;
 
   function quadro() {
     global.requestAnimationFrame(quadro);
     var ch = $('chart'), A = global.MXApp;
     if (!ch || !A || !A.api) { return; }
     var eixo = (A.api.axisW && A.api.axisW()) || 64, W = ch.clientWidth, plot = Math.max(0, W - eixo);
-    var folga = W < 640 ? 10 : 96, ext = esq(), col = 0, itens = [];
+    var estreito = W < 640, xNo = plot - (estreito ? 16 : 36), folga = estreito ? 8 : 38, ext = esq();
     var aEsq = doc.documentElement.getAttribute('data-ordens-lado') === 'esquerda';
+    var itens = [], col = 0;
 
-    /* coluna da direita: TP, SL e ordens pendentes */
     ['tp', 'sl'].forEach(function (k) {
       var el = doc.querySelector('.ct-lvl.ct-' + k), t = el && el.querySelector('.ct-tag');
       if (!visivel(el) || !t) { return; }
-      itens.push({ el: el, tag: t, w: t.offsetWidth, tipo: 'ct' });
+      itens.push({ el: el, tag: t, w: t.offsetWidth, tipo: 'ct', y: el.getBoundingClientRect().top });
     });
     Array.prototype.forEach.call(doc.querySelectorAll('.pz-l.pz-ord'), function (el) {
       var t = el.querySelector('.pz-tag');
       if (!visivel(el) || !t) { return; }
-      itens.push({ el: el, tag: t, w: t.offsetWidth, tipo: 'pz' });
+      itens.push({ el: el, tag: t, w: t.offsetWidth, tipo: 'pz', y: el.getBoundingClientRect().top });
     });
     itens.forEach(function (it) { col = Math.max(col, it.w); });
-    itens.forEach(function (it) {
-      var x = aEsq ? 12 : Math.max(4, plot - folga - it.w);
-      it.tag.style.left = x + 'px';
+
+    function coloca(it, x) {
       var ex = ext || it.el === arrastando;
+      it.tag.style.left = x + 'px';
+      no(it.el, it.tipo === 'pos' ? 'ol-no-q' : 'ol-no-c').style.left = xNo + 'px';
       if (it.tipo === 'ct') { it.el.style.setProperty('--l0', (ex ? 0 : x) + 'px'); }
       else { var hr = it.el.querySelector('hr'); if (hr) { hr.style.left = (ex ? 0 : x) + 'px'; } }
-    });
+    }
+    /* coluna alinhada pela direita (ou pela esquerda, se escolhido) */
+    itens.forEach(function (it) { coloca(it, aEsq ? 12 : Math.max(4, xNo - folga - it.w)); });
 
-    /* entrada: logo à esquerda da coluna (ou na própria coluna, se não houver TP/SL) */
-    var pos = doc.querySelector('.pz-l.pz-pos'), xe = null;
+    /* entrada: na mesma coluna; se cair em cima de outra etiqueta, vai para a esquerda dela */
+    var pos = doc.querySelector('.pz-l.pz-pos'), pinfo = null;
     if (visivel(pos)) {
-      var tp = pos.querySelector('.pz-tag'), we = tp.offsetWidth;
-      xe = aEsq ? (col ? 12 + col + 16 : 12) : (col ? plot - folga - col - 16 - we : plot - folga - we);
-      if (xe < 4) { xe = 4; }
-      tp.style.left = xe + 'px';
-      var hr0 = pos.querySelector('hr');
-      if (hr0) { hr0.style.left = (estende(pos) ? 0 : xe) + 'px'; }
+      var tp = pos.querySelector('.pz-tag'), we = tp.offsetWidth, ye = pos.getBoundingClientRect().top;
+      var junto = itens.some(function (it) { return Math.abs(it.y - ye) < 26; });
+      var xe = aEsq ? 12 : xNo - folga - we;
+      if (junto) { xe = aEsq ? 12 + col + 12 : xNo - folga - col - 12 - we; }
+      pinfo = { el: pos, tag: tp, w: we, tipo: 'pos', y: ye };
+      coloca(pinfo, Math.max(4, xe));
     }
 
     /* ponto de cobertura: à esquerda da entrada */
     var cob = doc.querySelector('.pz-l.pz-cob');
     if (visivel(cob)) {
       var tc = cob.querySelector('.pz-tag'), wc = tc.offsetWidth;
-      var xc = aEsq ? (xe != null ? xe + pos.querySelector('.pz-tag').offsetWidth + 10 : 12) : (xe != null ? xe - 10 - wc : plot - folga - wc);
-      if (xc < 4) { xc = 4; }
-      tc.style.left = xc + 'px';
+      var xc = pinfo ? parseFloat(pinfo.tag.style.left) - 10 - wc : xNo - folga - wc;
+      tc.style.left = Math.max(4, xc) + 'px';
       var hr1 = cob.querySelector('hr');
-      if (hr1) { hr1.style.left = (ext ? 0 : xc) + 'px'; }
+      if (hr1) { hr1.style.left = (ext ? 0 : Math.max(4, xc)) + 'px'; }
     }
+
+    /* linha vertical ligando entrada, TP e SL quando a operação está selecionada (ou em arrasto) */
+    if (!ponte) { ponte = doc.createElement('div'); ponte.className = 'ol-ponte'; doc.body.appendChild(ponte); }
+    var lig = pinfo && (selecionada || arrastando) && itens.some(function (it) { return it.tipo === 'ct'; });
+    if (!lig) { ponte.hidden = true; return; }
+    var ys = [pinfo.y].concat(itens.filter(function (it) { return it.tipo === 'ct'; }).map(function (it) { return it.y; }));
+    var r = ch.getBoundingClientRect(), y0 = Math.max(r.top, Math.min.apply(null, ys)), y1 = Math.min(r.bottom, Math.max.apply(null, ys));
+    ponte.hidden = false;
+    ponte.style.left = (r.left + xNo) + 'px';
+    ponte.style.top = y0 + 'px';
+    ponte.style.height = Math.max(0, y1 - y0) + 'px';
+    ponte.setAttribute('data-lado', pos.getAttribute('data-lado') || 'C');
   }
 
   aplicaOpcao();
   global.requestAnimationFrame(quadro);
 
-  global.MXLinhas = { estende: function (v) { if (v != null) { grava(!!v); } return esq(); } };
+  global.MXLinhas = {
+    estende: function (v) { if (v != null) { grava(!!v); } return esq(); },
+    seleciona: function (v) { selecionada = !!v; }
+  };
 })(window);
 </script>
 <script>/* MX360 Plataforma: Configurações do gráfico completas (como no outro projeto).
@@ -18881,7 +18939,7 @@ window.MXLogosMapa = {"0G":"image/admin_mgs_image_upload/20250921/137e9686-843c-
     abasAtivos: true, fundoTipo: 'tema', fundoCor: '#ffffff', fundoCor2: '#eef2f0', grV: false, grH: false, grCor: '#808080', grEstilo: 'solida', grInt: 15,
     cruzModo: 'livre', cruzCor: '#d4a63a', cruzEstilo: 'tracejada', cruzEsp: 1, marca: 'tudo',
     /* chart trading */
-    alinhamento: 'direita', confirmaEnvio: false, confirmaCancel: true, cobertura: true,
+    alinhamento: 'direita', confirmaEnvio: false, confirmaCancel: true, cobertura: true, linhaEntrada: 'solida', linhaAlvo: 'tracoponto',
     /* personalizar (true = aparece) */
     ui: {
       mx: true, busca: true, tempos: true, tipo: true, ind: true, replay: true, alertas: true, layouts: true, tema: true,
@@ -18927,6 +18985,8 @@ window.MXLogosMapa = {"0G":"image/admin_mgs_image_upload/20250921/137e9686-843c-
     h.setAttribute('data-ui-off', off.join(' '));
     h.setAttribute('data-ui-on', on.join(' '));
     h.setAttribute('data-ordens-lado', v('alinhamento'));
+    h.setAttribute('data-le', v('linhaEntrada'));
+    h.setAttribute('data-la', v('linhaAlvo'));
     if (!api || !api.configurar) { return; }
 
     /* opções do gráfico: só as que o usuário mexeu */
@@ -19148,7 +19208,9 @@ window.MXLogosMapa = {"0G":"image/admin_mgs_image_upload/20250921/137e9686-843c-
     var d = doc.createElement('div');
     var noPreco = global.MXBoleta && global.MXBoleta.noPreco ? global.MXBoleta.noPreco() : true;
     var custo = global.MXConta && global.MXConta.custoPct ? global.MXConta.custoPct() : 0;
-    d.innerHTML = h4('Ordens no gráfico') +
+    var TIPOS = [['solida', 'Normal (sólida)'], ['tracejada', 'Tracejada'], ['pontilhada', 'Pontilhada'], ['tracoponto', 'Traço e ponto']];
+    d.innerHTML = sel('linhaEntrada', 'Linha da entrada', TIPOS) + sel('linhaAlvo', 'Linhas do take e do stop', TIPOS) +
+      h4('Ordens no gráfico') +
       sel('alinhamento', 'Alinhamento das ordens', [['direita', 'Direita'], ['esquerda', 'Esquerda']]) +
       '<div class="cm-g cm-p cfg-l"><span>Ordem no preço (com TP e SL antes de entrar)</span>' +
       '<button type="button" class="cm-sw" data-np aria-pressed="' + !!noPreco + '"></button></div>' +
