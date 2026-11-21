@@ -3118,6 +3118,25 @@ html[data-ui-off~="direita"] .stage .panel{right:0!important}
 .cfg-cont{width:auto!important;justify-content:flex-start}
 .cfg-cont::before{content:none}
 </style>
+<style>/* abas de ativos (estilo Profit) */
+.symtab{overflow-x:auto;overflow-y:hidden;scrollbar-width:none;gap:2px!important}
+.symtab::-webkit-scrollbar{display:none}
+.symtab .symtab-i{position:relative;flex:none;gap:7px;padding:0 8px 0 12px;border-top:2px solid transparent;border-radius:6px 6px 0 0;
+  background:rgba(var(--ink-rgb),.04);color:var(--muted);cursor:pointer;user-select:none}
+.symtab .symtab-i:hover{background:rgba(var(--ink-rgb),.08);color:var(--text)}
+.symtab .symtab-i.on{background:var(--bg);color:var(--text);border-top-color:var(--primary)}
+.symtab .symtab-i:focus-visible{outline:2px solid var(--primary);outline-offset:-2px}
+.symtab .symtab-i b{font-weight:700}
+.symtab-x{width:20px;height:20px;margin-left:2px;padding:0;border:0;border-radius:4px;background:none;color:var(--muted);font-size:14px;line-height:1;cursor:pointer}
+.symtab-x:hover{background:rgba(210,58,74,.15);color:#d23a4a}
+.symtab .symtab-add{flex:none;margin-left:4px;cursor:pointer;color:var(--text)}
+.symtab .symtab-add:hover:not(:disabled){background:rgba(var(--ink-rgb),.07)}
+.symtab .symtab-add:disabled{opacity:.4;cursor:default}
+/* abas de layout */
+.ws .ws-add{min-width:34px;justify-content:center;padding:0 10px!important;font-size:1rem;color:var(--text)}
+.ws .ws-add:disabled{opacity:.4}
+.ws-ed{width:110px;height:22px;padding:0 6px;border:1px solid var(--primary);border-radius:4px;background:var(--bg);color:var(--text);font:800 .74rem Manrope,sans-serif;text-transform:uppercase}
+</style>
 </head>
 <body>
 <div class="app">
@@ -19760,6 +19779,285 @@ window.MXLogosMapa = {"0G":"image/admin_mgs_image_upload/20250921/137e9686-843c-
   doc.addEventListener('keydown', function (e) { if (e.key === 'Escape') { relogio.fecha(); } });
 
   global.MXAtalhos = { menu: abreMenu, tradePad: pad, relogio: relogio };
+})(window);
+</script>
+<script>/* MX360 Plataforma: abas de ativos (em cima, estilo Profit) e abas de layout (no rodapé).
+   Abas de ativos: cada aba guarda um ativo e o tempo gráfico; o "+" abre o seletor e o ativo escolhido
+   vira uma aba nova; tocar na aba troca o gráfico; o × fecha. A aba ativa acompanha o que o usuário
+   muda no gráfico (outro ativo ou outro tempo).
+   Layouts: cada layout guarda as abas de ativos e os indicadores ligados. O "+" cria um layout novo;
+   tocar troca; tocar duas vezes no nome renomeia; o × apaga (toque de novo para confirmar). */
+(function (global) {
+  'use strict';
+
+  var doc = global.document;
+  var K_ABAS = 'mx360.abas.v1', K_WS = 'mx360.wsabas.v1';
+  var K_IND = ['mx360.estudos.v1', 'mx360.mx2.cfg.v1'];
+  var MAX_ABAS = 10, MAX_WS = 8;
+
+  function $(id) { return doc.getElementById(id); }
+  function esc(s) { return String(s == null ? '' : s).replace(/[&<>"]/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]; }); }
+  function le(k) { try { return JSON.parse(global.localStorage.getItem(k) || 'null'); } catch (e) { return null; } }
+  function grava(k, v) { try { global.localStorage.setItem(k, JSON.stringify(v)); } catch (e) {} }
+  function estado() { return global.MXLayouts && global.MXLayouts.estado ? global.MXLayouts.estado() : null; }
+  function rotulo(sym) { var d = global.MXData && global.MXData.bySymbol ? global.MXData.bySymbol(sym) : null; return (d && d.label) || sym.replace(/USDT$/, '/USDT'); }
+  function tfTxt(tf) { return tf === '1d' ? '1D' : tf === '1w' ? '1S' : tf; }
+  function toast(t) { if (global.MXShell && global.MXShell.toast) { global.MXShell.toast(t); } }
+
+  /* o ativo precisa existir na lista da plataforma antes de abrir no gráfico */
+  function garante(id) {
+    var S = global.MXData, sel = $('symbol');
+    if (!S || S.bySymbol(id)) { return; }
+    var it = global.MXAtivos && global.MXAtivos.item ? global.MXAtivos.item(id) : null;
+    if (!it) { return; }
+    S.symbols.push({ id: id, label: it.q && it.q.length <= 6 && /^[A-Z]+$/.test(it.q) ? it.b + '/' + it.q : (it.b || id), base: it.b || id, prec: it.c == null ? 2 : it.c, cat: 'cripto' });
+    if (sel && !sel.querySelector('option[value="' + id + '"]')) {
+      var o = doc.createElement('option'); o.value = id; o.textContent = rotulo(id); sel.appendChild(o);
+    }
+  }
+  function abreNoGrafico(sym, tf) {
+    garante(sym);
+    if (global.MXLayouts && global.MXLayouts.aplica) { global.MXLayouts.aplica({ symbol: sym, tf: tf }); }
+  }
+
+  /* ============================================================ abas de ativos */
+
+  var A = null;            /* { abas: [{sym, tf}], ativa } */
+  var novaAba = false, visto = '';
+
+  function carregaAbas() {
+    var e = estado() || { symbol: 'BTCUSDT', tf: '5m' };
+    A = le(K_ABAS);
+    if (!A || !Array.isArray(A.abas) || !A.abas.length) { A = { abas: [{ sym: e.symbol, tf: e.tf }], ativa: 0 }; }
+    A.ativa = Math.max(0, Math.min(A.abas.length - 1, A.ativa | 0));
+  }
+  function salvaAbas() { grava(K_ABAS, A); }
+
+  function pintaAbas() {
+    var box = doc.querySelector('.symtab');
+    if (!box || !A) { return; }
+    var pre = global.MXAtivos && global.MXAtivos.precos ? global.MXAtivos.precos() : {};
+    var html = A.abas.map(function (a, i) {
+      var on = i === A.ativa, p = pre[a.sym], pct = p && isFinite(p.pct) ? p.pct : null;
+      var chg = pct == null ? '—' : (pct >= 0 ? '+' : '') + pct.toFixed(2) + '%';
+      var dir = pct > 0 ? 'up' : pct < 0 ? 'down' : 'flat';
+      return '<div class="symtab-i' + (on ? ' on' : '') + '" role="tab" aria-selected="' + on + '" data-i="' + i + '" tabindex="0">' +
+        (global.MXLogos ? global.MXLogos.html(a.sym, 16) : '') +
+        '<span' + (on ? ' id="stSym"' : '') + '>' + esc(rotulo(a.sym)) + '</span>' +
+        '<em' + (on ? ' id="stTf"' : '') + '>' + esc(tfTxt(a.tf)) + '</em>' +
+        '<b' + (on ? ' id="stChg"' : '') + ' data-dir="' + dir + '">' + chg + '</b>' +
+        (A.abas.length > 1 ? '<button type="button" class="symtab-x" data-x="' + i + '" aria-label="Fechar aba ' + esc(rotulo(a.sym)) + '">×</button>' : '') +
+        '</div>';
+    }).join('') +
+      '<button type="button" class="symtab-add" aria-label="Nova aba de ativo"' + (A.abas.length >= MAX_ABAS ? ' disabled' : '') + '>+</button>';
+    box.innerHTML = html;
+    box.setAttribute('role', 'tablist');
+    Array.prototype.forEach.call(box.querySelectorAll('.symtab-i'), function (t) {
+      t.onclick = function (ev) {
+        if (ev.target.closest('.symtab-x')) { return; }
+        troca(+t.getAttribute('data-i'));
+      };
+      t.onkeydown = function (ev) { if (ev.key === 'Enter' || ev.key === ' ') { ev.preventDefault(); troca(+t.getAttribute('data-i')); } };
+    });
+    Array.prototype.forEach.call(box.querySelectorAll('.symtab-x'), function (b) {
+      b.onclick = function (ev) { ev.stopPropagation(); fecha(+b.getAttribute('data-x')); };
+    });
+    box.querySelector('.symtab-add').onclick = nova;
+  }
+
+  function troca(i) {
+    if (i === A.ativa || !A.abas[i]) { return; }
+    A.ativa = i; salvaAbas();
+    var a = A.abas[i];
+    visto = a.sym + '|' + a.tf;
+    abreNoGrafico(a.sym, a.tf);
+    pintaAbas();
+  }
+  function fecha(i) {
+    if (A.abas.length <= 1) { return; }
+    var eraAtiva = i === A.ativa;
+    A.abas.splice(i, 1);
+    if (A.ativa > i || A.ativa >= A.abas.length) { A.ativa = Math.max(0, A.ativa - 1); }
+    salvaAbas();
+    if (eraAtiva) { var a = A.abas[A.ativa]; visto = a.sym + '|' + a.tf; abreNoGrafico(a.sym, a.tf); }
+    pintaAbas();
+  }
+  /* "+": o seletor de ativos abre; o que for escolhido vira uma aba nova (a atual continua como estava) */
+  function nova() {
+    if (A.abas.length >= MAX_ABAS) { toast('Máximo de ' + MAX_ABAS + ' abas.'); return; }
+    if (!global.MXAtivos || !global.MXAtivos.abre) { return; }
+    novaAba = true;
+    global.MXAtivos.abre();
+  }
+
+  /* acompanha o gráfico: troca de ativo ou de tempo vai para a aba ativa (ou cria a aba nova do "+") */
+  function vigia() {
+    var e = estado();
+    if (!e || !A) { return; }
+    var k = e.symbol + '|' + e.tf;
+    if (k !== visto) {
+      visto = k;
+      var a = A.abas[A.ativa];
+      if (novaAba && a && e.symbol !== a.sym) {
+        A.abas.push({ sym: e.symbol, tf: e.tf });
+        A.ativa = A.abas.length - 1;
+      } else if (a) { a.sym = e.symbol; a.tf = e.tf; }
+      novaAba = false;
+      salvaAbas(); pintaAbas();
+    } else if (novaAba && !doc.querySelector('.at-back')) {
+      novaAba = false;                      /* fechou o seletor sem escolher */
+    }
+  }
+
+  /* ================================================================ layouts */
+
+  var W = null;            /* { lista: [{nome, abas, ativa, ind: {chave: texto}}], ativo } */
+  var armado = -1;
+
+  function foto() {
+    var ind = {};
+    K_IND.forEach(function (k) { try { var x = global.localStorage.getItem(k); if (x != null) { ind[k] = x; } } catch (e) {} });
+    return { abas: JSON.parse(JSON.stringify(A.abas)), ativa: A.ativa, ind: ind };
+  }
+  function carregaWs() {
+    W = le(K_WS);
+    if (!W || !Array.isArray(W.lista) || !W.lista.length) {
+      var f = foto();
+      W = { lista: [{ nome: 'PRINCIPAL', abas: f.abas, ativa: f.ativa, ind: f.ind }], ativo: 0 };
+    }
+    W.ativo = Math.max(0, Math.min(W.lista.length - 1, W.ativo | 0));
+  }
+  function salvaWs() { grava(K_WS, W); }
+  /* guarda o estado atual dentro do layout ativo */
+  function guardaAtual() {
+    var f = foto(), l = W.lista[W.ativo];
+    if (l) { l.abas = f.abas; l.ativa = f.ativa; l.ind = f.ind; salvaWs(); }
+  }
+
+  function pintaWs() {
+    var ws = $('wsAbas');
+    if (!ws || !W) { return; }
+    ws.hidden = false;
+    ws.setAttribute('role', 'tablist');
+    ws.innerHTML = W.lista.map(function (l, i) {
+      var on = i === W.ativo;
+      return '<button type="button" class="ws-aba" role="tab" aria-selected="' + on + '" data-i="' + i + '"' + (armado === i ? ' data-arm="1"' : '') + '>' +
+        '<span class="ws-n">' + esc(l.nome) + '</span>' +
+        (W.lista.length > 1 ? '<span class="ws-x" data-x="' + i + '" role="button" aria-label="Apagar layout ' + esc(l.nome) + '">' + (armado === i ? 'apagar?' : '×') + '</span>' : '') +
+        '</button>';
+    }).join('') + '<button type="button" class="ws-aba ws-add" aria-label="Novo layout"' + (W.lista.length >= MAX_WS ? ' disabled' : '') + '>+</button>';
+    Array.prototype.forEach.call(ws.querySelectorAll('.ws-aba[data-i]'), function (b) {
+      var i = +b.getAttribute('data-i');
+      b.onclick = function (ev) {
+        var x = ev.target.closest('.ws-x');
+        if (x) {
+          ev.stopPropagation();
+          if (armado === i) { apagaWs(i); } else { armado = i; pintaWs(); global.setTimeout(function () { if (armado === i) { armado = -1; pintaWs(); } }, 3000); }
+          return;
+        }
+        trocaWs(i);
+      };
+      b.ondblclick = function () { renomeia(i); };
+    });
+    ws.querySelector('.ws-add').onclick = novoWs;
+  }
+
+  function aplicaWs(l) {
+    /* indicadores diferentes: grava e recarrega a página (o jeito seguro de trocar todos de uma vez) */
+    var mudouInd = K_IND.some(function (k) {
+      var atual = null; try { atual = global.localStorage.getItem(k); } catch (e) {}
+      return (l.ind && l.ind[k] != null ? l.ind[k] : null) !== atual;
+    });
+    A = { abas: JSON.parse(JSON.stringify(l.abas && l.abas.length ? l.abas : A.abas)), ativa: l.ativa | 0 };
+    A.ativa = Math.max(0, Math.min(A.abas.length - 1, A.ativa));
+    salvaAbas();
+    var a = A.abas[A.ativa];
+    if (mudouInd) {
+      K_IND.forEach(function (k) {
+        try { if (l.ind && l.ind[k] != null) { global.localStorage.setItem(k, l.ind[k]); } else { global.localStorage.removeItem(k); } } catch (e) {}
+      });
+      try { var app = JSON.parse(global.localStorage.getItem('mx360.app.v1') || '{}'); app.sym = a.sym; app.tf = a.tf; global.localStorage.setItem('mx360.app.v1', JSON.stringify(app)); } catch (e) {}
+      global.location.reload();
+      return;
+    }
+    visto = a.sym + '|' + a.tf;
+    abreNoGrafico(a.sym, a.tf);
+    pintaAbas();
+  }
+  function trocaWs(i) {
+    if (i === W.ativo || !W.lista[i]) { return; }
+    guardaAtual();
+    W.ativo = i; armado = -1; salvaWs();
+    pintaWs();
+    aplicaWs(W.lista[i]);
+  }
+  function novoWs() {
+    if (W.lista.length >= MAX_WS) { toast('Máximo de ' + MAX_WS + ' layouts.'); return; }
+    guardaAtual();
+    var n = 2, nomes = W.lista.map(function (l) { return l.nome; });
+    while (nomes.indexOf('LAYOUT ' + n) >= 0) { n++; }
+    /* começa com o ativo que está na tela e os indicadores de agora; depois é só montar */
+    var e = estado() || A.abas[A.ativa], f = foto();
+    W.lista.push({ nome: 'LAYOUT ' + n, abas: [{ sym: e.symbol || e.sym, tf: e.tf }], ativa: 0, ind: f.ind });
+    W.ativo = W.lista.length - 1; armado = -1; salvaWs();
+    A = { abas: [{ sym: e.symbol || e.sym, tf: e.tf }], ativa: 0 }; salvaAbas();
+    pintaWs(); pintaAbas();
+    toast('Layout ' + n + ' criado. Toque duas vezes no nome para renomear.');
+  }
+  function apagaWs(i) {
+    if (W.lista.length <= 1) { return; }
+    var eraAtivo = i === W.ativo;
+    W.lista.splice(i, 1);
+    if (W.ativo > i || W.ativo >= W.lista.length) { W.ativo = Math.max(0, W.ativo - 1); }
+    armado = -1; salvaWs(); pintaWs();
+    if (eraAtivo) { aplicaWs(W.lista[W.ativo]); }
+  }
+  function renomeia(i) {
+    var b = doc.querySelector('.ws-aba[data-i="' + i + '"]'), l = W.lista[i];
+    if (!b || !l) { return; }
+    var n = b.querySelector('.ws-n');
+    var inp = doc.createElement('input');
+    inp.className = 'ws-ed'; inp.value = l.nome; inp.maxLength = 18; inp.setAttribute('aria-label', 'Nome do layout');
+    n.replaceWith(inp); inp.focus(); inp.select();
+    var feito = false;
+    function fim(ok) {
+      if (feito) { return; } feito = true;
+      var v = inp.value.replace(/\s+/g, ' ').trim().toUpperCase().slice(0, 18);
+      if (ok && v) { l.nome = v; salvaWs(); }
+      pintaWs();
+    }
+    inp.onkeydown = function (e) { if (e.key === 'Enter') { fim(true); } else if (e.key === 'Escape') { fim(false); } e.stopPropagation(); };
+    inp.onblur = function () { fim(true); };
+    inp.onclick = function (e) { e.stopPropagation(); };
+  }
+
+  /* ================================================================ início */
+
+  function inicia() {
+    if (!estado() || !doc.querySelector('.symtab') || !$('wsAbas')) { global.setTimeout(inicia, 300); return; }
+    carregaAbas();
+    carregaWs();
+    var e = estado(), a = A.abas[A.ativa];
+    /* a aba ativa salva manda no que abre (se o gráfico abriu em outro ativo, a aba ativa vira ele) */
+    if (a.sym !== e.symbol || a.tf !== e.tf) { a.sym = e.symbol; a.tf = e.tf; salvaAbas(); }
+    visto = e.symbol + '|' + e.tf;
+    pintaAbas(); pintaWs();
+    global.setInterval(vigia, 300);
+    global.setInterval(function () { if (!doc.querySelector('.symtab-i.on #stChg')) { pintaAbas(); } else {
+      /* variação das abas que não estão na tela */
+      var pre = global.MXAtivos && global.MXAtivos.precos ? global.MXAtivos.precos() : {};
+      Array.prototype.forEach.call(doc.querySelectorAll('.symtab-i:not(.on)'), function (t) {
+        var s = A.abas[+t.getAttribute('data-i')], p = s && pre[s.sym], b = t.querySelector('b');
+        if (p && isFinite(p.pct) && b) { b.textContent = (p.pct >= 0 ? '+' : '') + p.pct.toFixed(2) + '%'; b.setAttribute('data-dir', p.pct > 0 ? 'up' : p.pct < 0 ? 'down' : 'flat'); }
+      });
+    } }, 5000);
+    global.addEventListener('beforeunload', function () { try { guardaAtual(); } catch (z) {} });
+  }
+
+  if (doc.readyState === 'loading') { doc.addEventListener('DOMContentLoaded', function () { global.setTimeout(inicia, 900); }); }
+  else { global.setTimeout(inicia, 900); }
+
+  global.MXAbas = { nova: nova, troca: troca, fecha: fecha, novoLayout: novoWs, trocaLayout: trocaWs, estado: function () { return { abas: A, layouts: W }; } };
 })(window);
 </script>
 </body>
