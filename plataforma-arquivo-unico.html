@@ -1829,22 +1829,67 @@ if(r&&r.t&&Date.now()-r.t<2592000000){document.documentElement.setAttribute('dat
 .rpl-ir input{min-height:40px;padding:0 10px;border:1px solid var(--line);border-radius:8px;
   background:rgba(var(--ink-rgb),.06);color:var(--text);font:600 13px Manrope,system-ui,sans-serif}
 
-/* barra flutuante sobre o grafico */
-.rpl-float{position:absolute;z-index:8;left:50%;bottom:16px;transform:translateX(-50%);display:flex;align-items:center;gap:4px;
-  padding:6px;border:1px solid rgba(var(--ink-rgb),.16);border-radius:12px;background:var(--surface-2);
-  box-shadow:0 10px 30px rgba(var(--shadow-rgb),.55);font:700 12px Manrope,system-ui,sans-serif;color:var(--text)}
+/* barra de controles do replay, embaixo do gráfico */
+.rpl-float{position:absolute;z-index:8;left:50%;bottom:14px;transform:translateX(-50%);display:flex;align-items:center;gap:4px;
+  padding:6px;border:1px solid rgba(var(--ink-rgb),.16);border-radius:14px;background:var(--surface-2,var(--surface));
+  box-shadow:0 10px 30px rgba(var(--shadow-rgb),.45);font:700 12px Manrope,system-ui,sans-serif;color:var(--text)}
 .rpl-float[hidden]{display:none}
-.rpl-float button{display:grid;place-items:center;min-width:34px;height:32px;padding:0 8px;border:1px solid transparent;
-  border-radius:8px;background:rgba(var(--ink-rgb),.07);color:var(--text);font:inherit;cursor:pointer}
-.rpl-float button:hover{border-color:var(--primary);color:var(--primary)}
-.rpl-float button[data-main="1"]{background:var(--primary);color:var(--on-accent)}
-.rpl-float .rpl-vel{min-width:62px;text-align:center;font-variant-numeric:tabular-nums;color:var(--gold)}
-.rpl-float .rpl-rel{min-width:112px;text-align:center;color:var(--muted);font-weight:600;font-variant-numeric:tabular-nums}
+.rpl-float>button{display:grid;place-items:center;min-width:36px;height:36px;padding:0 9px;border:1px solid transparent;
+  border-radius:9px;background:rgba(var(--ink-rgb),.07);color:var(--text);font:inherit;cursor:pointer}
+.rpl-float>button:hover{border-color:var(--primary);color:var(--primary)}
+.rpl-float svg{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.rpl-float>button[data-main="1"]{min-width:44px;background:var(--primary);color:var(--on-accent,#0b1311)}
+.rpl-float>button[data-main="1"]:hover{color:var(--on-accent,#0b1311);filter:brightness(1.08)}
+.rpl-float .rpl-vel{min-width:52px;color:var(--gold);font-variant-numeric:tabular-nums}
+.rpl-float .rpl-rel{min-width:108px;padding:0 4px;text-align:center;color:var(--muted);font-weight:600;font-variant-numeric:tabular-nums}
 .rpl-float .rpl-sai{background:none;color:var(--muted)}
 .rpl-float .rpl-sai:hover{border-color:var(--down);color:var(--down)}
+.rpl-sep{flex:none;width:1px;height:22px;margin:0 3px;background:rgba(var(--ink-rgb),.14)}
+.rpl-vels{position:absolute;bottom:calc(100% + 8px);left:50%;transform:translateX(-50%);display:grid;grid-template-columns:repeat(3,1fr);gap:4px;
+  padding:6px;border:1px solid rgba(var(--ink-rgb),.16);border-radius:12px;background:var(--surface-2,var(--surface));
+  box-shadow:0 10px 30px rgba(var(--shadow-rgb),.45)}
+.rpl-vels[hidden]{display:none}
+.rpl-vels button{min-width:60px;height:34px;border:1px solid transparent;border-radius:8px;background:rgba(var(--ink-rgb),.06);
+  color:var(--text);font:700 12px Manrope,sans-serif;font-variant-numeric:tabular-nums;cursor:pointer}
+.rpl-vels button:hover{border-color:var(--gold)}
+.rpl-vels button[aria-pressed="true"]{background:var(--gold);color:#fff}
 @media (max-width:620px){
-  .rpl-float{left:8px;right:8px;bottom:10px;transform:none;justify-content:center;flex-wrap:wrap}
-  .rpl-float .rpl-rel{order:-1;width:100%}
+  .rpl-float{left:6px;right:6px;bottom:8px;transform:none;justify-content:center;flex-wrap:wrap;gap:3px;padding:5px}
+  .rpl-float .rpl-rel{order:-1;width:100%;min-width:0;padding:2px 0}
+  .rpl-float>button{min-width:34px;height:36px;padding:0 7px}
+  .rpl-sep{display:none}
+}
+
+/* linha de início: arrastar e soltar onde o replay começa */
+.rpl-sel{position:absolute;left:0;top:0;bottom:0;z-index:7;pointer-events:none}
+.rpl-sel-fut{position:absolute;top:0;bottom:0;right:0;background:rgba(var(--gold-rgb),.10);
+  background-image:repeating-linear-gradient(135deg,rgba(var(--gold-rgb),.10) 0 6px,transparent 6px 14px)}
+.rpl-sel-l{position:absolute;top:0;bottom:0;width:48px;margin-left:-24px;pointer-events:auto;cursor:ew-resize;touch-action:none;outline:none}
+.rpl-sel-l::after{content:"";position:absolute;left:23px;top:0;bottom:0;width:2px;background:var(--gold)}
+.rpl-sel-l.on::after,.rpl-sel-l:focus-visible::after{width:3px;left:22.5px}
+.rpl-sel-k{position:absolute;z-index:1;left:50%;top:42%;transform:translate(-50%,-50%);display:grid;place-items:center;
+  width:38px;height:38px;border-radius:50%;background:var(--gold);color:#fff;box-shadow:0 4px 14px rgba(var(--shadow-rgb),.45);
+  transition:transform .12s}
+.rpl-sel-l.on .rpl-sel-k{transform:translate(-50%,-50%) scale(1.12)}
+.rpl-sel-k svg{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:2.4;stroke-linecap:round;stroke-linejoin:round}
+.rpl-sel-t{position:absolute;z-index:1;bottom:30px;left:50%;transform:translateX(-50%);white-space:nowrap;padding:4px 8px;
+  border-radius:6px;background:var(--gold);color:#fff;font:700 11px Manrope,sans-serif;font-variant-numeric:tabular-nums}
+.rpl-dica{position:absolute;z-index:9;top:10px;left:50%;transform:translateX(-50%);display:flex;align-items:center;gap:8px;
+  max-width:calc(100% - 20px);padding:6px 6px 6px 12px;border:1px solid rgba(var(--gold-rgb),.45);border-radius:12px;
+  background:var(--surface-2,var(--surface));box-shadow:0 10px 30px rgba(var(--shadow-rgb),.4);
+  font:600 12.5px Manrope,system-ui,sans-serif;color:var(--text)}
+.rpl-dica b{color:var(--gold);font-weight:800}
+.rpl-dica span{color:var(--muted)}
+.rpl-dica button{flex:none;height:32px;padding:0 11px;border:1px solid rgba(var(--ink-rgb),.16);border-radius:8px;background:none;
+  color:var(--text);font:700 12px Manrope,sans-serif;cursor:pointer;white-space:nowrap}
+.rpl-dica button:hover{border-color:var(--gold)}
+.rpl-dica .rpl-dica-ok{border-color:var(--gold);background:var(--gold);color:#fff}
+.rpl-dica .rpl-dica-x{width:32px;padding:0}
+#btnReplay[aria-pressed="true"]{color:var(--gold)}
+@media (max-width:620px){
+  .rpl-dica{flex-wrap:wrap;justify-content:center;top:6px;padding:8px;text-align:center}
+  .rpl-dica span{flex:1 0 100%}
+  .rpl-dica b{display:none}
 }
 
 /* ativos prontos para replay */
@@ -1874,6 +1919,19 @@ if(r&&r.t&&Date.now()-r.t<2592000000){document.documentElement.setAttribute('dat
 .rpl-selo[data-cor="dj"]{background:linear-gradient(150deg,#1d4f91,#0b2650)}
 .rpl-selo[data-cor="b3"]{background:linear-gradient(150deg,#14833b,#0a4d22)}
 .rpl-selo[data-cor="b3"] small{color:#ffd84a;opacity:1}
+
+/* avisos rápidos sobem acima da barra do replay, sem cobrir os botões */
+html.rpl-on .tb-toast{bottom:96px!important}
+#live[data-state="replay"]{color:var(--gold)}
+#live[data-state="replay"]::before,#live[data-state="replay"] i{background:var(--gold)!important}
+@media (max-width:620px){
+  html.rpl-on .tb-toast{bottom:112px!important}
+  .rpl-float{flex-wrap:wrap;row-gap:2px}
+  .rpl-float>button{min-width:0;flex:1 1 0;height:38px;padding:0 4px}
+  .rpl-float .rpl-vel{flex:1.3 1 0;min-width:0}
+  .rpl-float .rpl-sai{flex:1.2 1 0;padding:0 4px}
+  .rpl-float .rpl-rel{font-size:11px}
+}
 </style>
 <style>/* MX360 Plataforma: PsicoTrader (RECONSTRUIDO) */
 
@@ -14446,6 +14504,8 @@ Resources:`;for(let t of c){if(!t||typeof t!=`string`)throw Error(`@supabase/aut
   var i = 0;                      /* indice da ultima vela revelada */
   var tocando = false, iv = null, vel = 2, formando = false, sub = 0;
   var barra = null, pane = null, ligado = false;
+  var sel = null;                 /* escolha do ponto de início pela linha vertical (ver "linha de início") */
+  var ponto = 0;                  /* vela onde o replay começou: o "Zerar" volta para ela */
 
   function $(id) { return doc.getElementById(id); }
   function n2(v) { return (+v || 0).toLocaleString('pt-BR'); }
@@ -14720,9 +14780,13 @@ Resources:`;for(let t of c){if(!t||typeof t!=`string`)throw Error(`@supabase/aut
   function marca() {
     if (!barra) { return; }
     var b = barra.querySelector('[data-a="play"]');
-    b.textContent = tocando ? '❚❚' : '▶';
+    b.innerHTML = tocando ? ICO.pausa : ICO.play;
     b.title = tocando ? 'Pausar' : 'Rodar';
+    b.setAttribute('aria-label', b.title);
     barra.querySelector('.rpl-vel').textContent = (vel < 1 ? vel.toString().replace('.', ',') : vel) + '×';
+    Array.prototype.forEach.call(barra.querySelectorAll('.rpl-vels [data-v]'), function (o) {
+      o.setAttribute('aria-pressed', String(+o.getAttribute('data-v') === vel));
+    });
   }
 
   function troca(dir) {
@@ -14752,16 +14816,235 @@ Resources:`;for(let t of c){if(!t||typeof t!=`string`)throw Error(`@supabase/aut
     ligado = true;
     A.assume('Replay · ' + d.nome);
     if (global.MXShell) { global.MXShell.quote(d.nome.replace(/\.csv$/i, ''), d.tf, null); }
+    /* status curto no topo: "Offline · Replay · BTC/USDT" empurrava os botões da barra de cima */
+    var lt = $('liveText'), lv = $('live');
+    if (lt) { lt.textContent = 'Replay'; }
+    if (lv) { lv.setAttribute('data-state', 'replay'); lv.title = 'Replay · ' + d.nome; }
     barra.hidden = false;
+    doc.documentElement.classList.add('rpl-on');
   }
 
   function sai() {
+    fechaSel(true);
     para();
     ligado = false;
     d = null; i = 0;
     if (barra) { barra.hidden = true; }
+    doc.documentElement.classList.remove('rpl-on');
     desenhaPainel();
     A.devolve();
+  }
+
+  /* "Zerar": volta para a vela escolhida como início, parado */
+  function zera() {
+    if (!d) { return; }
+    para();
+    i = Math.max(0, Math.min(d.n - 1, ponto));
+    formando = false;
+    pinta();
+    if (global.MXShell) { global.MXShell.toast('Replay zerado: de volta a ' + quando2(d.t[i]) + '.'); }
+  }
+
+  function quando2(ms) {
+    return new Date(ms).toLocaleString('pt-BR', { day: '2-digit', month: '2-digit', year: '2-digit', hour: '2-digit', minute: '2-digit' });
+  }
+
+  /* ------------------------------------------------- linha de início (a pedido)
+     Tocar no botão de replay faz aparecer uma linha vertical sobre o gráfico que está na tela.
+     O aluno arrasta a linha até a vela onde quer começar e solta: tudo à direita some e o replay
+     segue dali, com a barra de controles embaixo. Funciona no gráfico ao vivo de qualquer ativo e
+     também dentro de um replay já aberto (para escolher outro ponto). */
+
+  function dadosDoGrafico() {
+    var r = (A.rows && A.rows()) || [];
+    if (r.length < 20) { return null; }
+    var o = { n: r.length, t: [], o: [], h: [], l: [], c: [], v: [] }, k;
+    for (k = 0; k < r.length; k++) {
+      o.t.push(r[k].t); o.o.push(r[k].o); o.h.push(r[k].h); o.l.push(r[k].l); o.c.push(r[k].c); o.v.push(r[k].v || 0);
+    }
+    var e = A.estado(), S = global.MXData && global.MXData.bySymbol ? global.MXData.bySymbol(e.sym) : null;
+    o.tf = e.tf;
+    o.casas = A.api && A.api.precision ? A.api.precision() : ((S && S.prec) || 2);
+    o.nome = (S && S.label) || e.sym;
+    o.sym = e.sym;
+    return o;
+  }
+
+  function seleciona() {
+    if (sel) { fechaSel(true); return; }
+    if (!A || !A.api || !A.api.logicalAtX) { return; }
+    para();
+    var ini = 0, fim = 0;
+    if (ligado && d) {
+      /* dentro de um replay: mostra também as velas à frente, para poder escolher para frente ou para trás */
+      fim = Math.min(d.n - 1, i + Math.floor(JANELA / 2));
+      ini = Math.max(0, fim - JANELA + 1);
+      var rows = [], k;
+      for (k = ini; k <= fim; k++) { rows.push(vela(k)); }
+      A.aplica(rows, d.tf, d.casas);
+    } else if (!dadosDoGrafico()) {
+      if (global.MXShell) { global.MXShell.toast('O gráfico ainda está carregando as velas. Tente de novo em instantes.'); }
+      return;
+    }
+    sel = { ini: ini, fim: fim, emReplay: !!(ligado && d), l: null, x: 0, arrastando: false, t: 0 };
+    montaSel();
+  }
+
+  function montaSel() {
+    var el = A.api.element(), host = $('chart').parentNode;
+    var box = doc.createElement('div');
+    box.className = 'rpl-sel';
+    box.innerHTML = '<div class="rpl-sel-fut"></div>' +
+      '<div class="rpl-sel-l" role="slider" tabindex="0" aria-label="Linha de início do replay: arraste e solte">' +
+      '<i class="rpl-sel-k" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M9 6l-6 6 6 6M15 6l6 6-6 6"/></svg></i>' +
+      '<span class="rpl-sel-t">—</span></div>';
+    el.appendChild(box);
+    var dica = doc.createElement('div');
+    dica.className = 'rpl-dica';
+    dica.innerHTML = '<b>Replay</b><span>Arraste a linha até onde o replay deve começar e solte</span>' +
+      '<button type="button" data-s="ok" class="rpl-dica-ok">▶ Começar aqui</button>' +
+      '<button type="button" data-s="arq" title="Ativos prontos (WIN, US30) e arquivos CSV">Outros dados</button>' +
+      '<button type="button" data-s="x" class="rpl-dica-x" aria-label="Cancelar">✕</button>';
+    host.appendChild(dica);
+    sel.box = box; sel.dica = dica;
+    sel.linha = box.querySelector('.rpl-sel-l');
+    sel.fut = box.querySelector('.rpl-sel-fut');
+    sel.rot = box.querySelector('.rpl-sel-t');
+    doc.documentElement.classList.add('rpl-escolhendo');
+    var b = $('btnReplay');
+    if (b) { b.setAttribute('aria-pressed', 'true'); }
+
+    largura();
+    sel.x = Math.round(sel.w * 0.62);
+    posiciona(sel.x);
+
+    var lin = sel.linha;
+    lin.addEventListener('pointerdown', function (e) {
+      e.preventDefault();
+      e.stopPropagation();
+      try { lin.setPointerCapture(e.pointerId); } catch (z) {}
+      sel.arrastando = true;
+      sel.moveu = false;
+      sel.x0 = e.clientX;
+      lin.classList.add('on');
+    });
+    lin.addEventListener('pointermove', function (e) {
+      if (!sel || !sel.arrastando) { return; }
+      e.preventDefault();
+      if (Math.abs(e.clientX - sel.x0) > 3) { sel.moveu = true; }
+      var r = sel.box.getBoundingClientRect();
+      sel.x = e.clientX - r.left;
+      posiciona(sel.x);
+    });
+    function solta(e) {
+      if (!sel || !sel.arrastando) { return; }
+      sel.arrastando = false;
+      lin.classList.remove('on');
+      try { lin.releasePointerCapture(e.pointerId); } catch (z) {}
+      /* soltou depois de arrastar: o replay começa ali. Um toque parado na linha não dispara nada. */
+      if (sel.moveu) { comeca(); }
+    }
+    lin.addEventListener('pointerup', solta);
+    lin.addEventListener('pointercancel', function () { if (sel) { sel.arrastando = false; lin.classList.remove('on'); } });
+    lin.addEventListener('keydown', function (e) {
+      if (e.key === 'ArrowLeft' || e.key === 'ArrowRight') {
+        e.preventDefault();
+        var l = sel.l == null ? 0 : sel.l + (e.key === 'ArrowLeft' ? -1 : 1), x = A.api.xOfLogical(l);
+        if (x != null) { sel.x = x; posiciona(x); }
+      }
+      if (e.key === 'Enter') { comeca(); }
+    });
+
+    dica.querySelector('[data-s="ok"]').onclick = comeca;
+    dica.querySelector('[data-s="x"]').onclick = function () { fechaSel(true); };
+    dica.querySelector('[data-s="arq"]').onclick = function () { fechaSel(true); abrePainel(); };
+
+    /* o gráfico continua livre para arrastar e dar zoom: a linha fica onde está na tela e
+       a vela embaixo dela é recalculada (e a largura também, se a tela girar) */
+    sel.t = global.setInterval(function () {
+      if (!sel || sel.arrastando) { return; }
+      largura();
+      posiciona(sel.x);
+    }, 120);
+  }
+
+  function largura() {
+    var el = A.api.element(), ax = A.api.axisW ? A.api.axisW() : 64;
+    sel.w = Math.max(40, el.clientWidth - ax);
+    sel.box.style.width = sel.w + 'px';
+  }
+
+  function totalVisivel() {
+    return sel.emReplay ? (sel.fim - sel.ini + 1) : ((A.rows && A.rows().length) || 0);
+  }
+
+  /* coloca a linha em cima da vela mais próxima do dedo e escreve a data dela */
+  function posiciona(x) {
+    if (!sel) { return; }
+    x = Math.max(2, Math.min(sel.w - 2, x));
+    var n = totalVisivel(), l = A.api.logicalAtX(x), xs = x;
+    if (l != null && n > 0) {
+      l = Math.max(1, Math.min(n - 1, Math.round(l)));
+      var xv = A.api.xOfLogical(l);
+      if (xv != null && isFinite(xv)) { xs = xv; }
+      sel.l = l;
+    }
+    xs = Math.max(0, Math.min(sel.w, xs));
+    sel.linha.style.left = xs + 'px';
+    sel.fut.style.left = xs + 'px';
+    var t = tempoDe(sel.l);
+    sel.rot.textContent = t ? quando2(t) : '—';
+  }
+
+  function tempoDe(l) {
+    if (l == null) { return null; }
+    if (sel.emReplay) { var k = sel.ini + l; return d && k < d.n ? d.t[k] : null; }
+    var r = A.rows ? A.rows() : [];
+    return r[l] ? r[l].t : null;
+  }
+
+  function comeca() {
+    if (!sel || sel.l == null) { return; }
+    var k;
+    if (sel.emReplay) {
+      k = Math.min(d.n - 1, sel.ini + sel.l);
+    } else {
+      var base = dadosDoGrafico();
+      if (!base) { fechaSel(true); return; }
+      k = Math.min(base.n - 1, sel.l);
+      d = base;
+      vel = 1;
+    }
+    fechaSel(false);
+    i = k; ponto = k; formando = false;
+    assume();
+    desenhaPainel();
+    pinta();
+    if (A.api.reset) { try { A.api.reset(); } catch (e) {} }
+    if (global.MXShell) { global.MXShell.toast('Replay a partir de ' + quando2(d.t[i]) + '.'); }
+    toca();
+  }
+
+  /* fecha a escolha; se ela foi cancelada dentro de um replay, devolve o gráfico do replay como estava */
+  function fechaSel(cancelou) {
+    if (!sel) { return; }
+    global.clearInterval(sel.t);
+    if (sel.box && sel.box.parentNode) { sel.box.parentNode.removeChild(sel.box); }
+    if (sel.dica && sel.dica.parentNode) { sel.dica.parentNode.removeChild(sel.dica); }
+    var estava = sel.emReplay;
+    sel = null;
+    doc.documentElement.classList.remove('rpl-escolhendo');
+    var b = $('btnReplay');
+    if (b) { b.setAttribute('aria-pressed', String(ligado)); }
+    if (cancelou && estava && ligado && d) { pinta(); }
+  }
+
+  /* o painel antigo (ativos prontos e arquivo CSV) continua: abre pela barra ou pela dica */
+  function abrePainel() {
+    var r = doc.querySelector('.rrail [data-t="replay"]');
+    var t = $('tab_replay');
+    if (t) { t.click(); }
+    if (r && doc.getElementById('side') && doc.getElementById('side').getAttribute('data-pro') !== '1') { r.click(); }
   }
 
   /* ------------------------------------------------------- ativos prontos */
@@ -14910,7 +15193,8 @@ Resources:`;for(let t of c){if(!t||typeof t!=`string`)throw Error(`@supabase/aut
       var pb = alvo.querySelector('[data-pb]'), ct = alvo.querySelector('[data-cont]');
       leArquivo(file, function (p, n) { pb.style.width = Math.round(p * 100) + '%'; ct.textContent = n2(n) + ' velas'; })
         .then(function (res) {
-          d = res; i = 0; vel = 2;
+          fechaSel(true);
+          d = res; i = 0; ponto = 0; vel = 2;
           desenhaPainel();
           assume();
           pinta();                     /* comeca mostrando so a primeira vela */
@@ -14924,23 +15208,56 @@ Resources:`;for(let t of c){if(!t||typeof t!=`string`)throw Error(`@supabase/aut
     }
   }
 
+  var ICO = {
+    ponto: '<svg viewBox="0 0 24 24"><path d="M12 3v18M7 8l-4 4 4 4M17 8l4 4-4 4"/></svg>',
+    zera: '<svg viewBox="0 0 24 24"><path d="M4 12a8 8 0 1 0 2.4-5.7"/><path d="M4 4v5h5"/></svg>',
+    play: '<svg viewBox="0 0 24 24"><path d="M7 5l12 7-12 7z" fill="currentColor" stroke="none"/></svg>',
+    pausa: '<svg viewBox="0 0 24 24"><path d="M7 5h3.5v14H7zM13.5 5H17v14h-3.5z" fill="currentColor" stroke="none"/></svg>',
+    passo: '<svg viewBox="0 0 24 24"><path d="M5 5l10 7-10 7z" fill="currentColor" stroke="none"/><path d="M18 5v14"/></svg>',
+    arq: '<svg viewBox="0 0 24 24"><path d="M3 6.5A1.5 1.5 0 0 1 4.5 5H9l2 2h8.5A1.5 1.5 0 0 1 21 8.5v9a1.5 1.5 0 0 1-1.5 1.5h-15A1.5 1.5 0 0 1 3 17.5z"/></svg>'
+  };
+
   function montaBarra() {
     var host = $('chart').parentNode;
     barra = doc.createElement('div');
     barra.className = 'rpl-float';
     barra.hidden = true;
-    barra.innerHTML = '<span class="rpl-rel">—</span>' +
+    barra.innerHTML =
+      '<button type="button" data-a="ponto" title="Escolher outro ponto de início (linha)">' + ICO.ponto + '</button>' +
+      '<button type="button" data-a="zera" title="Zerar: voltar ao ponto escolhido">' + ICO.zera + '</button>' +
+      '<i class="rpl-sep"></i>' +
+      '<button type="button" data-a="play" data-main="1" title="Rodar">' + ICO.play + '</button>' +
+      '<button type="button" data-a="passo" title="Avançar uma vela">' + ICO.passo + '</button>' +
+      '<i class="rpl-sep"></i>' +
       '<button type="button" data-a="menos" title="Mais lento">−</button>' +
-      '<span class="rpl-vel">2×</span>' +
+      '<button type="button" class="rpl-vel" data-a="vels" title="Escolher a velocidade" aria-haspopup="true">2×</button>' +
       '<button type="button" data-a="mais" title="Mais rápido">+</button>' +
-      '<button type="button" data-a="play" data-main="1" title="Rodar">▶</button>' +
-      '<button type="button" data-a="passo" title="Uma vela">⏭</button>' +
-      '<button type="button" class="rpl-sai" data-a="sai" title="Sair do replay">Sair</button>';
+      '<i class="rpl-sep"></i>' +
+      '<span class="rpl-rel">—</span>' +
+      '<button type="button" data-a="arq" title="Ativos prontos (WIN, US30) e arquivos CSV">' + ICO.arq + '</button>' +
+      '<button type="button" class="rpl-sai" data-a="sai" title="Sair do replay e voltar ao vivo">Sair</button>' +
+      '<div class="rpl-vels" hidden>' + VELS.map(function (v) {
+        return '<button type="button" data-v="' + v + '">' + String(v).replace('.', ',') + '×</button>';
+      }).join('') + '</div>';
     host.appendChild(barra);
+    var menuV = barra.querySelector('.rpl-vels');
+    barra.querySelector('[data-a="ponto"]').onclick = seleciona;
+    barra.querySelector('[data-a="zera"]').onclick = zera;
     barra.querySelector('[data-a="menos"]').onclick = function () { troca(-1); };
     barra.querySelector('[data-a="mais"]').onclick = function () { troca(1); };
+    barra.querySelector('[data-a="vels"]').onclick = function (e) { e.stopPropagation(); menuV.hidden = !menuV.hidden; marca(); };
+    Array.prototype.forEach.call(menuV.querySelectorAll('[data-v]'), function (b) {
+      b.onclick = function () {
+        vel = +b.getAttribute('data-v');
+        menuV.hidden = true;
+        marca();
+        if (tocando) { global.clearTimeout(iv); passo(); }
+      };
+    });
+    doc.addEventListener('click', function (e) { if (!menuV.hidden && !menuV.contains(e.target)) { menuV.hidden = true; } });
     barra.querySelector('[data-a="play"]').onclick = function () { if (tocando) { para(); } else { toca(); } };
     barra.querySelector('[data-a="passo"]').onclick = function () { para(); proxima(); };
+    barra.querySelector('[data-a="arq"]').onclick = abrePainel;
     barra.querySelector('[data-a="sai"]').onclick = sai;
     marca();
   }
@@ -14952,22 +15269,22 @@ Resources:`;for(let t of c){if(!t||typeof t!=`string`)throw Error(`@supabase/aut
     montaBarra();
     desenhaPainel();
     /* o botao Replay da barra de cima abre o painel (no export ele so avisava "em breve") */
+    /* o botão de replay do topo agora faz aparecer a linha de início sobre o gráfico atual
+       (o painel com ativos prontos e CSV continua, pela barra do replay ou pela dica da linha) */
     var b = $('btnReplay');
     if (b) {
-      b.onclick = function () {
-        /* abre pelo caminho da propria casca (trilho da direita), para o painel entrar no lugar certo */
-        var r = doc.querySelector('.rrail [data-t="replay"]');
-        var t = $('tab_replay');
-        if (t) { t.click(); }
-        if (r && doc.getElementById('side').getAttribute('data-pro') !== '1') { r.click(); }
-      };
+      b.onclick = function (e) { if (e) { e.preventDefault(); } seleciona(); };
     }
+    doc.addEventListener('keydown', function (e) {
+      if (sel && e.key === 'Escape') { fechaSel(true); }
+    });
     doc.addEventListener('keydown', function (e) {
       if (!ligado || e.target.tagName === 'INPUT' || e.target.tagName === 'SELECT') { return; }
       if (e.code === 'Space') { e.preventDefault(); if (tocando) { para(); } else { toca(); } }
       if (e.key === 'ArrowRight') { para(); proxima(); }
       if (e.key === '+' || e.key === '=') { troca(1); }
       if (e.key === '-') { troca(-1); }
+      if (e.key === 'z' || e.key === 'Z') { zera(); }
     });
   }
 
@@ -14976,12 +15293,22 @@ Resources:`;for(let t of c){if(!t||typeof t!=`string`)throw Error(`@supabase/aut
     active: function () { return ligado && !!d; },
     forming: function () { return formando; },
     tf: function () { return d ? d.tf : null; },
-    pos: function () { return d ? { i: i, n: d.n, t: d.t[i] } : null; },
+    pos: function () { return d ? { i: i, n: d.n, t: d.t[i], ponto: ponto } : null; },
     play: toca,
     pause: para,
     passo: proxima,
     vaiPara: vaiPara,
-    sair: sai
+    sair: sai,
+    seleciona: seleciona,
+    escolhendo: function () { return !!sel; },
+    zera: zera,
+    comecaEm: function (k) {            /* testes e atalhos: começa o replay do gráfico atual na vela k */
+      if (!sel) { seleciona(); }
+      if (!sel) { return; }
+      sel.l = k; comeca();
+    },
+    velocidade: function (v) { if (v) { vel = v; marca(); } return vel; },
+    painel: abrePainel
   };
 
   if (doc.readyState === 'loading') { doc.addEventListener('DOMContentLoaded', inicia); } else { inicia(); }
@@ -19648,7 +19975,7 @@ window.MXLogosMapa = {"0G":"image/admin_mgs_image_upload/20250921/137e9686-843c-
   }
   /* não abre o menu por cima de etiquetas de ordem, da ordem no preço ou de caixas do indicador */
   function lugarLivre(t) {
-    return !(t.closest('.pz-tag,.ct-tag,.ct-chip,.mx2-st,.legend,.tools,.mx2c,.rpl-float,.qm,.tpad,.relo'));
+    return !(t.closest('.pz-tag,.ct-tag,.ct-chip,.mx2-st,.legend,.tools,.mx2c,.rpl-float,.rpl-sel-l,.rpl-dica,.rpl-vels,.qm,.tpad,.relo'));
   }
   function noGrafico(t) { var ch = $('chart'); return !!ch && ch.parentNode.contains(t) && lugarLivre(t); }
 
