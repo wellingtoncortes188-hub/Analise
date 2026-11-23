@@ -3082,8 +3082,6 @@ body:has(.ct-chip .cc-go[data-s="sell"]) .ct-seg{border-top-color:#e5404f!import
 /* linha tracejada da operação: da vela da execução até a etiqueta, presa no preço da entrada */
 .pz-l>.ol-lig{position:absolute;top:-.5px;height:0;border-top:1.5px dashed var(--oc,#1fa04b);pointer-events:none}
 .pz-l>.ol-lig[hidden]{display:none}
-.pz-l>.ol-lig::before{content:"";position:absolute;left:-3px;top:-4px;width:6px;height:6px;border-radius:50%;background:var(--oc,#1fa04b)}
-.pz-l>.ol-lig.ol-lig-fora::before{display:none}
 </style>
 <style>/* ===== Personalizar e Linha de status: esconder/mostrar ===== */
 html[data-ui-off~="mx"] .topbar .brand,
@@ -19595,8 +19593,9 @@ window.MXLogosMapa = {"0G":"image/admin_mgs_image_upload/20250921/137e9686-843c-
     var rows = A.rows ? A.rows() : null, n = rows ? rows.length : 0, x = null;
     if (n) {
       var xu = A.api.xOfLogical(n - 1), xa = n > 1 ? A.api.xOfLogical(n - 2) : null;
-      var meia = xu != null && xa != null && isFinite(xa) ? Math.max(2, (xu - xa) / 2) : 3;
-      if (xu != null && isFinite(xu)) { x = xu + meia; }   /* logo depois do corpo da vela mais nova */
+      /* encostada no corpo da vela mais nova (o corpo ocupa ~80% do espaço entre as velas) */
+      var meia = xu != null && xa != null && isFinite(xa) ? Math.max(1, (xu - xa) * 0.41) : 2;
+      if (xu != null && isFinite(xu)) { x = xu + meia + 1; }
     }
     /* com a linha já estendida até a esquerda, ou com a vela atrás/escondida da etiqueta, não precisa */
     if (ext || x == null || x > xTag - 8 || x > plot) { lig.hidden = true; return; }
