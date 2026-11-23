@@ -19585,37 +19585,21 @@ window.MXLogosMapa = {"0G":"image/admin_mgs_image_upload/20250921/137e9686-843c-
   }
   var ponte = null;
 
-  /* linha tracejada da operação (a pedido): sai da vela onde a compra/venda foi feita, no preço da
-     entrada, e vai até a etiqueta. Ao contrário da linha da ordem no preço (que anda com o preço),
-     esta fica presa no ponto da execução: as velas novas passam e ela continua saindo da mesma vela. */
-  var abertura = { chave: '', t: 0 };
-  function horaDaAbertura(A) {
-    var C = global.MXConta, e = C && C.estado ? C.estado() : null;
-    if (!e || !e.pos || !e.hist) { return 0; }
-    var h = e.hist, ch = e.sym + '|' + h.length + '|' + (h.length ? h[h.length - 1].t : 0) + '|' + e.pos.q;
-    if (ch === abertura.chave) { return abertura.t; }
-    var lista = h.filter(function (x) { return x.sym === e.sym; }).slice().sort(function (a, b) { return a.t - b.t; });
-    var q = 0, t0 = 0;
-    lista.forEach(function (x) {
-      var nq = q + (x.side === 'buy' ? 1 : -1) * Math.abs(x.q);
-      if (Math.abs(nq) < 1e-12) { nq = 0; }
-      if (nq !== 0 && (q === 0 || (q > 0) !== (nq > 0))) { t0 = x.t; }   /* abriu (ou virou de lado) aqui */
-      q = nq;
-    });
-    abertura = { chave: ch, t: q !== 0 ? t0 : 0 };
-    return abertura.t;
-  }
+  /* linha tracejada da operação (a pedido): sai da vela da operação, no preço da entrada, e vai até a
+     etiqueta. Fica sempre no preço da operação (não anda com o preço, como a da ordem no preço); quando
+     nascem velas depois da entrada, o começo dela passa para a vela mais nova, assim a linha nunca fica
+     por cima das velas. */
   function ligaEntrada(pos, A, ext, xTag, plot) {
     var lig = pos.querySelector(':scope > .ol-lig');
     if (!lig) { lig = doc.createElement('i'); lig.className = 'ol-lig'; pos.appendChild(lig); }
-    var t = horaDaAbertura(A), rows = A.rows ? A.rows() : null, x = null;
-    if (t && rows && rows.length) {
-      var a = 0, b = rows.length - 1, m, k = -1;
-      while (a <= b) { m = (a + b) >> 1; if (rows[m].t <= t) { k = m; a = m + 1; } else { b = m - 1; } }
-      if (k >= 0) { x = A.api.xOfLogical(k); }
+    var rows = A.rows ? A.rows() : null, n = rows ? rows.length : 0, x = null;
+    if (n) {
+      var xu = A.api.xOfLogical(n - 1), xa = n > 1 ? A.api.xOfLogical(n - 2) : null;
+      var meia = xu != null && xa != null && isFinite(xa) ? Math.max(2, (xu - xa) / 2) : 3;
+      if (xu != null && isFinite(xu)) { x = xu + meia; }   /* logo depois do corpo da vela mais nova */
     }
     /* com a linha já estendida até a esquerda, ou com a vela atrás/escondida da etiqueta, não precisa */
-    if (ext || x == null || !isFinite(x) || x > xTag - 8 || x > plot) { lig.hidden = true; return; }
+    if (ext || x == null || x > xTag - 8 || x > plot) { lig.hidden = true; return; }
     var x0 = Math.max(0, x);
     lig.hidden = false;
     lig.style.left = x0 + 'px';
