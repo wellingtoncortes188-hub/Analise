@@ -3078,6 +3078,12 @@ body:has(.ct-chip .cc-go[data-s="sell"]) .ct-seg{border-top-color:#e5404f!import
   .stage .side[data-pro="1"]{box-shadow:none}
   .stage:has(.side[data-pro="1"]) .rhandle{right:calc(50px + min(340px, 100% - 44px))}
 }
+
+/* linha tracejada da operação: da vela da execução até a etiqueta, presa no preço da entrada */
+.pz-l>.ol-lig{position:absolute;top:-.5px;height:0;border-top:1.5px dashed var(--oc,#1fa04b);pointer-events:none}
+.pz-l>.ol-lig[hidden]{display:none}
+.pz-l>.ol-lig::before{content:"";position:absolute;left:-3px;top:-4px;width:6px;height:6px;border-radius:50%;background:var(--oc,#1fa04b)}
+.pz-l>.ol-lig.ol-lig-fora::before{display:none}
 </style>
 <style>/* ===== Personalizar e Linha de status: esconder/mostrar ===== */
 html[data-ui-off~="mx"] .topbar .brand,
@@ -19579,6 +19585,44 @@ window.MXLogosMapa = {"0G":"image/admin_mgs_image_upload/20250921/137e9686-843c-
   }
   var ponte = null;
 
+  /* linha tracejada da operação (a pedido): sai da vela onde a compra/venda foi feita, no preço da
+     entrada, e vai até a etiqueta. Ao contrário da linha da ordem no preço (que anda com o preço),
+     esta fica presa no ponto da execução: as velas novas passam e ela continua saindo da mesma vela. */
+  var abertura = { chave: '', t: 0 };
+  function horaDaAbertura(A) {
+    var C = global.MXConta, e = C && C.estado ? C.estado() : null;
+    if (!e || !e.pos || !e.hist) { return 0; }
+    var h = e.hist, ch = e.sym + '|' + h.length + '|' + (h.length ? h[h.length - 1].t : 0) + '|' + e.pos.q;
+    if (ch === abertura.chave) { return abertura.t; }
+    var lista = h.filter(function (x) { return x.sym === e.sym; }).slice().sort(function (a, b) { return a.t - b.t; });
+    var q = 0, t0 = 0;
+    lista.forEach(function (x) {
+      var nq = q + (x.side === 'buy' ? 1 : -1) * Math.abs(x.q);
+      if (Math.abs(nq) < 1e-12) { nq = 0; }
+      if (nq !== 0 && (q === 0 || (q > 0) !== (nq > 0))) { t0 = x.t; }   /* abriu (ou virou de lado) aqui */
+      q = nq;
+    });
+    abertura = { chave: ch, t: q !== 0 ? t0 : 0 };
+    return abertura.t;
+  }
+  function ligaEntrada(pos, A, ext, xTag, plot) {
+    var lig = pos.querySelector(':scope > .ol-lig');
+    if (!lig) { lig = doc.createElement('i'); lig.className = 'ol-lig'; pos.appendChild(lig); }
+    var t = horaDaAbertura(A), rows = A.rows ? A.rows() : null, x = null;
+    if (t && rows && rows.length) {
+      var a = 0, b = rows.length - 1, m, k = -1;
+      while (a <= b) { m = (a + b) >> 1; if (rows[m].t <= t) { k = m; a = m + 1; } else { b = m - 1; } }
+      if (k >= 0) { x = A.api.xOfLogical(k); }
+    }
+    /* com a linha já estendida até a esquerda, ou com a vela atrás/escondida da etiqueta, não precisa */
+    if (ext || x == null || !isFinite(x) || x > xTag - 8 || x > plot) { lig.hidden = true; return; }
+    var x0 = Math.max(0, x);
+    lig.hidden = false;
+    lig.style.left = x0 + 'px';
+    lig.style.width = Math.max(0, xTag - 4 - x0) + 'px';
+    lig.classList.toggle('ol-lig-fora', x < 0);
+  }
+
   function quadro() {
     global.requestAnimationFrame(quadro);
     var ch = $('chart'), A = global.MXApp;
@@ -19619,6 +19663,7 @@ window.MXLogosMapa = {"0G":"image/admin_mgs_image_upload/20250921/137e9686-843c-
       if (junto) { xe = aEsq ? 12 + col + 12 : xNo - folga - col - 12 - we; }
       pinfo = { el: pos, tag: tp, w: we, tipo: 'pos', y: ye };
       coloca(pinfo, Math.max(4, xe));
+      ligaEntrada(pos, A, ext, Math.max(4, xe), plot);
     }
 
     /* linha-guia do TP/SL criada arrastando a entrada: na coluna, atravessando o gráfico */
