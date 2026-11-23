@@ -3234,6 +3234,135 @@ html[data-ui-off~="direita"] .stage .panel{right:0!important}
 .ws .ws-add:disabled{opacity:.4}
 .ws-ed{width:110px;height:22px;padding:0 6px;border:1px solid var(--primary);border-radius:4px;background:var(--bg);color:var(--text);font:800 .74rem Manrope,sans-serif;text-transform:uppercase}
 </style>
+<style>/* MX360 Plataforma: PsicoTrader · Análise automática H1 */
+
+/* cartão que aparece no gráfico enquanto a análise roda */
+.pa-run{position:absolute;z-index:9;top:10px;left:50%;transform:translateX(-50%);display:flex;align-items:center;gap:10px;
+  width:min(440px,calc(100% - 20px));padding:9px 10px 9px 9px;border:1px solid rgba(var(--primary-rgb),.45);border-radius:14px;
+  background:var(--surface-2,var(--surface));box-shadow:0 10px 30px rgba(var(--shadow-rgb),.45);color:var(--text);
+  font:600 12.5px Manrope,system-ui,sans-serif}
+.pa-av{flex:none;display:grid;place-items:center;width:36px;height:36px;border-radius:50%;font:800 13px Manrope,sans-serif;font-style:normal;
+  background:radial-gradient(circle at 30% 30%,rgba(var(--primary-rgb),.95),rgba(var(--primary-rgb),.3));color:var(--on-accent,#0b1311)}
+.pa-run .pa-av{animation:paPulsa 1.2s infinite}
+@keyframes paPulsa{50%{box-shadow:0 0 0 7px rgba(var(--primary-rgb),.16)}}
+.pa-txt{flex:1;min-width:0;display:flex;flex-direction:column;gap:3px}
+.pa-txt b{font-weight:800;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.pa-txt span{color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.pa-txt em{display:block;height:4px;border-radius:3px;background:rgba(var(--ink-rgb),.1);overflow:hidden}
+.pa-txt em i{display:block;height:100%;width:0;background:var(--primary);transition:width .35s}
+.pa-run>button{flex:none;width:32px;height:32px;border:1px solid rgba(var(--ink-rgb),.16);border-radius:8px;background:none;
+  color:var(--muted);font:700 14px Manrope,sans-serif;cursor:pointer}
+.pa-run>button:hover{border-color:var(--down);color:var(--down)}
+/* durante a análise o aluno não troca ativo nem tempo gráfico por engano */
+html.pa-rodando #tf,html.pa-rodando .topbar .symbol,html.pa-rodando .symtab,html.pa-rodando #wsAbas{pointer-events:none;opacity:.55}
+
+/* janela do resultado */
+.pa-bk{position:fixed;inset:0;z-index:4000;display:flex;align-items:center;justify-content:center;padding:14px;
+  background:rgba(var(--shadow-rgb),.55)}
+.pa-res{width:min(560px,100%);max-height:calc(100dvh - 28px);overflow:auto;padding:16px;border:1px solid rgba(var(--ink-rgb),.14);
+  border-radius:16px;background:var(--surface);color:var(--text);box-shadow:0 20px 60px rgba(var(--shadow-rgb),.5);
+  font:500 13px/1.5 Manrope,system-ui,sans-serif}
+.pa-cab{display:flex;align-items:center;gap:10px;margin-bottom:12px}
+.pa-cab>div{flex:1;min-width:0}
+.pa-cab b{display:block;font-size:.98rem;font-weight:800}
+.pa-cab span{color:var(--muted);font-size:.78rem}
+.pa-x{flex:none;width:34px;height:34px;border:1px solid rgba(var(--ink-rgb),.16);border-radius:9px;background:none;color:var(--muted);
+  font:700 14px Manrope,sans-serif;cursor:pointer}
+.pa-prob{padding:12px;border-radius:12px;background:rgba(var(--ink-rgb),.05);border:1px solid rgba(var(--ink-rgb),.1)}
+.pa-prob[data-d="up"]{background:rgba(var(--primary-rgb),.08);border-color:rgba(var(--primary-rgb),.35)}
+.pa-prob[data-d="down"]{background:rgba(var(--down-rgb),.08);border-color:rgba(var(--down-rgb),.35)}
+.pa-big{display:grid;grid-template-columns:1fr auto;align-items:center;gap:2px 12px}
+.pa-big span{font-weight:700}
+.pa-big b{grid-row:span 2;font:800 2.1rem/1 Manrope,sans-serif;font-variant-numeric:tabular-nums}
+.pa-prob[data-d="up"] .pa-big b{color:var(--primary)}
+.pa-prob[data-d="down"] .pa-big b{color:var(--down)}
+.pa-big em{font-style:normal;color:var(--muted);font-size:.76rem}
+.pa-bar{height:8px;margin-top:10px;border-radius:5px;background:var(--down);overflow:hidden}
+.pa-bar i{display:block;height:100%;background:var(--primary)}
+.pa-bar-leg{display:flex;justify-content:space-between;margin-top:4px;color:var(--muted);font-size:.72rem;font-weight:700}
+.pa-res h4{margin:16px 0 8px;font:800 11px/1.2 Manrope,sans-serif;letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}
+.pa-mov{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.pa-mov>div{display:flex;flex-direction:column;gap:2px;padding:10px;border-radius:10px;background:rgba(var(--ink-rgb),.05)}
+.pa-mov span{color:var(--muted);font-size:.74rem;font-weight:700}
+.pa-mov b{font:800 1.05rem Manrope,sans-serif;font-variant-numeric:tabular-nums}
+.pa-mov em{font-style:normal;color:var(--muted);font-size:.72rem;line-height:1.35}
+.pa-conf{display:grid;gap:6px;margin:0;padding:0;list-style:none}
+.pa-conf li{position:relative;padding:8px 10px 8px 26px;border-radius:9px;background:rgba(var(--ink-rgb),.05);font-size:.82rem;line-height:1.45}
+.pa-conf li::before{position:absolute;left:9px;top:8px;font-weight:800}
+.pa-conf li[data-d="up"]::before{content:"▲";color:var(--primary);font-size:.7rem;top:10px}
+.pa-conf li[data-d="down"]::before{content:"▼";color:var(--down);font-size:.7rem;top:10px}
+.pa-conf li[data-d="flat"]::before{content:"•";color:var(--muted)}
+.pa-tfs{display:grid;grid-template-columns:repeat(4,1fr);gap:6px}
+.pa-tfs>div{display:flex;flex-direction:column;align-items:center;gap:1px;padding:8px 4px;border-radius:10px;
+  background:rgba(var(--ink-rgb),.05);border:1px solid transparent;text-align:center}
+.pa-tfs>div[data-d="up"]{border-color:rgba(var(--primary-rgb),.4)}
+.pa-tfs>div[data-d="down"]{border-color:rgba(var(--down-rgb),.4)}
+.pa-tfs b{font:800 .95rem Manrope,sans-serif}
+.pa-tfs span{font-size:.74rem;font-weight:700}
+.pa-tfs>div[data-d="up"] span{color:var(--primary)}
+.pa-tfs>div[data-d="down"] span{color:var(--down)}
+.pa-tfs em{font-style:normal;color:var(--muted);font-size:.72rem}
+.pa-tfs em i.c{font-style:normal;color:var(--primary)}
+.pa-tfs em i.v{font-style:normal;color:var(--down)}
+.pa-mini{margin:6px 0 0;color:var(--muted);font-size:.72rem;line-height:1.45}
+.pa-det{margin-top:12px;border-top:1px solid rgba(var(--ink-rgb),.1);padding-top:10px}
+.pa-det summary{cursor:pointer;font-weight:800;font-size:.82rem}
+.pa-inds{display:flex;flex-wrap:wrap;gap:5px;margin-top:8px}
+.pa-inds span{padding:3px 8px;border-radius:999px;background:rgba(var(--ink-rgb),.06);font-size:.72rem;font-weight:600}
+.pa-inds span[data-d="up"]{color:var(--primary)}
+.pa-inds span[data-d="down"]{color:var(--down)}
+.pa-tab{width:100%;margin-top:8px;border-collapse:collapse;font-size:.76rem;font-variant-numeric:tabular-nums}
+.pa-tab th{text-align:left;color:var(--muted);font-weight:700;padding:4px 4px;border-bottom:1px solid rgba(var(--ink-rgb),.12)}
+.pa-tab td{padding:5px 4px;border-bottom:1px solid rgba(var(--ink-rgb),.06)}
+.pa-tab th:not(:first-child),.pa-tab td:not(:first-child){text-align:right;white-space:nowrap}
+.pa-tab tr.on td{font-weight:800;color:var(--text);background:rgba(var(--gold-rgb),.1)}
+.pa-acerto{margin:12px 0 0;padding:8px 10px;border-radius:9px;background:rgba(var(--gold-rgb),.1);font-size:.8rem}
+.pa-nota,.pa-aviso{margin:12px 0 0;color:var(--muted);font-size:.74rem;line-height:1.5}
+.pa-pe{display:flex;justify-content:flex-end;margin-top:12px}
+.pa-ok{min-height:40px;padding:0 18px;border:0;border-radius:10px;background:var(--primary);color:var(--on-accent,#0b1311);
+  font:800 13px Manrope,sans-serif;cursor:pointer}
+
+/* seção dentro do PsicoTrader */
+.pa-sec{display:grid;gap:9px;margin-top:6px;padding-top:12px;border-top:1px solid var(--line)}
+.pa-sec h4{margin:4px 0 0;font-size:.74rem;letter-spacing:.08em;color:var(--muted)}
+.pa-sub{margin:0;color:var(--muted);font-size:.74rem;line-height:1.5}
+.pa-l{display:flex;flex-direction:column;gap:4px;color:var(--muted);font-size:.72rem;font-weight:600}
+.pa-l[hidden]{display:none}
+.pa-l select,.pa-l input,.pa-add input{min-height:38px;padding:0 9px;border:1px solid var(--line);border-radius:8px;
+  background:rgba(var(--ink-rgb),.06);color:var(--text);font:600 13px Manrope,system-ui,sans-serif}
+.pa-hrs{display:flex;flex-wrap:wrap;gap:6px}
+.pa-hrs span{display:inline-flex;align-items:center;gap:4px;padding:3px 4px 3px 10px;border-radius:999px;
+  background:rgba(var(--primary-rgb),.1);border:1px solid rgba(var(--primary-rgb),.3);color:var(--text);font:700 12px Manrope,sans-serif}
+.pa-hrs button{width:22px;height:22px;border:0;border-radius:50%;background:none;color:var(--muted);font:700 14px/1 Manrope,sans-serif;cursor:pointer}
+.pa-hrs em{color:var(--muted);font-size:.74rem}
+.pa-add{display:flex;gap:6px}
+.pa-add input{flex:1}
+.pa-add button{min-height:38px;padding:0 12px;border:1px solid var(--line);border-radius:8px;background:none;color:var(--text);
+  font:700 12px Manrope,sans-serif;cursor:pointer}
+.pa-prox{margin:0;font-size:.78rem;font-weight:700;color:var(--text)}
+.pa-agora{min-height:42px;border:0;border-radius:10px;background:var(--primary);color:var(--on-accent,#0b1311);
+  font:800 13px Manrope,sans-serif;cursor:pointer}
+html.pa-rodando .pa-agora{opacity:.5;pointer-events:none}
+.pa-lista{display:grid;gap:6px;margin:0;padding:0;list-style:none}
+.pa-lista button{width:100%;display:grid;grid-template-columns:1fr auto;gap:2px 8px;padding:8px 10px;border:1px solid var(--line);
+  border-radius:9px;background:rgba(var(--ink-rgb),.04);color:var(--text);font:600 12px Manrope,sans-serif;text-align:left;cursor:pointer}
+.pa-lista b{font-weight:800}
+.pa-lista span{grid-column:1;font-size:.74rem}
+.pa-lista span[data-d="up"]{color:var(--primary)}
+.pa-lista span[data-d="down"]{color:var(--down)}
+.pa-lista i{grid-column:2;grid-row:1 / span 2;align-self:center;padding:3px 8px;border-radius:999px;font:700 11px Manrope,sans-serif;font-style:normal}
+.pa-esp{background:rgba(var(--ink-rgb),.08);color:var(--muted)}
+.pa-ac{background:rgba(var(--primary-rgb),.14);color:var(--primary)}
+.pa-er{background:rgba(var(--down-rgb),.14);color:var(--down)}
+.pa-vazio{color:var(--muted);font-size:.76rem}
+
+@media (max-width:620px){
+  .pa-run{top:6px}
+  .pa-tfs{grid-template-columns:repeat(2,1fr)}
+  .pa-big b{font-size:1.8rem}
+}
+.pa-and{margin:0 0 10px!important;padding:8px 10px;border-radius:9px;background:rgba(var(--gold-rgb),.12);color:var(--text)!important}
+</style>
 </head>
 <body>
 <div class="app">
@@ -9039,7 +9168,7 @@ Resources:`;for(let t of c){if(!t||typeof t!=`string`)throw Error(`@supabase/aut
     renderUi();
   }
 
-  global.MXStudies = { init: init, setData: setData, update: update, toggle: toggle, active: active, set: set, openConfig: cfgOpen, scan: scan, groups: function () { return GROUPS.slice(); }, perfil: perfilEntre, temaTrocou: temaTrocou, velas: function () { return rows; } };
+  global.MXStudies = { init: init, setData: setData, update: update, toggle: toggle, active: active, set: set, openConfig: cfgOpen, scan: scan, groups: function () { return GROUPS.slice(); }, perfil: perfilEntre, temaTrocou: temaTrocou, vp: function (m) { if (m) { vpSet2(m); } var c = vpCfg(), o = {}, k; for (k in c) { if (c.hasOwnProperty(k)) { o[k] = c[k]; } } return o; }, velas: function () { return rows; } };
 })(window);
 
 /* MX360 Plataforma: caixa de fluxo do MX360 2.0.
@@ -20534,6 +20663,748 @@ window.MXLogosMapa = {"0G":"image/admin_mgs_image_upload/20250921/137e9686-843c-
   else { global.setTimeout(inicia, 900); }
 
   global.MXAbas = { nova: nova, troca: troca, fecha: fecha, novoLayout: novoWs, trocaLayout: trocaWs, estado: function () { return { abas: A, layouts: W }; } };
+})(window);
+</script>
+<script>/* MX360 Plataforma: PsicoTrader · Análise automática H1 (a pedido)
+   Ligada no PsicoTrader, roda sozinha nos horários que o aluno escolhe (ou na hora, pelo botão):
+     1. vai para o H1 e ancora o perfil de volume nas últimas 8 velas fechadas;
+     2. liga no gráfico todos os indicadores, um por vez, lendo cada um;
+     3. troca os tempos gráficos (15m, 4h, 1D) e lê todos de novo;
+     4. devolve o gráfico como estava e mostra a análise da próxima vela H1.
+   A probabilidade NÃO é opinião nem chute: sai do histórico H1 do próprio ativo (até 3000 velas).
+   Conta o que a vela seguinte fez nas vezes em que o cenário era parecido com o de agora (placar dos
+   indicadores, posição no perfil das 8 velas e tendência do H4) e mostra sempre o tamanho da amostra.
+   Cada previsão fica guardada e é conferida quando a vela fecha, para o aluno ver o acerto real. */
+(function (global) {
+  'use strict';
+
+  var doc = global.document;
+  var KEY = 'mx360.psico.analise.v1';
+  var H = 36e5;
+  /* duração de uma vela em ms para qualquer tempo gráfico ('5m', '45m', '1h', '1d', '1w') */
+  function tfMs(tf) {
+    var m = /^(\d+)([mhdw])$/.exec(String(tf || ''));
+    return m ? +m[1] * { m: 6e4, h: 36e5, d: 864e5, w: 6048e5 }[m[2]] : 0;
+  }
+  var TFS_EXTRA = ['15m', '4h', '1d'];
+  var NOME_TF = { '15m': '15m', '1h': '1h', '4h': '4h', '1d': '1D' };
+  var VELS = { rapida: 380, normal: 750, lenta: 1300 };
+
+  var cfg = { ativo: false, modo: 'hora', minuto: 0, horarios: ['09:00', '14:00'], vel: 'normal', ultimo: '', hist: [] };
+  var rodando = null, relogio = null, sec = null;
+
+  function $(id) { return doc.getElementById(id); }
+  function A() { return global.MXApp; }
+  function S() { return global.MXStudies; }
+  function pad(n) { return (n < 10 ? '0' : '') + n; }
+  function hhmm(d) { return pad(d.getHours()) + ':' + pad(d.getMinutes()); }
+  function pct(v, c) { return (v * 100).toLocaleString('pt-BR', { minimumFractionDigits: c == null ? 1 : c, maximumFractionDigits: c == null ? 1 : c }) + '%'; }
+  function esc(t) { return String(t == null ? '' : t).replace(/[&<>"]/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]; }); }
+  function casas() { var a = A(); return a && a.api && a.api.precision ? a.api.precision() : 2; }
+  function px(v, k) { var c = k == null ? casas() : k; return (+v).toLocaleString('pt-BR', { minimumFractionDigits: c, maximumFractionDigits: c }); }
+  function toast(t) { if (global.MXShell && global.MXShell.toast) { global.MXShell.toast(t); } }
+
+  function le() {
+    try {
+      var s = JSON.parse(global.localStorage.getItem(KEY) || 'null');
+      if (s) {
+        cfg.ativo = !!s.ativo;
+        cfg.modo = s.modo === 'horarios' ? 'horarios' : 'hora';
+        cfg.minuto = Math.max(0, Math.min(59, +s.minuto || 0));
+        cfg.horarios = Array.isArray(s.horarios) ? s.horarios.filter(function (h) { return /^\d\d:\d\d$/.test(h); }) : cfg.horarios;
+        cfg.vel = VELS[s.vel] ? s.vel : 'normal';
+        cfg.ultimo = s.ultimo || '';
+        cfg.hist = Array.isArray(s.hist) ? s.hist.slice(0, 30) : [];
+      }
+    } catch (e) {}
+  }
+  function salva() { try { global.localStorage.setItem(KEY, JSON.stringify(cfg)); } catch (e) {} }
+
+  /* ================================================================ estatística */
+
+  /* perfil de volume de um trecho: mesma regra do perfil do gráfico (48 faixas, área de valor de 70%,
+     volume repartido pelo pedaço da vela que cada faixa cobre; sem volume, pesa o tamanho da vela) */
+  function perfil(R, a, b, semVol) {
+    var F = 48, lo = Infinity, hi = -Infinity, k, r, j, bins = [], step, tot = 0, maior = -1, poc = 0;
+    for (k = a; k <= b; k++) { r = R[k]; if (r.l < lo) { lo = r.l; } if (r.h > hi) { hi = r.h; } }
+    if (!isFinite(lo) || hi <= lo) { return null; }
+    step = (hi - lo) / F;
+    for (j = 0; j < F; j++) { bins.push(0); }
+    for (k = a; k <= b; k++) {
+      r = R[k];
+      var fx = r.h - r.l, vol = semVol ? fx : (r.v || 0), j0, j1, ped;
+      if (vol <= 0) { continue; }
+      j0 = Math.max(0, Math.floor((r.l - lo) / step));
+      j1 = Math.min(F - 1, Math.floor((r.h - lo) / step));
+      if (fx <= 0 || j1 <= j0) { bins[j0] += vol; continue; }
+      for (j = j0; j <= j1; j++) {
+        ped = Math.min(r.h, lo + (j + 1) * step) - Math.max(r.l, lo + j * step);
+        if (ped > 0) { bins[j] += vol * ped / fx; }
+      }
+    }
+    for (j = 0; j < F; j++) { tot += bins[j]; if (bins[j] > maior) { maior = bins[j]; poc = j; } }
+    if (tot <= 0) { return null; }
+    var alvo = tot * 0.7, soma = bins[poc], bx = poc, cx = poc, vb, vc;
+    while (soma < alvo && (bx > 0 || cx < F - 1)) {
+      vb = bx > 0 ? bins[bx - 1] : -1;
+      vc = cx < F - 1 ? bins[cx + 1] : -1;
+      if (vc > vb) { cx++; soma += bins[cx]; } else { bx--; soma += bins[bx]; }
+    }
+    return { poc: lo + (poc + 0.5) * step, val: lo + bx * step, vah: lo + (cx + 1) * step, lo: lo, hi: hi };
+  }
+  function posVP(c, p) {
+    if (!p) { return null; }
+    if (c > p.vah) { return 'acima'; }
+    if (c < p.val) { return 'abaixo'; }
+    return c >= p.poc ? 'vaCima' : 'vaBaixo';
+  }
+  var NOME_POS = {
+    acima: 'acima da área de valor', vaCima: 'dentro da área de valor, acima do POC',
+    vaBaixo: 'dentro da área de valor, abaixo do POC', abaixo: 'abaixo da área de valor'
+  };
+
+  /* placar dos indicadores vela a vela: cada regra vota +1 (compra), -1 (venda) ou 0 */
+  function placar(R) {
+    var M = global.MXMath, n = R.length, c = R.map(function (r) { return r.c; });
+    var e9 = M.ema(c, 9), e21 = M.ema(c, 21), e50 = M.ema(c, 50), e200 = M.ema(c, 200), mc = M.macd(c, 12, 26, 9),
+      rsi = M.rsi(c, 14), st = M.stoch(R, 14, 3, 3), su = M.supertrend(R, 10, 3), ps = M.psar(R, 0.02, 0.2),
+      dx = M.adx(R, 14), cc = M.cci(R, 20), mf = M.mfi(R, 14), ob = M.obv(R), cm = M.cmf(R, 20),
+      bb = M.bollinger(c, 20, 2), vw = M.vwap(R);
+    function ok(v) { return v !== null && v !== undefined && isFinite(v); }
+    function cmp(a, b) { return ok(a) && ok(b) ? (a > b ? 1 : a < b ? -1 : 0) : null; }
+    var regras = [
+      function (i) { return cmp(c[i], e21[i]); },
+      function (i) { return cmp(e9[i], e21[i]); },
+      function (i) { return cmp(e50[i], e200[i]); },
+      function (i) { return cmp(c[i], e200[i]); },
+      function (i) { return cmp(mc.line[i], mc.signal[i]); },
+      function (i) { return ok(rsi[i]) ? (rsi[i] > 50 ? 1 : rsi[i] < 50 ? -1 : 0) : null; },
+      function (i) { return cmp(st.k[i], st.d[i]); },
+      function (i) { return ok(su.dir[i]) ? su.dir[i] : null; },
+      function (i) { return cmp(c[i], ps[i]); },
+      function (i) { return cmp(dx.pdi[i], dx.mdi[i]); },
+      function (i) { return ok(cc[i]) ? (cc[i] > 0 ? 1 : cc[i] < 0 ? -1 : 0) : null; },
+      function (i) { return ok(mf[i]) ? (mf[i] > 50 ? 1 : mf[i] < 50 ? -1 : 0) : null; },
+      function (i) { return i >= 5 ? cmp(ob[i], ob[i - 5]) : null; },
+      function (i) { return ok(cm[i]) ? (cm[i] > 0 ? 1 : cm[i] < 0 ? -1 : 0) : null; },
+      function (i) { return cmp(c[i], bb.mid[i]); },
+      function (i) { return cmp(c[i], vw[i]); }
+    ];
+    var out = new Array(n), i, k, s, q, v;
+    for (i = 0; i < n; i++) {
+      s = 0; q = 0;
+      for (k = 0; k < regras.length; k++) { v = regras[k](i); if (v !== null) { s += v; q++; } }
+      out[i] = q >= 12 ? s / q : null;
+    }
+    return { score: out, rsi: rsi, atr: M.atr(R, 14) };
+  }
+  function faixa(s) {
+    if (s === null) { return null; }
+    return s >= 0.5 ? 'forteCompra' : s >= 0.15 ? 'compra' : s > -0.15 ? 'neutro' : s > -0.5 ? 'venda' : 'forteVenda';
+  }
+  var NOME_FAIXA = { forteCompra: 'fortemente comprador', compra: 'comprador', neutro: 'neutro', venda: 'vendedor', forteVenda: 'fortemente vendedor' };
+
+  /* tendência do H4 montada com as próprias velas H1 (só H4 já fechado no momento de cada vela) */
+  function tendH4(R) {
+    var M = global.MXMath, blocos = [], idx = new Array(R.length), i, b, at = null;
+    for (i = 0; i < R.length; i++) {
+      b = Math.floor(R[i].t / 144e5);
+      if (!at || at.b !== b) { at = { b: b, c: R[i].c, fim: (b + 1) * 144e5 }; blocos.push(at); }
+      at.c = R[i].c;
+      idx[i] = blocos.length - 1;
+    }
+    var c4 = blocos.map(function (x) { return x.c; }), e9 = M.ema(c4, 9), e21 = M.ema(c4, 21), out = new Array(R.length), k;
+    for (i = 0; i < R.length; i++) {
+      k = idx[i];
+      if (R[i].t + H < blocos[k].fim) { k--; }       /* o bloco desta vela ainda não fechou */
+      if (k < 0 || e21[k] === null || e9[k] === null) { out[i] = null; continue; }
+      out[i] = (c4[k] > e21[k] && e9[k] > e21[k]) ? 1 : (c4[k] < e21[k] && e9[k] < e21[k]) ? -1 : 0;
+    }
+    return out;
+  }
+
+  function wilson(s, n) {
+    if (!n) { return [0, 1]; }
+    var z = 1.96, p = s / n, d = 1 + z * z / n, c = p + z * z / (2 * n), m = z * Math.sqrt(p * (1 - p) / n + z * z / (4 * n * n));
+    return [(c - m) / d, (c + m) / d];
+  }
+  function quantil(arr, q) {
+    if (!arr.length) { return 0; }
+    var a = arr.slice().sort(function (x, y) { return x - y; }), p = (a.length - 1) * q, i = Math.floor(p);
+    return a[i] + (a[Math.min(a.length - 1, i + 1)] - a[i]) * (p - i);
+  }
+
+  /* o coração: o que a vela seguinte fez nas vezes parecidas com agora */
+  function estatistica(R) {
+    var n = R.length;
+    if (n < 260) { return null; }
+    var semVol = R.every(function (r) { return !(r.v > 0); });
+    var P = placar(R), T = tendH4(R), amostras = [], i, p, j;
+    for (i = 210; i < n; i++) {
+      if (P.score[i] === null || T[i] === null) { continue; }
+      p = perfil(R, i - 7, i, semVol);
+      amostras.push({ i: i, f: faixa(P.score[i]), v: posVP(R[i].c, p), t: T[i], p: p });
+    }
+    var agora = amostras[amostras.length - 1];
+    if (!agora || agora.i !== n - 1) { return null; }
+    var passadas = amostras.filter(function (a) { return a.i < n - 1; });
+    passadas.forEach(function (a) {
+      var r0 = R[a.i], r1 = R[a.i + 1];
+      a.alta = r1.c > r1.o;
+      a.ret = (r1.c - r0.c) / r0.c;
+      a.sobe = (r1.h - r0.c) / r0.c;
+      a.desce = (r1.l - r0.c) / r0.c;
+    });
+    function grupo(nome, filtro) {
+      var g = passadas.filter(filtro), up = 0;
+      g.forEach(function (a) { if (a.alta) { up++; } });
+      return { nome: nome, n: g.length, up: up, p: g.length ? up / g.length : 0, ic: wilson(up, g.length), g: g };
+    }
+    var base = grupo('Todas as velas H1 do histórico', function () { return true; });
+    var gs = [
+      grupo('Placar dos indicadores ' + NOME_FAIXA[agora.f], function (a) { return a.f === agora.f; }),
+      grupo('Preço ' + NOME_POS[agora.v] + ' (8 H1)', function (a) { return a.v === agora.v; }),
+      grupo('H4 ' + (agora.t > 0 ? 'em alta' : agora.t < 0 ? 'em baixa' : 'sem tendência'), function (a) { return a.t === agora.t; }),
+      grupo('Placar + H4', function (a) { return a.f === agora.f && a.t === agora.t; }),
+      grupo('Placar + H4 + perfil de volume', function (a) { return a.f === agora.f && a.t === agora.t && a.v === agora.v; })
+    ];
+    /* a manchete usa o cenário mais parecido que tenha amostra suficiente */
+    var esc2 = gs[4].n >= 40 ? gs[4] : gs[3].n >= 40 ? gs[3] : gs[0];
+    var K = 20, prob = (esc2.up + K * base.p) / (esc2.n + K);     /* puxa para a média geral: evita exagero */
+    var borda = Math.abs(prob - base.p);
+    var conf = esc2.n < 40 || borda < 0.03 ? 'fraca' : (borda < 0.07 || esc2.n < 80) ? 'moderada' : 'forte';
+    var ref = R[n - 1].c;
+    var sobe = esc2.g.map(function (a) { return a.sobe; }), desce = esc2.g.map(function (a) { return a.desce; }),
+      rets = esc2.g.map(function (a) { return a.ret; });
+    return {
+      n: n, desde: R[210].t, base: base, grupos: gs, escolhido: esc2, prob: prob, conf: conf,
+      agora: { faixa: agora.f, score: P.score[n - 1], vp: agora.v, perfil: agora.p, h4: agora.t, rsi: P.rsi[n - 1], atr: P.atr[n - 1] },
+      ref: ref,
+      faixaMov: {
+        sobeMed: quantil(sobe, 0.5), sobe75: quantil(sobe, 0.75),
+        desceMed: quantil(desce, 0.5), desce25: quantil(desce, 0.25),
+        retMed: quantil(rets, 0.5)
+      }
+    };
+  }
+
+  /* ============================================================== dados */
+
+  function ehBinance(sym) {
+    var D = global.MXData && global.MXData.bySymbol ? global.MXData.bySymbol(sym) : null;
+    if (D && D.cat === 'cambio') { return false; }
+    if (global.MXFonte && global.MXFonte.tem && global.MXFonte.tem(sym)) { return false; }
+    return /^[A-Z0-9]{5,20}$/.test(sym);
+  }
+  function kl(sym, fim) {
+    var q = 'symbol=' + sym + '&interval=1h&limit=1000' + (fim ? '&endTime=' + fim : '');
+    var hosts = ['https://data-api.binance.vision', 'https://api.binance.com'];
+    function tenta(k) {
+      if (k >= hosts.length) { return Promise.reject(new Error('binance')); }
+      return global.fetch(hosts[k] + '/api/v3/klines?' + q).then(function (r) {
+        if (!r.ok) { throw new Error('http ' + r.status); }
+        return r.json();
+      }).catch(function () { return tenta(k + 1); });
+    }
+    return tenta(0);
+  }
+  /* até 3000 velas H1 (cerca de 4 meses) direto da Binance; fora dela, as velas do gráfico */
+  function historicoH1(sym) {
+    if (!ehBinance(sym)) { return Promise.resolve(null); }
+    var tudo = [];
+    function pagina(fim, falta) {
+      return kl(sym, fim).then(function (k) {
+        var rows = k.map(function (x) { return { t: x[0], o: +x[1], h: +x[2], l: +x[3], c: +x[4], v: +x[5] }; });
+        tudo = rows.concat(tudo);
+        if (rows.length === 1000 && falta > 1) { return pagina(rows[0].t - 1, falta - 1); }
+        return tudo;
+      });
+    }
+    return pagina(0, 3).catch(function () { return tudo.length ? tudo : null; });
+  }
+  function soFechadas(R) {
+    var r = R.slice();
+    while (r.length && r[r.length - 1].t + H > Date.now()) { r.pop(); }
+    return r;
+  }
+
+  /* ============================================================ animação */
+
+  function espera(ms) {
+    return new Promise(function (ok, nao) {
+      var t = global.setTimeout(function () { if (rodando && rodando.cancelou) { nao(new Error('cancelado')); } else { ok(); } }, ms);
+      if (rodando) { rodando.timers.push(t); }
+    });
+  }
+  function vivo() { if (rodando && rodando.cancelou) { throw new Error('cancelado'); } }
+
+  function trocaTf(tf) {
+    var a = A(), e = a.estado();
+    if (e.tf === tf && a.rows().length > 50) { return Promise.resolve(true); }
+    var antes = a.rows();
+    global.MXLayouts.aplica({ symbol: e.sym, tf: tf });
+    return new Promise(function (ok) {
+      var t0 = Date.now();
+      (function olha() {
+        if (rodando && rodando.cancelou) { ok(false); return; }
+        var r = a.rows(), n = r.length, est = a.estado();
+        var pronto = est.tf === tf && r !== antes && n > 50 && (r[n - 1].t - r[n - 2].t) > 0 && (!tfMs(tf) || (r[n - 1].t - r[n - 2].t) % tfMs(tf) === 0);
+        if (pronto) { global.setTimeout(function () { ok(true); }, 400); return; }
+        if (Date.now() - t0 > 15000) { ok(false); return; }
+        global.setTimeout(olha, 250);
+      })();
+    });
+  }
+
+  function cartao(sym) {
+    var host = $('chart').parentNode, c = doc.createElement('div');
+    c.className = 'pa-run';
+    c.innerHTML = '<i class="pa-av">MX</i><div class="pa-txt"><b>PsicoTrader analisando · ' + esc(sym) + '</b>' +
+      '<span data-k="passo">Preparando…</span><em><i data-k="barra"></i></em></div>' +
+      '<button type="button" data-k="x" aria-label="Cancelar a análise">✕</button>';
+    host.appendChild(c);
+    c.querySelector('[data-k="x"]').onclick = function () { if (rodando) { rodando.cancelou = true; } };
+    return c;
+  }
+  function passo(txt, fr) {
+    if (!rodando || !rodando.card) { return; }
+    rodando.card.querySelector('[data-k="passo"]').textContent = txt;
+    if (fr != null) { rodando.card.querySelector('[data-k="barra"]').style.width = Math.round(fr * 100) + '%'; }
+  }
+
+  function leScan() {
+    var s = S() && S().scan ? S().scan() : [];
+    return s.filter(function (x) { return x.id !== 'vprof'; });
+  }
+  function resumo(lista) {
+    var c = 0, v = 0, z = 0;
+    lista.forEach(function (x) { if (x.b > 0) { c++; } else if (x.b < 0) { v++; } else { z++; } });
+    var t = c + v + z;
+    return { c: c, v: v, z: z, t: t, s: t ? (c - v) / t : 0 };
+  }
+
+  /* --------------------------------------------------------- a análise */
+  function analisa(origem) {
+    if (rodando) { return Promise.resolve(null); }
+    var a = A();
+    if (!a || !a.api || !S() || !global.MXLayouts) { return Promise.resolve(null); }
+    if (global.MXReplay && global.MXReplay.active && global.MXReplay.active()) {
+      toast('Análise do PsicoTrader pulada: o replay está ligado.');
+      return Promise.resolve(null);
+    }
+    var e0 = a.estado(), sym = e0.sym, D = global.MXData && global.MXData.bySymbol ? global.MXData.bySymbol(sym) : null;
+    var nome = (D && D.label) || sym;
+    var antes = { tf: e0.tf, ind: S().active().slice(), vp: S().vp ? S().vp() : null };
+    var dt = VELS[cfg.vel] || 750;
+    rodando = { cancelou: false, timers: [], card: null };
+    doc.documentElement.classList.add('pa-rodando');
+    rodando.card = cartao(nome);
+    var res = { sym: sym, nome: nome, quando: Date.now(), origem: origem || 'manual', tfs: {}, ind: [] };
+    var histP = historicoH1(sym);
+
+    return Promise.resolve().then(function () {
+      passo('Indo para o H1…', 0.03);
+      return trocaTf('1h');
+    }).then(function (ok) {
+      vivo();
+      if (!ok) { throw new Error('Não consegui carregar o H1 deste ativo agora.'); }
+      var R = soFechadas(a.rows());
+      if (R.length < 30) { throw new Error('Poucas velas H1 carregadas para analisar.'); }
+      res.ultima = R[R.length - 1].t;
+      res.alvo = res.ultima + H;
+      res.graficoH1 = R;
+      /* 1. perfil de volume das últimas 8 velas H1 fechadas */
+      S().set(['vprof']);
+      S().vp({ modo: 'ancorado', ancA: R[R.length - 8].t, ancB: R[R.length - 1].t });
+      var semVol = R.every(function (r) { return !(r.v > 0); });
+      res.perfil = perfil(R, R.length - 8, R.length - 1, semVol);
+      res.posVP = posVP(R[R.length - 1].c, res.perfil);
+      passo('Perfil de volume das últimas 8 velas H1' + (res.perfil ? ' · POC ' + px(res.perfil.poc) : ''), 0.08);
+      return espera(Math.max(1800, dt * 3));
+    }).then(function () {
+      /* 2. todos os indicadores, um por vez, no H1 */
+      var lista = leScan();
+      res.ind = lista.map(function (x) { return { id: x.id, label: x.label, b: x.b, v: x.v }; });
+      res.tfs['1h'] = resumo(lista);
+      var k = 0;
+      function proximo() {
+        vivo();
+        if (k >= lista.length) { return Promise.resolve(); }
+        var x = lista[k++];
+        S().set(['vprof', x.id]);
+        passo(x.label + ' · ' + (x.b > 0 ? 'comprador' : x.b < 0 ? 'vendedor' : 'neutro') + '  (' + k + ' de ' + lista.length + ')',
+          0.1 + 0.55 * k / lista.length);
+        return espera(dt).then(proximo);
+      }
+      return proximo();
+    }).then(function () {
+      /* 3. os outros tempos gráficos */
+      S().set(['vprof']);
+      var k = 0;
+      function proximo() {
+        vivo();
+        if (k >= TFS_EXTRA.length) { return Promise.resolve(); }
+        var tf = TFS_EXTRA[k++];
+        passo('Trocando para ' + NOME_TF[tf] + '…', 0.65 + 0.08 * k);
+        return trocaTf(tf).then(function (ok) {
+          vivo();
+          if (ok) {
+            var r = resumo(leScan());
+            res.tfs[tf] = r;
+            passo(NOME_TF[tf] + ': ' + r.c + ' compradores · ' + r.v + ' vendedores · ' + r.z + ' neutros', 0.65 + 0.08 * k);
+          }
+          return espera(Math.max(1200, dt * 2));
+        }).then(proximo);
+      }
+      return proximo();
+    }).then(function () {
+      /* 4. estatística no histórico H1 */
+      passo('Calculando a estatística no histórico H1…', 0.92);
+      return histP;
+    }).then(function (R) {
+      vivo();
+      var base = R && R.length > 300 ? soFechadas(R) : res.graficoH1;
+      /* o histórico baixado tem que terminar na mesma vela que o gráfico mostrou */
+      if (base !== res.graficoH1 && base[base.length - 1].t !== res.ultima) { base = res.graficoH1; }
+      res.fonteHist = base === res.graficoH1 ? 'velas do gráfico' : 'Binance';
+      res.est = estatistica(base);
+      res.hist = base;
+      return volta(antes);
+    }).then(function () {
+      fim();
+      confere(res.hist, sym);
+      var r = registra(res);
+      mostra(r);
+      return r;
+    }).catch(function (err) {
+      var cancel = err && err.message === 'cancelado';
+      return volta(antes).then(function () {
+        fim();
+        toast(cancel ? 'Análise cancelada. O gráfico voltou como estava.' : 'Análise interrompida: ' + ((err && err.message) || 'erro') );
+        return null;
+      });
+    });
+  }
+
+  function volta(antes) {
+    var s = S();
+    try { if (antes.vp && s.vp) { s.vp(antes.vp); } } catch (e) {}
+    try { s.set(antes.ind); } catch (e) {}
+    var a = A();
+    if (a.estado().tf === antes.tf) { return Promise.resolve(); }
+    var r = rodando;
+    if (r) { r.cancelou = false; }
+    return trocaTf(antes.tf).then(function () {});
+  }
+  function fim() {
+    if (rodando) {
+      rodando.timers.forEach(function (t) { global.clearTimeout(t); });
+      if (rodando.card && rodando.card.parentNode) { rodando.card.parentNode.removeChild(rodando.card); }
+    }
+    rodando = null;
+    doc.documentElement.classList.remove('pa-rodando');
+  }
+
+  /* ======================================================= resultado */
+
+  function confluencias(r) {
+    var o = [], t = r.tfs, E = r.est, ord = ['15m', '1h', '4h', '1d'];
+    var sinais = ord.filter(function (k) { return t[k]; }).map(function (k) { return { k: k, s: t[k].s }; });
+    var alta = sinais.filter(function (x) { return x.s >= 0.2; }), baixa = sinais.filter(function (x) { return x.s <= -0.2; });
+    if (alta.length >= 3) { o.push({ d: 1, t: 'Tempos gráficos alinhados na compra: ' + alta.map(function (x) { return NOME_TF[x.k]; }).join(', ') + '.' }); }
+    if (baixa.length >= 3) { o.push({ d: -1, t: 'Tempos gráficos alinhados na venda: ' + baixa.map(function (x) { return NOME_TF[x.k]; }).join(', ') + '.' }); }
+    if (alta.length && baixa.length) {
+      o.push({ d: 0, t: 'Tempos gráficos em conflito: ' + alta.map(function (x) { return NOME_TF[x.k]; }).join(', ') + ' compradores contra ' +
+        baixa.map(function (x) { return NOME_TF[x.k]; }).join(', ') + ' vendedores.' });
+    }
+    if (r.perfil) {
+      var pos = r.posVP;
+      o.push({ d: pos === 'acima' || pos === 'vaCima' ? 1 : -1,
+        t: 'Preço ' + NOME_POS[pos] + ' das últimas 8 H1 (POC ' + px(r.perfil.poc) + ', área ' + px(r.perfil.val) + ' a ' + px(r.perfil.vah) + ').' });
+    }
+    if (E) {
+      if (E.agora.h4 !== 0) { o.push({ d: E.agora.h4, t: 'H4 ' + (E.agora.h4 > 0 ? 'em tendência de alta' : 'em tendência de baixa') + ' (preço e EMA 9 do mesmo lado da EMA 21).' }); }
+      else { o.push({ d: 0, t: 'H4 sem tendência definida.' }); }
+      var rs = E.agora.rsi;
+      if (rs != null) {
+        o.push({ d: rs >= 70 ? -1 : rs <= 30 ? 1 : rs > 50 ? 1 : -1,
+          t: 'RSI H1 em ' + rs.toFixed(1).replace('.', ',') + (rs >= 70 ? ': sobrecomprado.' : rs <= 30 ? ': sobrevendido.' : rs > 50 ? ': força compradora.' : ': força vendedora.') });
+      }
+    }
+    return o;
+  }
+
+  function registra(r) {
+    var E = r.est;
+    var item = {
+      id: r.quando, sym: r.sym, nome: r.nome, quando: r.quando, alvo: r.alvo, origem: r.origem,
+      dir: E ? (E.prob >= 0.5 ? 1 : -1) : 0, p: E ? E.prob : null, conf: E ? E.conf : null, ok: null, fechou: null,
+      dados: {
+        tfs: r.tfs, ind: r.ind, perfil: r.perfil, posVP: r.posVP, fonte: r.fonteHist, casas: casas(),
+        est: E ? {
+          n: E.n, desde: E.desde, prob: E.prob, conf: E.conf, ref: E.ref, agora: { faixa: E.agora.faixa, score: E.agora.score, vp: E.agora.vp, h4: E.agora.h4, rsi: E.agora.rsi, atr: E.agora.atr },
+          base: { n: E.base.n, p: E.base.p }, esc: E.escolhido.nome,
+          grupos: E.grupos.map(function (g) { return { nome: g.nome, n: g.n, p: g.p, ic: g.ic }; }),
+          mov: E.faixaMov
+        } : null,
+        conf: confluencias(r)
+      }
+    };
+    cfg.hist.unshift(item);
+    cfg.hist = cfg.hist.slice(0, 30);
+    salva();
+    pintaSec();
+    return item;
+  }
+
+  /* confere as previsões antigas: a vela-alvo fechou em alta ou em baixa? */
+  function confere(R, sym) {
+    if (!R || !R.length) { return; }
+    var mapa = {};
+    R.forEach(function (r) { mapa[r.t] = r; });
+    var mudou = false;
+    cfg.hist.forEach(function (h) {
+      if (h.ok !== null || h.sym !== sym || !h.dir) { return; }
+      var v = mapa[h.alvo];
+      if (!v || h.alvo + H > Date.now()) { return; }
+      h.fechou = v.c > v.o ? 1 : -1;
+      h.ok = h.fechou === h.dir;
+      mudou = true;
+    });
+    if (mudou) { salva(); pintaSec(); }
+  }
+  function conferePendentes() {
+    var pend = {};
+    cfg.hist.forEach(function (h) { if (h.ok === null && h.dir && h.alvo + H <= Date.now() && ehBinance(h.sym)) { pend[h.sym] = 1; } });
+    Object.keys(pend).forEach(function (sym) {
+      kl(sym, 0).then(function (k) {
+        confere(k.map(function (x) { return { t: x[0], o: +x[1], h: +x[2], l: +x[3], c: +x[4], v: +x[5] }; }), sym);
+      }).catch(function () {});
+    });
+  }
+
+  function hora(ms) { return hhmm(new Date(ms)); }
+
+  function mostra(item) {
+    var velho = doc.querySelector('.pa-bk');
+    if (velho) { velho.parentNode.removeChild(velho); }
+    var d = item.dados, E = d.est, k = d.casas;
+    var bk = doc.createElement('div');
+    bk.className = 'pa-bk';
+    var h = '<div class="pa-res" role="dialog" aria-label="Análise da próxima vela H1">' +
+      '<div class="pa-cab"><i class="pa-av">MX</i><div><b>Próxima vela H1 · ' + esc(item.nome) + '</b>' +
+      '<span>Vela das ' + hora(item.alvo) + ' às ' + hora(item.alvo + H) + ' · análise das ' + hora(item.quando) + '</span></div>' +
+      '<button type="button" class="pa-x" aria-label="Fechar">✕</button></div>';
+    var andando = Math.round((item.quando - item.alvo) / 6e4);
+    if (andando >= 3) {
+      h += '<p class="pa-aviso pa-and">Esta vela já está em andamento há ' + andando + ' min. Para analisar uma vela inteira, deixe a análise automática no minuto 0 ou rode logo no começo da hora.</p>';
+    }
+    if (E) {
+      var alta = E.prob >= 0.5, p = alta ? E.prob : 1 - E.prob;
+      h += '<div class="pa-prob" data-d="' + (alta ? 'up' : 'down') + '">' +
+        '<div class="pa-big"><span>Probabilidade de fechar em ' + (alta ? 'alta' : 'baixa') + '</span><b>' + pct(p, 0) + '</b>' +
+        '<em>Confiança ' + E.conf + ' · ' + E.grupos.filter(function (g) { return g.nome === E.esc; })[0].n + ' casos parecidos</em></div>' +
+        '<div class="pa-bar"><i style="width:' + (E.prob * 100).toFixed(1) + '%"></i></div>' +
+        '<div class="pa-bar-leg"><span>Alta ' + pct(E.prob, 0) + '</span><span>Baixa ' + pct(1 - E.prob, 0) + '</span></div></div>';
+      var m = E.mov, ref = E.ref;
+      h += '<h4>Movimento típico em casos parecidos</h4><p class="pa-mini" style="margin:-2px 0 8px">A partir da abertura das ' + hora(item.alvo) + ' (' + px(ref, k) + ').</p><div class="pa-mov">' +
+        '<div><span>Máxima típica</span><b>' + px(ref * (1 + m.sobeMed), k) + '</b><em>+' + pct(m.sobeMed, 2) + ' · 1 em 4 passou de ' + px(ref * (1 + m.sobe75), k) + '</em></div>' +
+        '<div><span>Mínima típica</span><b>' + px(ref * (1 + m.desceMed), k) + '</b><em>' + pct(m.desceMed, 2) + ' · 1 em 4 passou de ' + px(ref * (1 + m.desce25), k) + '</em></div>' +
+        '</div>';
+    } else {
+      h += '<p class="pa-aviso">Histórico H1 curto demais para a estatística deste ativo (precisa de pelo menos 260 velas). A leitura dos indicadores e dos tempos gráficos está abaixo.</p>';
+    }
+    if (d.conf && d.conf.length) {
+      h += '<h4>Confluências</h4><ul class="pa-conf">' + d.conf.map(function (c) {
+        return '<li data-d="' + (c.d > 0 ? 'up' : c.d < 0 ? 'down' : 'flat') + '">' + esc(c.t) + '</li>';
+      }).join('') + '</ul>';
+    }
+    var ord = ['15m', '1h', '4h', '1d'];
+    h += '<h4>Tempos gráficos</h4><div class="pa-tfs">' + ord.filter(function (t) { return d.tfs[t]; }).map(function (t) {
+      var r = d.tfs[t], dir = r.s >= 0.2 ? 'up' : r.s <= -0.2 ? 'down' : 'flat';
+      return '<div data-d="' + dir + '"><b>' + NOME_TF[t] + '</b><span>' + (dir === 'up' ? 'Comprador' : dir === 'down' ? 'Vendedor' : 'Neutro') + '</span>' +
+        '<em><i class="c">' + r.c + '</i> · <i class="v">' + r.v + '</i> · ' + r.z + '</em></div>';
+    }).join('') + '</div><p class="pa-mini">compradores · vendedores · neutros, entre ' + (d.tfs['1h'] ? d.tfs['1h'].t : 0) + ' indicadores</p>';
+    if (d.ind && d.ind.length) {
+      h += '<details class="pa-det"><summary>Indicadores no H1 (' + d.ind.length + ')</summary><div class="pa-inds">' + d.ind.map(function (x) {
+        return '<span data-d="' + (x.b > 0 ? 'up' : x.b < 0 ? 'down' : 'flat') + '">' + (x.b > 0 ? '▲ ' : x.b < 0 ? '▼ ' : '• ') + esc(x.label) + '</span>';
+      }).join('') + '</div></details>';
+    }
+    if (E) {
+      h += '<details class="pa-det"><summary>Estatística completa</summary><table class="pa-tab"><thead><tr><th>Cenário</th><th>Casos</th><th>Alta</th><th>Faixa (95%)</th></tr></thead><tbody>' +
+        '<tr><td>Todas as velas H1</td><td>' + E.base.n + '</td><td>' + pct(E.base.p, 0) + '</td><td>—</td></tr>' +
+        E.grupos.map(function (g) {
+          return '<tr' + (g.nome === E.esc ? ' class="on"' : '') + '><td>' + esc(g.nome) + '</td><td>' + g.n + '</td><td>' + (g.n ? pct(g.p, 0) : '—') + '</td><td>' +
+            (g.n ? pct(g.ic[0], 0) + '–' + pct(g.ic[1], 0) : '—') + '</td></tr>';
+        }).join('') + '</tbody></table>' +
+        '<p class="pa-mini">Histórico: ' + E.n + ' velas H1 desde ' + new Date(E.desde).toLocaleDateString('pt-BR') + ' (' + esc(d.fonte) + '). ' +
+        'A linha marcada é o cenário usado na manchete; a probabilidade é puxada para a média geral (' + pct(E.base.p, 0) + ') para não exagerar com amostra pequena.</p></details>';
+    }
+    var feitas = cfg.hist.filter(function (x) { return x.ok !== null && x.sym === item.sym; });
+    if (feitas.length) {
+      var ac = feitas.filter(function (x) { return x.ok; }).length;
+      h += '<p class="pa-acerto">Acerto das análises anteriores em ' + esc(item.nome) + ': <b>' + ac + ' de ' + feitas.length + '</b> (' + pct(ac / feitas.length, 0) + ')</p>';
+    }
+    h += '<p class="pa-nota">Estatística do histórico deste ativo, não garantia nem recomendação de compra ou venda. Use como mais uma leitura dentro do seu plano.</p>' +
+      '<div class="pa-pe"><button type="button" class="pa-ok">Fechar</button></div></div>';
+    bk.innerHTML = h;
+    doc.body.appendChild(bk);
+    function fecha() { if (bk.parentNode) { bk.parentNode.removeChild(bk); } }
+    bk.querySelector('.pa-x').onclick = fecha;
+    bk.querySelector('.pa-ok').onclick = fecha;
+    bk.addEventListener('click', function (e) { if (e.target === bk) { fecha(); } });
+    if (E) {
+      var frase = 'Análise da vela de ' + hora(item.alvo) + ' em ' + item.nome + ': ' + Math.round((E.prob >= 0.5 ? E.prob : 1 - E.prob) * 100) +
+        ' por cento de chance de fechar em ' + (E.prob >= 0.5 ? 'alta' : 'baixa') + ', confiança ' + E.conf + '.';
+      fala(frase);
+    }
+  }
+
+  function fala(t) {
+    try {
+      var p = JSON.parse(global.localStorage.getItem('mx360.psico.v1') || 'null');
+      if (!p || !p.voz || !global.speechSynthesis) { return; }
+      var u = new global.SpeechSynthesisUtterance(t);
+      u.lang = 'pt-BR';
+      global.speechSynthesis.cancel();
+      global.speechSynthesis.speak(u);
+    } catch (e) {}
+  }
+
+  /* ========================================================== agenda */
+
+  function proxima() {
+    if (!cfg.ativo) { return null; }
+    var agora = new Date(), c, i;
+    if (cfg.modo === 'hora') {
+      c = new Date(agora);
+      c.setSeconds(0, 0);
+      c.setMinutes(cfg.minuto);
+      if (c <= agora) { c.setHours(c.getHours() + 1); }
+      return c;
+    }
+    var hs = cfg.horarios.slice().sort(), melhor = null;
+    for (i = 0; i < hs.length; i++) {
+      c = new Date(agora);
+      c.setHours(+hs[i].slice(0, 2), +hs[i].slice(3, 5), 0, 0);
+      if (c <= agora) { c.setDate(c.getDate() + 1); }
+      if (!melhor || c < melhor) { melhor = c; }
+    }
+    return melhor;
+  }
+  function chave(d) { return d.getFullYear() + '-' + pad(d.getMonth() + 1) + '-' + pad(d.getDate()) + ' ' + hhmm(d); }
+  function tique() {
+    if (!cfg.ativo || rodando) { return; }
+    var d = new Date(), k = chave(d), bate;
+    if (cfg.ultimo === k) { return; }
+    bate = cfg.modo === 'hora' ? d.getMinutes() === cfg.minuto : cfg.horarios.indexOf(hhmm(d)) >= 0;
+    if (!bate) { return; }
+    cfg.ultimo = k;
+    salva();
+    analisa('agenda');
+  }
+
+  /* ===================================================== tela no PsicoTrader */
+
+  function montaSec() {
+    var pane = $('pane_agent'), rp = pane && pane.querySelector('.rp');
+    if (!rp || sec) { return; }
+    sec = doc.createElement('section');
+    sec.className = 'pa-sec';
+    sec.innerHTML =
+      '<h4>ANÁLISE AUTOMÁTICA H1</h4>' +
+      '<p class="pa-sub">Nos horários escolhidos, o PsicoTrader aplica o perfil de volume nas últimas 8 velas H1, liga cada indicador no gráfico, troca os tempos gráficos e traz a probabilidade da próxima vela H1 com base no histórico do ativo.</p>' +
+      '<div class="pt-voz"><span>Análise automática</span><button type="button" data-k="ativo"></button></div>' +
+      '<label class="pa-l">Quando rodar<select data-k="modo"><option value="hora">Toda hora, no minuto escolhido</option><option value="horarios">Só nos horários escolhidos</option></select></label>' +
+      '<label class="pa-l" data-so="hora">Minuto da hora<input data-k="minuto" type="number" min="0" max="59" step="1"></label>' +
+      '<div class="pa-l" data-so="horarios"><span>Horários</span><div class="pa-hrs" data-k="hrs"></div>' +
+      '<div class="pa-add"><input type="time" data-k="novo" value="10:00"><button type="button" data-k="add">Adicionar</button></div></div>' +
+      '<label class="pa-l">Velocidade no gráfico<select data-k="vel"><option value="rapida">Rápida</option><option value="normal">Normal</option><option value="lenta">Lenta</option></select></label>' +
+      '<p class="pa-prox" data-k="prox"></p>' +
+      '<button type="button" class="pa-agora" data-k="agora">Analisar agora</button>' +
+      '<h4>ÚLTIMAS ANÁLISES</h4><p class="pa-sub" data-k="acerto"></p><ul class="pa-lista" data-k="lista"></ul>' +
+      '<p class="pa-sub">Roda enquanto a plataforma estiver aberta neste aparelho, no ativo que estiver no gráfico.</p>';
+    rp.appendChild(sec);
+
+    var bAtivo = sec.querySelector('[data-k="ativo"]');
+    bAtivo.onclick = function () {
+      cfg.ativo = !cfg.ativo;
+      if (cfg.ativo) { cfg.ultimo = chave(new Date()); }   /* não dispara no mesmo minuto em que foi ligada */
+      salva(); pintaSec();
+      toast(cfg.ativo ? 'Análise automática ligada.' : 'Análise automática desligada.');
+    };
+    var sm = sec.querySelector('[data-k="modo"]');
+    sm.onchange = function () { cfg.modo = sm.value; salva(); pintaSec(); };
+    var mi = sec.querySelector('[data-k="minuto"]');
+    mi.onchange = function () { cfg.minuto = Math.max(0, Math.min(59, Math.round(+mi.value || 0))); salva(); pintaSec(); };
+    var sv = sec.querySelector('[data-k="vel"]');
+    sv.onchange = function () { cfg.vel = sv.value; salva(); };
+    sec.querySelector('[data-k="add"]').onclick = function () {
+      var v = sec.querySelector('[data-k="novo"]').value;
+      if (/^\d\d:\d\d$/.test(v) && cfg.horarios.indexOf(v) < 0 && cfg.horarios.length < 24) { cfg.horarios.push(v); cfg.horarios.sort(); salva(); pintaSec(); }
+    };
+    sec.querySelector('[data-k="agora"]').onclick = function () { analisa('manual'); };
+    pintaSec();
+  }
+
+  function pintaSec() {
+    if (!sec) { return; }
+    var b = sec.querySelector('[data-k="ativo"]');
+    b.setAttribute('aria-pressed', String(cfg.ativo));
+    b.textContent = cfg.ativo ? 'Ligada' : 'Desligada';
+    sec.querySelector('[data-k="modo"]').value = cfg.modo;
+    var mi = sec.querySelector('[data-k="minuto"]');
+    if (doc.activeElement !== mi) { mi.value = cfg.minuto; }
+    sec.querySelector('[data-k="vel"]').value = cfg.vel;
+    Array.prototype.forEach.call(sec.querySelectorAll('[data-so]'), function (e) { e.hidden = e.getAttribute('data-so') !== cfg.modo; });
+    var hrs = sec.querySelector('[data-k="hrs"]');
+    hrs.innerHTML = cfg.horarios.length ? cfg.horarios.map(function (h) {
+      return '<span>' + h + '<button type="button" data-h="' + h + '" aria-label="Tirar ' + h + '">×</button></span>';
+    }).join('') : '<em>Nenhum horário ainda.</em>';
+    Array.prototype.forEach.call(hrs.querySelectorAll('[data-h]'), function (x) {
+      x.onclick = function () { cfg.horarios = cfg.horarios.filter(function (h) { return h !== x.getAttribute('data-h'); }); salva(); pintaSec(); };
+    });
+    var p = proxima(), pr = sec.querySelector('[data-k="prox"]');
+    pr.textContent = cfg.ativo ? (p ? 'Próxima análise: ' + (p.toDateString() === new Date().toDateString() ? 'hoje' : 'amanhã') + ' às ' + hhmm(p) : 'Escolha pelo menos um horário.') : 'Desligada: só roda pelo botão.';
+    var feitas = cfg.hist.filter(function (x) { return x.ok !== null; }), ac = feitas.filter(function (x) { return x.ok; }).length;
+    sec.querySelector('[data-k="acerto"]').textContent = feitas.length ? 'Acerto até aqui: ' + ac + ' de ' + feitas.length + ' (' + pct(ac / feitas.length, 0) + ')' : '';
+    var ul = sec.querySelector('[data-k="lista"]');
+    ul.innerHTML = cfg.hist.length ? cfg.hist.slice(0, 10).map(function (h, i) {
+      var st = h.ok === null ? (h.alvo + H > Date.now() ? '<i class="pa-esp">aguardando</i>' : '<i class="pa-esp">a conferir</i>') : h.ok ? '<i class="pa-ac">acertou</i>' : '<i class="pa-er">errou</i>';
+      return '<li><button type="button" data-i="' + i + '"><b>' + hora(h.alvo) + ' · ' + esc(h.nome) + '</b><span data-d="' + (h.dir > 0 ? 'up' : h.dir < 0 ? 'down' : 'flat') + '">' +
+        (h.p == null ? 'sem estatística' : (h.dir > 0 ? '▲ alta ' : '▼ baixa ') + pct(h.dir > 0 ? h.p : 1 - h.p, 0)) + '</span>' + st + '</button></li>';
+    }).join('') : '<li class="pa-vazio">Nenhuma análise ainda.</li>';
+    Array.prototype.forEach.call(ul.querySelectorAll('[data-i]'), function (x) { x.onclick = function () { mostra(cfg.hist[+x.getAttribute('data-i')]); }; });
+  }
+
+  function inicia() {
+    le();
+    var tenta = 0;
+    (function espera2() {
+      if ($('pane_agent') && $('pane_agent').querySelector('.rp')) { montaSec(); return; }
+      if (tenta++ < 40) { global.setTimeout(espera2, 250); }
+    })();
+    global.clearInterval(relogio);
+    relogio = global.setInterval(function () { tique(); pintaSec(); }, 15000);
+    global.setTimeout(conferePendentes, 6000);
+    global.setInterval(conferePendentes, 10 * 60 * 1000);
+    var t = $('tab_agent');
+    if (t) { t.addEventListener('click', function () { pintaSec(); conferePendentes(); }); }
+  }
+
+  global.MXPsicoAnalise = {
+    analisa: analisa,
+    rodando: function () { return !!rodando; },
+    cancela: function () { if (rodando) { rodando.cancelou = true; } },
+    estatistica: estatistica,
+    perfil: perfil,
+    hist: function () { return cfg.hist.slice(); },
+    cfg: function (o) { if (o) { for (var k in o) { if (o.hasOwnProperty(k)) { cfg[k] = o[k]; } } salva(); pintaSec(); } return JSON.parse(JSON.stringify(cfg)); },
+    tique: tique,
+    mostra: function (i) { if (cfg.hist[i || 0]) { mostra(cfg.hist[i || 0]); } }
+  };
+
+  if (doc.readyState === 'loading') { doc.addEventListener('DOMContentLoaded', inicia); } else { inicia(); }
 })(window);
 </script>
 </body>
