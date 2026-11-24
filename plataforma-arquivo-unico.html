@@ -11111,19 +11111,38 @@ Resources:`;for(let t of c){if(!t||typeof t!=`string`)throw Error(`@supabase/aut
   /* texto do desenho: posicao no grafico (esquerda/centro/direita) e na linha (acima/abaixo) */
   function labelOf(P, s, o, g) {
     o = o || {};
-    var tx = o.tx || 'c', ty = o.ty || 'a', ln = null, i;
-    for (i = 0; g && i < g.length; i++) { if (g[i].k === 'l') { ln = g[i]; break; } }
-    if (ln && (P.length <= 2)) {
+    var tx = o.tx || 'c', ty = o.ty === 'b' || o.ty === 'i' ? o.ty : 'a', ln = null, i;
+    var base = { k: 'tt', s: s, size: o.ts || 14, bo: o.tb, it: o.ti, col: o.tc || null, va: ty, ta: tx === 'e' ? 'l' : (tx === 'd' ? 'r' : 'c') };
+    if (linhaTexto(P, g)) {
+      for (i = 0; g && i < g.length; i++) { if (g[i].k === 'l') { ln = g[i]; break; } }
       var a = ln.x1 <= ln.x2 ? { x: ln.x1, y: ln.y1 } : { x: ln.x2, y: ln.y2 }, b = ln.x1 <= ln.x2 ? { x: ln.x2, y: ln.y2 } : { x: ln.x1, y: ln.y1 };
       /* a reta e longa (estendida): usa os pontos clicados para o texto nao sumir fora da tela */
       if (P.length === 2) { a = P[0].x <= P[1].x ? P[0] : P[1]; b = P[0].x <= P[1].x ? P[1] : P[0]; }
       var p = tx === 'e' ? a : (tx === 'd' ? b : { x: (a.x + b.x) / 2, y: (a.y + b.y) / 2 });
-      return TX(p.x + (tx === 'e' ? 4 : (tx === 'd' ? -4 : 0)), p.y + (ty === 'b' ? 16 : -14), s, tx === 'e' ? 'l' : (tx === 'd' ? 'r' : 'c'), { bg: 1, big: 1 });
+      var ang = Math.atan2(b.y - a.y, b.x - a.x);
+      if (ang > Math.PI / 2) { ang -= Math.PI; } else if (ang < -Math.PI / 2) { ang += Math.PI; }
+      return put(base, { x: p.x, y: p.y, rot: ang, dx: tx === 'e' ? 6 : (tx === 'd' ? -6 : 0), gap: 5 });
     }
-    var xs = P.map(function (q) { return q.x; }), ys = P.map(function (q) { return q.y; });
-    var l = Math.min.apply(null, xs), r = Math.max.apply(null, xs), x = tx === 'e' ? l : (tx === 'd' ? r : (l + r) / 2);
-    var y = ty === 'b' ? Math.max.apply(null, ys) + 16 : Math.min.apply(null, ys) - 16;
-    return TX(x, y, s, tx === 'e' ? 'l' : (tx === 'd' ? 'r' : 'c'), { bg: 1, big: 1 });
+    var bx = caixa(g, P);
+    var x = tx === 'e' ? bx.l + 6 : (tx === 'd' ? bx.r - 6 : (bx.l + bx.r) / 2);
+    var y = ty === 'a' ? bx.t - 4 : (ty === 'b' ? bx.b + 4 : (bx.t + bx.b) / 2);
+    return put(base, { x: x, y: y });
+  }
+  /* o texto anda junto com a linha (linhas de 1 ou 2 pontos) ou fica na caixa da forma */
+  function linhaTexto(P, g) {
+    if (!g || P.length > 2) { return false; }
+    for (var i = 0; i < g.length; i++) { if (g[i].k === 'l') { return true; } }
+    return false;
+  }
+  function caixa(g, P) {
+    var xs = [], ys = [];
+    (g || []).forEach(function (s) {
+      if (s.k === 'r') { xs.push(s.x1, s.x2); ys.push(s.y1, s.y2); }
+      else if (s.k === 'e') { xs.push(s.cx - s.rx, s.cx + s.rx); ys.push(s.cy - s.ry, s.cy + s.ry); }
+      else if (s.k === 'p' && s.pts) { s.pts.forEach(function (q) { xs.push(q[0]); ys.push(q[1]); }); }
+    });
+    if (!xs.length) { P.forEach(function (q) { xs.push(q.x); ys.push(q.y); }); }
+    return { l: Math.min.apply(null, xs), r: Math.max.apply(null, xs), t: Math.min.apply(null, ys), b: Math.max.apply(null, ys) };
   }
   /* texto do retangulo: vertical Em cima (fora, acima) / Interior (no meio) / Em baixo (fora, abaixo) e
      horizontal Esquerda / Centro / Direita, sem rotulo, como no TradingView */
@@ -11278,8 +11297,10 @@ Resources:`;for(let t of c){if(!t||typeof t!=`string`)throw Error(`@supabase/aut
         ctx.fillStyle = s.col || col;
         ctx.textAlign = s.ta === 'l' ? 'left' : (s.ta === 'r' ? 'right' : 'center');
         ctx.textBaseline = 'middle';
-        var y0 = s.va === 'a' ? s.y - h0 : (s.va === 'b' ? s.y : s.y - h0 / 2);
-        ls.forEach(function (ln, j) { ctx.fillText(ln, s.x, y0 + lh * j + lh / 2); });
+        var x0 = s.x, yb = s.y, gp = s.gap || 0;
+        if (s.rot != null) { ctx.translate(s.x, s.y); ctx.rotate(s.rot); x0 = s.dx || 0; yb = 0; }
+        var y0 = s.va === 'a' ? yb - gp - h0 : (s.va === 'b' ? yb + gp : yb - h0 / 2);
+        ls.forEach(function (ln, j) { ctx.fillText(ln, x0, y0 + lh * j + lh / 2); });
       } else if (s.k === 'd') {
         ctx.beginPath();
         ctx.arc(s.x, s.y, 3, 0, Math.PI * 2);
@@ -12253,7 +12274,10 @@ Resources:`;for(let t of c){if(!t||typeof t!=`string`)throw Error(`@supabase/aut
     s.appendChild(swatches(o.tc || o.c, function (c) { upd('tc', c); }));
     s = sec(pane, 'Alinhamento do texto');
     r = el('div', 'dw-row dw-al');
-    r.appendChild(escolha('Vertical', o.ty === 'a' || o.ty === 'b' ? o.ty : 'i', [['a', 'Em cima'], ['i', 'Interior'], ['b', 'Em baixo']], function (v) { upd('ty', v); }));
+    var lin = false;
+    try { lin = it.k !== 'rect' && !!it.shape._P && linhaTexto(it.shape._P, T[it.k].geo(it.shape._P, it.pts, it.o, paneSize())); } catch (err) {}
+    var tyv = o.ty === 'a' || o.ty === 'b' || o.ty === 'i' ? o.ty : (it.k === 'rect' ? 'i' : 'a');
+    r.appendChild(escolha('Vertical', tyv, [['a', 'Em cima'], ['i', lin ? 'No meio' : 'Interior'], ['b', 'Em baixo']], function (v) { upd('ty', v); }));
     r.appendChild(escolha('Horizontal', o.tx || 'c', [['e', 'Esquerda'], ['c', 'Centro'], ['d', 'Direita']], function (v) { upd('tx', v); }));
     s.appendChild(r);
     if (focusText) { setTimeout(function () { ta.focus(); }, 30); }
@@ -12345,7 +12369,7 @@ Resources:`;for(let t of c){if(!t||typeof t!=`string`)throw Error(`@supabase/aut
       s = sec(pane, 'Desenho');
       s.appendChild(chk('Travar (não move nem apaga sem querer)', o.lk, function (v) { upd('lk', v ? 1 : 0); }));
       if (!algo) { s.appendChild(el('p', 'dw-nota', 'Esta ferramenta não tem opções avançadas.')); }
-    } else if (dlgTab === 'txt' && it.k === 'rect') {
+    } else if (dlgTab === 'txt' && !t.txt) {
       textoRetUi(pane, it, o, focusText);
     } else if (dlgTab === 'txt') {
       s = sec(pane, t.txt ? 'Texto' : 'Texto personalizável');
