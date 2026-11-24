@@ -3490,6 +3490,52 @@ html.bd-on #bd_trava[aria-pressed="true"],html.bd-on #tool_eye[aria-pressed="tru
   .bd-pop{min-width:210px;max-width:calc(100vw - 60px)}
 }
 </style>
+<style>/* n29 — assinatura da Comunidade VIP */
+.vp-selo{flex:none;display:inline-flex;align-items:center;gap:6px;min-height:36px;padding:0 14px;border-radius:999px;
+  border:1px solid #c99a3c;background:linear-gradient(135deg,#f6d987,#d6a94d 55%,#b8862b);color:#1a1405;font:inherit;font-size:13px;font-weight:700;cursor:pointer;white-space:nowrap}
+.vp-selo[data-on="1"]{background:transparent;border-color:var(--cv-ouro);color:var(--cv-ouro)}
+.vp-selo i{font-style:normal}
+/* cadeado nas capas enquanto não assinou */
+.cvip.vp-travado .cv-abre{position:relative}
+.cvip.vp-travado .cv-abre::after{content:"🔒";position:absolute;top:8px;right:8px;display:grid;place-items:center;width:30px;height:30px;
+  border-radius:50%;background:rgba(0,0,0,.6);font-size:14px;line-height:1;pointer-events:none}
+.cvip.vp-travado .cv-abre:has(.cv-cad)::after{content:none}
+/* tela de assinar */
+.vp-fundo{position:absolute;inset:0;z-index:300;display:grid;place-items:center;padding:16px;background:rgba(0,0,0,.62);
+  backdrop-filter:blur(4px);-webkit-backdrop-filter:blur(4px);animation:vpIn .18s ease-out}
+.vp-fundo[hidden]{display:none}
+@keyframes vpIn{from{opacity:0}to{opacity:1}}
+.vp-card{position:relative;width:min(460px,100%);max-height:calc(100% - 16px);overflow-y:auto;padding:26px 24px 20px;border-radius:18px;
+  background:var(--cv-card);color:var(--cv-ink);border:1px solid var(--cv-bd);box-shadow:0 24px 60px rgba(0,0,0,.45);text-align:left}
+.vp-x{position:absolute;top:12px;right:12px;width:34px;height:34px;border:0;border-radius:50%;background:var(--cv-card2);color:var(--cv-ink);font-size:15px;cursor:pointer}
+.vp-topo{display:flex;align-items:center;gap:8px;margin-bottom:14px}
+.vp-topo img{width:34px;height:34px;object-fit:contain}
+.vp-topo span{font-weight:800;letter-spacing:.04em;font-size:14px}
+.vp-topo i{font-style:normal;font-weight:400;margin-left:3px}
+.vp-topo b{margin-left:6px;padding:2px 8px;border-radius:6px;background:linear-gradient(135deg,#f6d987,#d6a94d 55%,#b8862b);color:#1a1405;font-size:11px}
+.vp-card h2{margin:0 0 6px;font-size:21px;line-height:1.25}
+.vp-sub{margin:0 0 16px;color:var(--cv-mut);font-size:13.5px}
+.vp-preco{display:flex;align-items:baseline;gap:4px;margin:0 0 14px}
+.vp-preco b{font-size:34px;line-height:1;color:var(--cv-ouro)}
+.vp-preco span{color:var(--cv-mut);font-size:15px}
+.vp-lista{list-style:none;margin:0 0 16px;padding:0;display:grid;gap:9px}
+.vp-lista li{display:flex;gap:10px;align-items:flex-start;font-size:14px;line-height:1.4}
+.vp-lista i{flex:none;display:grid;place-items:center;width:20px;height:20px;border-radius:50%;background:rgba(var(--gold-rgb,214,169,77),.18);
+  color:var(--cv-ouro);font-style:normal;font-size:12px;font-weight:800}
+.vp-msg{margin:0 0 12px;padding:10px 12px;border-radius:10px;background:var(--cv-card2);font-size:13px;line-height:1.45}
+.vp-ass{display:block;width:100%;min-height:50px;border:0;border-radius:12px;background:linear-gradient(135deg,#f6d987,#d6a94d 55%,#b8862b);color:#1a1405;font:inherit;
+  font-size:16px;font-weight:800;cursor:pointer;box-shadow:0 8px 22px rgba(0,0,0,.25)}
+.vp-ass:hover{filter:brightness(1.06)}
+.vp-ass[data-sem="1"]{opacity:.75}
+.vp-ja{display:block;width:100%;min-height:44px;margin-top:8px;border:1px solid var(--cv-bd);border-radius:12px;background:none;color:var(--cv-ink);
+  font:inherit;font-size:14px;font-weight:600;cursor:pointer}
+.vp-ja:disabled{opacity:.6;cursor:default}
+.vp-pe{margin:12px 0 0;color:var(--cv-mut);font-size:12.5px;line-height:1.45;text-align:center;word-break:break-word}
+.vp-aviso{position:absolute;left:50%;bottom:24px;z-index:60;transform:translateX(-50%);padding:10px 16px;border-radius:10px;
+  background:#131722;color:#fff;font-size:13.5px;box-shadow:0 8px 24px rgba(0,0,0,.3)}
+@media (max-width:640px){.vp-selo{order:3;min-height:32px;padding:0 12px;font-size:12px}.vp-card{padding:22px 18px 18px}.vp-card h2{font-size:19px}}
+.cvip:has(.vp-fundo:not([hidden])) .cv-suporte{display:none}
+</style>
 </head>
 <body>
 <div class="app">
@@ -22401,6 +22447,189 @@ window.MXLogosMapa = {"0G":"image/admin_mgs_image_upload/20250921/137e9686-843c-
   window.MXBarraDesenho = { grupos: GR, abre: function (id) { var g = GR.filter(function (x) { return x.id === id; })[0]; if (g) { abre(g, btns[g.id]); } }, fecha: fecha };
   if (document.readyState === 'loading') { document.addEventListener('DOMContentLoaded', function () { espera(0); }); } else { espera(0); }
 })();
+</script>
+<script>/* n29 — Assinatura mensal da Comunidade VIP (R$ 197/mês, paga pela Hubla).
+   O aluno vê a vitrine (capas, trilhas e módulos), mas abrir qualquer conteúdo pede a assinatura.
+   Quem decide se a assinatura está ativa é o servidor (tabela assinaturas no Supabase, preenchida
+   só pelos avisos da Hubla); aqui o app apenas pergunta e mostra a tela de assinar.
+   Quando as aulas forem guardadas no servidor, a regra de acesso delas usa a mesma função tem_vip(),
+   então ninguém consegue assistir mexendo no navegador. */
+(function (global) {
+  'use strict';
+  var doc = global.document;
+  /* link do checkout da assinatura na Hubla (Maxwell manda o link e ele entra aqui) */
+  var CHECKOUT = '';
+  var PRECO = 'R$ 197', CICLO = '/mês';
+  var CONTEUDO = '.cv-abre, .cv-res[data-m], .cv-grupo .cv-comprar, .cv-aulas-l li, .cv-trilha';
+  var estado = { ok: null, ate: null, status: '', t: 0, email: '' }, pedindo = null, tela = null;
+
+  function sb() { return global.MXServidor && global.MXServidor.ok ? global.MXServidor.sb : null; }
+  function dono() { try { return !!(global.MXEntrada && global.MXEntrada.admin()); } catch (e) { return false; } }
+  function esc(t) { return String(t == null ? '' : t).replace(/[&<>"]/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]; }); }
+  function data(d) { try { return new Date(d).toLocaleDateString('pt-BR'); } catch (e) { return ''; } }
+
+  /* pergunta ao servidor (guarda a resposta por 1 minuto) */
+  function confere(forca) {
+    if (!forca && estado.ok !== null && Date.now() - estado.t < 60000) { marca(); return Promise.resolve(estado.ok); }
+    if (pedindo) { return pedindo; }
+    var c = sb();
+    if (!c) { estado = { ok: dono(), ate: null, status: dono() ? 'vitalicia' : '', t: Date.now(), email: '' }; marca(); return Promise.resolve(estado.ok); }
+    pedindo = c.auth.getSession().then(function (r) {
+      var s = r && r.data && r.data.session, email = s && s.user ? String(s.user.email || '').toLowerCase() : '';
+      if (!s) { return { ok: false, email: '' }; }
+      return c.from('assinaturas').select('status,valido_ate').eq('email', email).maybeSingle().then(function (q) {
+        var a = q && q.data, ok = !!(a && (a.status === 'vitalicia' || (a.status === 'ativa' && (!a.valido_ate || new Date(a.valido_ate) > new Date()))));
+        return { ok: ok, email: email, ate: a ? a.valido_ate : null, status: a ? a.status : '' };
+      });
+    }).then(function (r) {
+      estado = { ok: !!r.ok, ate: r.ate || null, status: r.status || '', t: Date.now(), email: r.email || '' };
+      return estado.ok;
+    }).catch(function () {
+      estado = { ok: false, ate: null, status: 'erro', t: Date.now(), email: estado.email };
+      return false;
+    }).then(function (v) { pedindo = null; marca(); return v; });
+    return pedindo;
+  }
+
+  /* selo no topo da Comunidade + cadeado nas capas */
+  function marca() {
+    var cx = doc.querySelector('.cvip');
+    if (!cx) { return; }
+    cx.classList.toggle('vp-travado', estado.ok === false);
+    cx.classList.toggle('vp-liberado', estado.ok === true);
+    var topo = cx.querySelector('.cv-topo'), selo = cx.querySelector('.vp-selo');
+    if (!topo) { return; }
+    if (!selo) {
+      selo = doc.createElement('button');
+      selo.type = 'button';
+      selo.className = 'vp-selo';
+      var af = topo.querySelector('.cv-afil');
+      topo.insertBefore(selo, af ? af.nextSibling : topo.children[1] || null);
+    }
+    if (estado.ok) {
+      selo.innerHTML = '<i aria-hidden="true">★</i>' + (estado.status === 'vitalicia' ? 'VIP vitalício' : 'VIP ativo');
+      selo.title = estado.ate && estado.status !== 'vitalicia' ? 'Acesso liberado até ' + data(estado.ate) : 'Acesso liberado';
+      selo.setAttribute('data-on', '1');
+    } else {
+      selo.innerHTML = '<i aria-hidden="true">🔒</i>Assinar VIP';
+      selo.title = 'Assinar a Comunidade VIP';
+      selo.setAttribute('data-on', '0');
+    }
+  }
+
+  /* tela de assinatura */
+  function abreTela(msg) {
+    var cx = doc.querySelector('.cvip');
+    if (!cx) { return; }
+    if (!tela) {
+      tela = doc.createElement('div');
+      tela.className = 'vp-fundo';
+      tela.setAttribute('role', 'dialog');
+      tela.setAttribute('aria-modal', 'true');
+      tela.setAttribute('aria-label', 'Assinar a Comunidade VIP');
+      tela.addEventListener('click', function (e) {
+        if (e.target === tela || e.target.closest('.vp-x')) { fechaTela(); return; }
+        if (e.target.closest('.vp-ass')) { assina(); return; }
+        if (e.target.closest('.vp-ja')) {
+          var b = e.target.closest('.vp-ja');
+          b.disabled = true;
+          b.textContent = 'Verificando…';
+          confere(true).then(function (ok) {
+            if (ok) { fechaTela(); aviso('Assinatura confirmada. Bom estudo!'); }
+            else { pinta('Ainda não encontramos o pagamento para ' + (estado.email || 'este e-mail') + '. Se acabou de pagar, espere 1 minuto e toque de novo.'); }
+          });
+        }
+      });
+    }
+    cx.appendChild(tela);
+    pinta(msg);
+    tela.hidden = false;
+    var b = tela.querySelector('.vp-ass');
+    if (b) { setTimeout(function () { try { b.focus(); } catch (e) {} }, 30); }
+  }
+  function pinta(msg) {
+    var semLogin = !sb() || estado.email === '';
+    tela.innerHTML =
+      '<div class="vp-card">' +
+      '<button type="button" class="vp-x" aria-label="Fechar">✕</button>' +
+      '<div class="vp-topo"><img src="capas/logo-mx.png" alt=""><span>MX<i>COMUNIDADE</i> <b>VIP</b></span></div>' +
+      '<h2>Libere todo o conteúdo da Comunidade VIP</h2>' +
+      '<p class="vp-sub">Assinatura mensal. Cancele quando quiser, direto pela Hubla.</p>' +
+      '<div class="vp-preco"><b>' + esc(PRECO) + '</b><span>' + esc(CICLO) + '</span></div>' +
+      '<ul class="vp-lista">' +
+      ['Todos os módulos BASE: Dow, Análise Técnica, Fibonacci, Price Action, SMC, Elliott e Wyckoff',
+        'Mentoria MX360° 2026 completa', 'Trade ao vivo e Sala ao vivo no Zoom com a comunidade',
+        'Grupo no Discord com análises, volume e sinais', 'Novas aulas todo mês, sem pagar a mais'].map(function (t) {
+        return '<li><i aria-hidden="true">✓</i>' + esc(t) + '</li>';
+      }).join('') + '</ul>' +
+      (msg ? '<p class="vp-msg" role="status">' + esc(msg) + '</p>' : '') +
+      '<button type="button" class="vp-ass"' + (CHECKOUT ? '' : ' data-sem="1"') + '>Assinar por ' + esc(PRECO) + esc(CICLO) + '</button>' +
+      '<button type="button" class="vp-ja">Já assinei — verificar meu acesso</button>' +
+      '<p class="vp-pe">' + (semLogin
+        ? 'Entre na plataforma com a sua conta para a assinatura ficar ligada a você.'
+        : 'Pague com o mesmo e-mail do seu login (<b>' + esc(estado.email) + '</b>). O acesso libera sozinho em até 1 minuto depois do pagamento.') +
+      '</p></div>';
+  }
+  function fechaTela() { if (tela) { tela.hidden = true; } }
+  function aviso(t) {
+    var cx = doc.querySelector('.cvip');
+    if (!cx) { return; }
+    var a = doc.createElement('div');
+    a.className = 'vp-aviso';
+    a.setAttribute('role', 'status');
+    a.textContent = t;
+    cx.appendChild(a);
+    setTimeout(function () { a.remove(); }, 3200);
+  }
+  function assina() {
+    if (!CHECKOUT) {
+      pinta(dono() ? 'Falta colocar o link do checkout da Hubla. Mande o link para ser ligado ao botão.' : 'O checkout está sendo preparado. Tente de novo em breve.');
+      return;
+    }
+    var u = CHECKOUT;
+    if (estado.email) { u += (u.indexOf('?') >= 0 ? '&' : '?') + 'email=' + encodeURIComponent(estado.email); }
+    global.open(u, '_blank', 'noopener');
+    pinta('Depois de pagar, volte aqui e toque em "Já assinei". O acesso libera em até 1 minuto.');
+  }
+
+  /* trava: qualquer toque num conteúdo passa por aqui primeiro */
+  var soltando = false;
+  doc.addEventListener('click', function (e) {
+    if (soltando) { return; }
+    var cx = e.target.closest ? e.target.closest('.cvip') : null;
+    if (!cx) { return; }
+    if (e.target.closest('.vp-selo')) { e.preventDefault(); if (estado.ok) { aviso(estado.status === 'vitalicia' ? 'Seu acesso é vitalício.' : 'Assinatura ativa' + (estado.ate ? ' até ' + data(estado.ate) : '') + '.'); } else { abreTela(); } return; }
+    var alvo = e.target.closest(CONTEUDO);
+    if (!alvo || e.target.closest('.cv-troca') || e.target.closest('.vp-fundo')) { return; }
+    if (estado.ok === true && Date.now() - estado.t < 60000) { return; }
+    e.preventDefault();
+    e.stopPropagation();
+    confere(false).then(function (ok) {
+      if (ok) { soltando = true; try { alvo.click(); } finally { soltando = false; } }
+      else { abreTela(); }
+    });
+  }, true);
+  doc.addEventListener('keydown', function (e) { if (e.key === 'Escape' && tela && !tela.hidden) { e.stopPropagation(); fechaTela(); } }, true);
+
+  /* quando a Comunidade abre, já pergunta (e marca as capas) */
+  var vigia = setInterval(function () {
+    var cx = doc.querySelector('.cvip');
+    if (!cx) { return; }
+    clearInterval(vigia);
+    new global.MutationObserver(function () {
+      if (!cx.hidden) { confere(false); marca(); }
+    }).observe(cx, { attributes: true, attributeFilter: ['hidden'], childList: true, subtree: false });
+    if (!cx.hidden) { confere(false); marca(); }
+  }, 400);
+  global.addEventListener('mx360:admin', function () { estado.t = 0; });
+
+  global.MXVip = {
+    confere: confere,
+    estado: function () { return { ok: estado.ok, ate: estado.ate, status: estado.status, email: estado.email }; },
+    assinar: function () { abreTela(); },
+    preco: PRECO + CICLO
+  };
+})(window);
 </script>
 </body>
 </html>
