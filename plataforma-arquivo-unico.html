@@ -2428,6 +2428,24 @@ html[data-ct="0"] .ct-chip,html[data-ct="0"] .ct-seg,html[data-ct="0"] .cc-passo
 .dw-int{display:flex;align-items:center;gap:10px}
 .dw-int input[type="range"]{flex:1;accent-color:var(--gold)}
 .dw-int b{min-width:42px;text-align:right;font-variant-numeric:tabular-nums}
+/* Fibonacci no estilo do TradingView */
+.dw-fib{display:grid;gap:10px}
+.dw-fr{display:flex;align-items:center;gap:8px;flex-wrap:wrap;min-height:34px}
+.dw-fl{flex:0 0 132px;color:var(--text);font-size:13.5px}
+.dw-fr select{min-height:34px;padding:0 8px;border:1px solid rgba(var(--ink-rgb),.16);border-radius:8px;background:rgba(var(--bg-rgb),.6);color:var(--text);font:inherit;font-size:13px;max-width:200px}
+.dw-fr select:disabled{opacity:.45}
+.dw-fck{flex:0 0 auto;min-width:132px;font-size:13.5px}
+.dw-fcor{width:34px;height:30px;padding:2px;border:1px solid rgba(var(--ink-rgb),.16);border-radius:6px;background:none;cursor:pointer}
+.dw-fcor:disabled{opacity:.35;cursor:default}
+.dw-fibg{display:grid;grid-template-columns:1fr 1fr;gap:8px 18px;padding:4px 0 6px}
+.dw-fibc{display:flex;align-items:center;gap:7px;min-width:0}
+.dw-fibc input[type="checkbox"]{flex:none;width:17px;height:17px;accent-color:var(--gold)}
+.dw-fibc input[type="number"]{flex:1;min-width:0;width:70px;height:32px;padding:0 8px;border:1px solid rgba(var(--ink-rgb),.16);border-radius:7px;background:rgba(var(--bg-rgb),.6);color:var(--text);font:inherit;font-size:13px}
+.dw-fibc.dw-off input[type="number"]{opacity:.5}
+.dw-fibc.dw-off .dw-fcor{opacity:.45}
+.dw-fr .dw-int{display:flex!important;align-items:center;flex:1;min-width:160px;max-width:none}
+.dw-fr .dw-int input[type="range"]{min-width:0}
+@media (max-width:520px){.dw-fl{flex-basis:100%}.dw-fibg{gap:8px 10px}}
 </style>
 <style>/* aviso de rede bloqueada: o aluno precisa saber que aqueles candles nao sao o mercado */
 #mxBloqueio{position:absolute;left:50%;top:14px;transform:translateX(-50%);z-index:40;display:flex;
@@ -11295,6 +11313,131 @@ Resources:`;for(let t of c){if(!t||typeof t!=`string`)throw Error(`@supabase/aut
     return out;
   };
 
+  /* ---------- Fibonacci no estilo do TradingView (retração, extensão por tendência e canal) ----------
+     o.nv: [{ v, on, c }] (24 níveis com cor própria), o.uc usar uma cor, o.tl/o.tlc/o.td linha de tendência,
+     o.xe estender (n/e/d/a), o.rv reverter, o.pr preços, o.nl níveis + o.nm (p porcentagem / v valores),
+     o.lh/o.lvv legendas (e/c/d e a/m/b), o.lf tamanho da fonte, o.lg escala log; o.f + o.fo fundo */
+  var FIBX = { fib: 1, fibext: 1, fibch: 1 };
+  var FIB_V = [0, 0.236, 0.382, 0.5, 0.618, 0.786, 1, 1.618, 2.618, 3.618, 4.236, 1.272, 1.414, 2.272, 2.414, 2, 3, 3.272, 3.414, 4, 4.272, 4.414, 4.618, 4.764];
+  var FIB_CH_V = [0, -0.27, 0.382, 0.5, 0.618, 0.786, 1, 1.618, 2.618, 3.618, 4.236, -0.618, 1.414, -1, 2.414, 2, 3, -2.618, -3.618, 4, -4.618, 4.414, 4.618, 4.764];
+  var FIB_COR = { '0': '#787b86', '0.236': '#f23645', '0.382': '#ff9800', '0.5': '#4caf50', '0.618': '#089981', '0.786': '#00bcd4', '1': '#787b86',
+    '1.618': '#2962ff', '2.618': '#f23645', '3.618': '#9c27b0', '4.236': '#e91e63', '1.272': '#ff9800', '1.414': '#f23645', '2.272': '#ff9800',
+    '2.414': '#4caf50', '2': '#089981', '3': '#00bcd4', '3.272': '#787b86', '3.414': '#2962ff', '4': '#f23645', '4.272': '#9c27b0',
+    '4.414': '#e91e63', '4.618': '#ff9800', '4.764': '#089981', '-0.27': '#787b86', '-0.618': '#f23645', '-1': '#787b86', '-2.618': '#9c27b0',
+    '-3.618': '#2962ff', '-4.618': '#e91e63' };
+  function fibNv(k, o) {
+    if (Array.isArray(o.nv) && o.nv.length) { return o.nv; }
+    var base = k === 'fibch' ? FIB_CH_V : FIB_V, liga = lvs(o, T[k].lv), out = base.map(function (v) {
+      return { v: v, on: liga.indexOf(v) >= 0 ? 1 : 0, c: FIB_COR[String(v)] || '#787b86' };
+    });
+    liga.forEach(function (v) { if (base.indexOf(v) < 0) { out.push({ v: v, on: 1, c: '#787b86' }); } });
+    return out;
+  }
+  function fibUc(o) { return o.uc == null ? !(Array.isArray(o.nv) && o.nv.length) : !!o.uc; }
+  function fibRot(o, v, price) {
+    var nl = o.nl == null ? 1 : o.nl, pr = o.pr == null ? 1 : o.pr, a = '';
+    if (nl) { a = o.nm === 'p' ? (Math.round(v * 1000) / 10).toString().replace('.', ',') + '%' : fl(v); }
+    if (pr && price != null && isFinite(price)) { a = a ? a + ' (' + fmt(price) + ')' : fmt(price); }
+    return a;
+  }
+  function fibLh(o) { return o.lh || (o.sd === 'r' ? 'd' : 'e'); }
+  function fibLeg(o, l, r, y, txt, col, w) {
+    var lh = fibLh(o), lv = o.lvv || 'm', x, ta;
+    var cabe = String(txt).length * (o.lf || 12) * 0.6 + 10;   /* se a legenda nao cabe do lado de fora, fica por dentro */
+    if (lh === 'e') { x = l > cabe ? l - 6 : l + 4; ta = l > cabe ? 'r' : 'l'; }
+    else if (lh === 'd') { x = r < w - cabe ? r + 6 : r - 4; ta = r < w - cabe ? 'l' : 'r'; }
+    else { x = (l + r) / 2; ta = 'c'; }
+    return { k: 'tt', x: x, y: y, s: txt, ta: ta, va: lv === 'a' ? 'a' : (lv === 'b' ? 'b' : 'm'), gap: 2, size: o.lf || 12, col: col };
+  }
+  function fibTexto(o, l, r, t, b) {
+    if (!o.s) { return null; }
+    var tx = o.tx || 'c', ty = o.ty === 'b' ? 'b' : (o.ty === 'i' || o.ty === 'm' ? 'm' : 'a');
+    return { k: 'tt', x: tx === 'e' ? l + 4 : (tx === 'd' ? r - 4 : (l + r) / 2), y: ty === 'a' ? t - 4 : (ty === 'b' ? b + 4 : (t + b) / 2), s: o.s,
+      ta: tx === 'e' ? 'l' : (tx === 'd' ? 'r' : 'c'), va: ty, size: o.ts || 14, bo: o.tb, it: o.ti, col: o.tc || null };
+  }
+  function fibPreco(o, a, b, k) {
+    if (o.lg && a > 0 && b > 0) { return Math.exp(Math.log(a) + (Math.log(b) - Math.log(a)) * k); }
+    return a + (b - a) * k;
+  }
+  function fibTend(o, p, q) {
+    if (o.tl === 0) { return null; }
+    return L(p, q, 0, { dash: (DASHES[o.td == null ? 1 : o.td] || []).slice(), w: 1, col: o.tlc || '#787b86' });
+  }
+  /* níveis horizontais (retração e extensão) entre l e r */
+  function fibHoriz(k, o, l0, r0, base, alvo, e) {
+    var uc = fibUc(o), out = [], lv = [], w = e && e.w ? e.w : 2000, l = l0, r = r0, i;
+    if (o.xe === 'e' || o.xe === 'a') { l = 0; }
+    if (o.xe === 'd' || o.xe === 'a') { r = w; }
+    fibNv(k, o).forEach(function (n) {
+      if (!n.on) { return; }
+      var price = fibPreco(o, base, alvo, n.v), y = api.yOfPrice(price);
+      if (ok(y)) { lv.push({ v: n.v, price: price, y: y, c: uc ? o.c : n.c }); }
+    });
+    lv.sort(function (a, b) { return a.v - b.v; });
+    if (o.f) {
+      for (i = 0; i + 1 < lv.length; i++) { out.push(RC({ x: l, y: lv[i].y }, { x: r, y: lv[i + 1].y }, { fill: 1, ns: 1, col: lv[i + 1].c })); }
+    }
+    lv.forEach(function (v) {
+      out.push(L({ x: l, y: v.y }, { x: r, y: v.y }, 0, { col: v.c }));
+      var t = fibRot(o, v.v, v.price);
+      if (t) { out.push(fibLeg(o, l, r, v.y, t, v.c, w)); }
+    });
+    var ys = lv.map(function (v) { return v.y; });
+    out.push({ caixa: ys.length ? { l: l0, r: r0, t: Math.min.apply(null, ys), b: Math.max.apply(null, ys) } : null });
+    return out;
+  }
+  function fibFim(out, o, P) {
+    var cx = null, g = out.filter(function (s) { if (s && s.caixa !== undefined) { cx = s.caixa; return false; } return !!s; });
+    if (cx) { var tt = fibTexto(o, cx.l, cx.r, cx.t, cx.b); if (tt) { g.push(tt); } }
+    return g;
+  }
+  T.fib.geo = function (P, A, o, e) {
+    var l = Math.min(P[0].x, P[1].x), r = Math.max(P[0].x, P[1].x), a = A[1].p, b = A[0].p;
+    if (o.rv) { a = A[0].p; b = A[1].p; }
+    var out = fibHoriz('fib', o, l, r, a, b, e);
+    out.push(fibTend(o, P[0], P[1]));
+    return fibFim(out, o, P);
+  };
+  T.fibext.geo = function (P, A, o, e) {
+    var xs = [P[0].x, P[1].x, P[2].x], r = Math.max.apply(null, xs), r2 = r + Math.max(60, (r - Math.min.apply(null, xs)) * 0.3), base = A[2].p, d = A[1].p - A[0].p;
+    if (o.rv) { d = -d; }
+    var alvo = o.lg && base > 0 && A[1].p > 0 && A[0].p > 0 ? base * (o.rv ? A[0].p / A[1].p : A[1].p / A[0].p) : base + d;
+    var out = fibHoriz('fibext', o, P[2].x, r2, base, alvo, e);
+    out.push(fibTend(o, P[0], P[1]), fibTend(o, P[1], P[2]));
+    return fibFim(out, o, P);
+  };
+  T.fibch.geo = function (P, A, o, e) {
+    var uc = fibUc(o), out = [], dx = P[1].x - P[0].x, dy = P[1].y - P[0].y, t = dx ? (P[2].x - P[0].x) / dx : 0, off = P[2].y - (P[0].y + dy * t), w = e && e.w ? e.w : 2000;
+    var esq = P[0].x <= P[1].x ? 0 : 1, K = 40, ln = [];
+    fibNv('fibch', o).forEach(function (n) {
+      if (!n.on) { return; }
+      var a = { x: P[0].x, y: P[0].y + off * n.v }, b = { x: P[1].x, y: P[1].y + off * n.v }, lp = esq ? b : a, rp = esq ? a : b;
+      var ddx = rp.x - lp.x, ddy = rp.y - lp.y, L0 = lp, R0 = rp;
+      if (o.xe === 'e' || o.xe === 'a') { L0 = { x: lp.x - ddx * K, y: lp.y - ddy * K }; }
+      if (o.xe === 'd' || o.xe === 'a') { R0 = { x: rp.x + ddx * K, y: rp.y + ddy * K }; }
+      ln.push({ v: n.v, l: L0, r: R0, lp: lp, rp: rp, c: uc ? o.c : n.c });
+    });
+    ln.sort(function (a, b) { return a.v - b.v; });
+    if (o.f) {
+      for (var i = 0; i + 1 < ln.length; i++) {
+        out.push(PL([ln[i].l, ln[i].r, ln[i + 1].r, ln[i + 1].l], { close: 1, fill: 1, ns: 1, col: ln[i + 1].c }));
+      }
+    }
+    ln.forEach(function (s) {
+      out.push(L(s.l, s.r, 0, { col: s.c }));
+      var lh = fibLh(o), p = lh === 'e' ? s.lp : (lh === 'd' ? s.rp : { x: (s.lp.x + s.rp.x) / 2, y: (s.lp.y + s.rp.y) / 2 });
+      var txt = fibRot(o, s.v, o.pr ? api.priceAtY(p.y) : null);
+      if (txt) { out.push(fibLeg(o, p.x, p.x, p.y, txt, s.c, w)); }
+    });
+    var ys = [], xs = [];
+    ln.forEach(function (s) { ys.push(s.lp.y, s.rp.y); xs.push(s.lp.x, s.rp.x); });
+    if (ys.length) { out.push({ caixa: { l: Math.min.apply(null, xs), r: Math.max.apply(null, xs), t: Math.min.apply(null, ys), b: Math.max.apply(null, ys) } }); }
+    return fibFim(out, o, P);
+  };
+  T.fib.o = { sd: 'l', uc: 0, f: 1, fo: 0.12, w: 1 };
+  T.fibext.o = { sd: 'l', uc: 0, f: 1, fo: 0.12, w: 1 };
+  T.fibch.o = { sd: 'r', uc: 0, f: 1, fo: 0.12, w: 1, pr: 0, xe: 'd' };
+
   /* ---------- pintura ---------- */
   function rrect(ctx, x, y, w, h, r) {
     ctx.beginPath();
@@ -11448,7 +11591,7 @@ Resources:`;for(let t of c){if(!t||typeof t!=`string`)throw Error(`@supabase/aut
       try {
         var g = T[it.k].geo(self._P, it.pts, it.o, e);
         estende(g, it);
-        if (it.o.s && !T[it.k].txt) { g.push(it.k === 'rect' ? textoRet(self._P, it.o, e) : labelOf(self._P, it.o.s, it.o, g)); }
+        if (it.o.s && !T[it.k].txt && !FIBX[it.k]) { g.push(it.k === 'rect' ? textoRet(self._P, it.o, e) : labelOf(self._P, it.o.s, it.o, g)); }
         paint(ctx, g, it.o, self.selected, e);
         if (self.selected || (pend && pend.it === it)) { drawHandles(ctx, handles(it, self._P)); }
       } catch (err) { /* um desenho com defeito nao pode derrubar o grafico */ }
@@ -12281,6 +12424,118 @@ Resources:`;for(let t of c){if(!t||typeof t!=`string`)throw Error(`@supabase/aut
     }));
     sc.appendChild(add);
   }
+  /* aba Aparência dos Fibonacci no estilo do TradingView: linha de tendência, linhas de nível,
+     estender, 24 níveis (marcar, valor e cor), usar uma cor, fundo + intensidade, reverter, preços,
+     níveis (valores ou porcentagem), legendas, texto, tamanho da fonte e escala log */
+  function fibUi(pane, it, o) {
+    var k = it.k, s, r, nv = fibNv(k, o).map(function (n) { return { v: n.v, on: n.on ? 1 : 0, c: n.c }; });
+    function gravaNv() { upd('nv', nv.map(function (n) { return { v: n.v, on: n.on, c: n.c }; })); if (it.o.uc == null) { upd('uc', 0); } }
+    function linha(rot) { var w = el('div', 'dw-fr'); w.appendChild(el('span', 'dw-fl', rot)); return w; }
+    function sel(val, ops, fn, rot) {
+      var x = el('select');
+      ops.forEach(function (q) { var op = el('option', '', q[1]); op.value = q[0]; x.appendChild(op); });
+      x.value = val;
+      if (rot) { x.setAttribute('aria-label', rot); }
+      x.addEventListener('change', function () { fn(x.value); save(); renderDlg(); });
+      return x;
+    }
+    function caixa(rot, on, fn) {
+      var l = el('label', 'dw-ck dw-fck'), c = el('input');
+      c.type = 'checkbox';
+      c.checked = !!on;
+      c.addEventListener('change', function () { fn(c.checked); save(); renderDlg(); });
+      l.appendChild(c);
+      l.appendChild(el('span', '', rot));
+      return l;
+    }
+    function cor(val, fn, rot) {
+      var c = el('input');
+      c.type = 'color';
+      c.className = 'dw-fcor';
+      c.value = /^#[0-9a-f]{6}$/i.test(val) ? val : '#787b86';
+      c.setAttribute('aria-label', rot);
+      c.addEventListener('input', function () { fn(c.value); });
+      c.addEventListener('change', save);
+      return c;
+    }
+    var ESP = [['1', '1 px'], ['2', '2 px'], ['3', '3 px'], ['4', '4 px']], EST = [['0', 'Contínua'], ['1', 'Tracejada'], ['2', 'Pontilhada']];
+    s = sec(pane, '');
+    s.classList.add('dw-fib');
+    if (k !== 'fibch') {
+      r = linha('');
+      r.firstChild.remove();
+      r.appendChild(caixa('Linha de tendência', o.tl !== 0, function (v) { upd('tl', v ? 1 : 0); }));
+      r.appendChild(cor(o.tlc || '#787b86', function (v) { upd('tlc', v); }, 'Cor da linha de tendência'));
+      r.appendChild(sel(String(o.td == null ? 1 : o.td), EST, function (v) { upd('td', +v); }, 'Estilo da linha de tendência'));
+      s.appendChild(r);
+    }
+    r = linha('Linhas de nível');
+    r.appendChild(sel(String(Math.max(1, Math.min(4, o.w || 1))), ESP, function (v) { upd('w', +v); }, 'Espessura das linhas de nível'));
+    r.appendChild(sel(String(o.d || 0), EST, function (v) { upd('d', +v); }, 'Estilo das linhas de nível'));
+    s.appendChild(r);
+    r = linha('Estender');
+    r.appendChild(sel(o.xe || 'n', k === 'fibch'
+      ? [['n', 'Não estender'], ['e', 'Estender à esquerda'], ['d', 'Estender à direita'], ['a', 'Estender para os dois lados']]
+      : [['n', 'Não estender'], ['e', 'Estender linhas à esquerda'], ['d', 'Estender linhas à direita'], ['a', 'Estender para os dois lados']], function (v) { upd('xe', v === 'n' ? '' : v); }, 'Estender'));
+    s.appendChild(r);
+
+    var uc = fibUc(o), g = el('div', 'dw-fibg');
+    nv.forEach(function (n, i) {
+      var c = el('div', 'dw-fibc' + (n.on ? '' : ' dw-off')), ck = el('input'), vi = el('input');
+      ck.type = 'checkbox';
+      ck.checked = !!n.on;
+      ck.setAttribute('aria-label', 'Mostrar nível ' + n.v);
+      ck.addEventListener('change', function () { n.on = ck.checked ? 1 : 0; gravaNv(); save(); renderDlg(); });
+      vi.type = 'number';
+      vi.step = 'any';
+      vi.inputMode = 'decimal';
+      vi.value = String(n.v);
+      vi.setAttribute('aria-label', 'Valor do nível');
+      vi.addEventListener('change', function () { var x = parseFloat(String(vi.value).replace(',', '.')); if (isFinite(x)) { n.v = x; gravaNv(); save(); } });
+      c.appendChild(ck);
+      c.appendChild(vi);
+      var ci = cor(n.c, function (v) { n.c = v; gravaNv(); }, 'Cor do nível ' + n.v);
+      ci.disabled = uc;
+      c.appendChild(ci);
+      g.appendChild(c);
+    });
+    s.appendChild(g);
+
+    r = linha('');
+    r.firstChild.remove();
+    r.appendChild(caixa('Usar uma cor', uc, function (v) { upd('uc', v ? 1 : 0); if (!v && !(Array.isArray(it.o.nv) && it.o.nv.length)) { gravaNv(); upd('uc', 0); } }));
+    if (uc) { r.appendChild(cor(o.c, function (v) { upd('c', v); }, 'Cor única dos níveis')); }
+    s.appendChild(r);
+    r = linha('');
+    r.firstChild.remove();
+    r.appendChild(caixa('Fundo', o.f, function (v) { upd('f', v ? 1 : 0); }));
+    if (o.f) { var iv = intensidade(o); iv.firstChild.remove(); r.appendChild(iv); }
+    s.appendChild(r);
+    if (k !== 'fibch') { s.appendChild(caixa('Reverter', o.rv, function (v) { upd('rv', v ? 1 : 0); })); }
+    s.appendChild(caixa('Preços', k === 'fibch' ? o.pr : o.pr !== 0, function (v) { upd('pr', v ? 1 : 0); }));
+    r = linha('');
+    r.firstChild.remove();
+    r.appendChild(caixa('Níveis', o.nl !== 0, function (v) { upd('nl', v ? 1 : 0); }));
+    var nm = sel(o.nm === 'p' ? 'p' : 'v', [['v', 'Valores'], ['p', 'Porcentagem']], function (v) { upd('nm', v); }, 'Mostrar níveis como');
+    nm.disabled = o.nl === 0;
+    r.appendChild(nm);
+    s.appendChild(r);
+    r = linha('Legendas');
+    r.appendChild(sel(fibLh(o), [['e', 'Esquerda'], ['c', 'Centro'], ['d', 'Direita']], function (v) { upd('lh', v); }, 'Legendas na horizontal'));
+    r.appendChild(sel(o.lvv || 'm', [['a', 'Em cima'], ['m', 'No meio'], ['b', 'Em baixo']], function (v) { upd('lvv', v); }, 'Legendas na vertical'));
+    s.appendChild(r);
+    if (k !== 'fibch') {
+      r = linha('Texto');
+      r.appendChild(sel(o.tx || 'c', [['e', 'Esquerda'], ['c', 'Centro'], ['d', 'Direita']], function (v) { upd('tx', v); }, 'Texto na horizontal'));
+      r.appendChild(sel(o.ty === 'b' ? 'b' : (o.ty === 'i' || o.ty === 'm' ? 'i' : 'a'), [['a', 'Em cima'], ['i', 'No meio'], ['b', 'Em baixo']], function (v) { upd('ty', v); }, 'Texto na vertical'));
+      s.appendChild(r);
+      if (!o.s) { s.appendChild(el('p', 'dw-nota', 'Escreva o texto na aba Texto.')); }
+    }
+    r = linha('Tamanho da fonte');
+    r.appendChild(sel(String(o.lf || 12), [10, 11, 12, 14, 16, 20, 24].map(function (n) { return [String(n), String(n)]; }), function (v) { upd('lf', +v); }, 'Tamanho da fonte das legendas'));
+    s.appendChild(r);
+    if (k !== 'fibch') { s.appendChild(caixa('Níveis de Fibo com base na escala log', o.lg, function (v) { upd('lg', v ? 1 : 0); })); }
+  }
   /* Configuracoes do desenho no estilo do Profit: lista dos desenhos a esquerda e abas
      Aparencia / Configuracoes / Texto / Visibilidade a direita. */
   var dlgTab = 'apar';
@@ -12385,7 +12640,9 @@ Resources:`;for(let t of c){if(!t||typeof t!=`string`)throw Error(`@supabase/aut
     box.appendChild(corpo);
     if (focusText) { dlgTab = 'txt'; abas.querySelectorAll('.dw-aba').forEach(function (b, i) { b.setAttribute('aria-selected', String(i === 2)); }); }
 
-    if (dlgTab === 'apar') {
+    if (dlgTab === 'apar' && FIBX[it.k]) {
+      fibUi(pane, it, o);
+    } else if (dlgTab === 'apar') {
       s = sec(pane, 'Cor da linha');
       s.appendChild(swatches(o.c, function (c) { upd('c', c); }));
       if (!NOLINE[it.k]) {
@@ -12422,8 +12679,8 @@ Resources:`;for(let t of c){if(!t||typeof t!=`string`)throw Error(`@supabase/aut
         s.appendChild(chk('Extensão à direita', o.xr, function (v) { upd('xr', v ? 1 : 0); }));
         s.appendChild(chk('Ponto central', o.pc, function (v) { upd('pc', v ? 1 : 0); }));
       }
-      if (t.lv) { algo = true; s = sec(pane, 'Níveis'); levelsUi(s, it); }
-      if (t.sd) {
+      if (t.lv && !FIBX[it.k]) { algo = true; s = sec(pane, 'Níveis'); levelsUi(s, it); }
+      if (t.sd && !FIBX[it.k]) {
         algo = true;
         s = sec(pane, 'Posição dos rótulos');
         r = el('div', 'dw-row');
