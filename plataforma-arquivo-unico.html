@@ -11361,7 +11361,7 @@ Resources:`;for(let t of c){if(!t||typeof t!=`string`)throw Error(`@supabase/aut
   }
   function fibTend(o, p, q) {
     if (o.tl === 0) { return null; }
-    return L(p, q, 0, { dash: (DASHES[o.td == null ? 1 : o.td] || []).slice(), w: 1, col: o.tlc || '#787b86' });
+    return L(p, q, 0, { dash: (DASHES[o.td == null ? 1 : o.td] || []).slice(), w: 1, col: fibCor(o.tlc || '#787b86') });
   }
   /* níveis horizontais (retração e extensão) entre l e r */
   function fibHoriz(k, o, l0, r0, base, alvo, e) {
@@ -11371,7 +11371,7 @@ Resources:`;for(let t of c){if(!t||typeof t!=`string`)throw Error(`@supabase/aut
     fibNv(k, o).forEach(function (n) {
       if (!n.on) { return; }
       var price = fibPreco(o, base, alvo, n.v), y = api.yOfPrice(price);
-      if (ok(y)) { lv.push({ v: n.v, price: price, y: y, c: uc ? o.c : n.c }); }
+      if (ok(y)) { lv.push({ v: n.v, price: price, y: y, c: fibCor(uc ? o.c : n.c) }); }
     });
     lv.sort(function (a, b) { return a.v - b.v; });
     if (o.f) {
@@ -11415,7 +11415,7 @@ Resources:`;for(let t of c){if(!t||typeof t!=`string`)throw Error(`@supabase/aut
       var ddx = rp.x - lp.x, ddy = rp.y - lp.y, L0 = lp, R0 = rp;
       if (o.xe === 'e' || o.xe === 'a') { L0 = { x: lp.x - ddx * K, y: lp.y - ddy * K }; }
       if (o.xe === 'd' || o.xe === 'a') { R0 = { x: rp.x + ddx * K, y: rp.y + ddy * K }; }
-      ln.push({ v: n.v, l: L0, r: R0, lp: lp, rp: rp, c: uc ? o.c : n.c });
+      ln.push({ v: n.v, l: L0, r: R0, lp: lp, rp: rp, c: fibCor(uc ? o.c : n.c) });
     });
     ln.sort(function (a, b) { return a.v - b.v; });
     if (o.f) {
@@ -11434,9 +11434,36 @@ Resources:`;for(let t of c){if(!t||typeof t!=`string`)throw Error(`@supabase/aut
     if (ys.length) { out.push({ caixa: { l: Math.min.apply(null, xs), r: Math.max.apply(null, xs), t: Math.min.apply(null, ys), b: Math.max.apply(null, ys) } }); }
     return fibFim(out, o, P);
   };
-  T.fib.o = { sd: 'l', uc: 0, f: 1, fo: 0.12, w: 1 };
-  T.fibext.o = { sd: 'l', uc: 0, f: 1, fo: 0.12, w: 1 };
-  T.fibch.o = { sd: 'r', uc: 0, f: 1, fo: 0.12, w: 1, pr: 0, xe: 'd' };
+  /* padrões do Maxwell (os mesmos dos prints do TradingView que ele usa) */
+  function fibPad(vals, liga) {
+    return vals.map(function (v, i) { var c = liga[i]; return { v: v, on: c ? 1 : 0, c: c || FIB_COR[String(v)] || '#787b86' }; });
+  }
+  var PR = '#000000', VM = '#f23645', VD = '#4caf50', AZ = '#2962ff', CZ = '#787b86', AM = '#ffeb3b';
+  T.fib.o = { uc: 0, w: 1, d: 0, tl: 0, tlc: CZ, td: 1, xe: '', f: 1, fo: 0.1, rv: 0, pr: 0, nl: 1, nm: 'p', lh: 'd', lvv: 'a', tx: 'c', ty: 'i', lf: 12, lg: 0,
+    nv: fibPad([0, 0.236, 0.382, 0.5, 0.618, 0.786, 1, 1.618, 2.618, 3.618, 4.236, 1.272, 1.414, 2.272, 2.414, 2, 3, 3.272, 3.414, 4, 4.272, 4.414, 4.618, 0.8],
+      [PR, PR, PR, AM, PR, PR, PR]) };
+  T.fibext.o = { uc: 0, w: 1, d: 0, tl: 1, tlc: PR, td: 1, xe: 'd', f: 1, fo: 0.1, rv: 0, pr: 0, nl: 0, nm: 'p', lh: 'e', lvv: 'a', tx: 'c', ty: 'i', lf: 12, lg: 0,
+    nv: fibPad([0, 0.236, 0.382, 0.5, 0.618, 1.27, 1, 1.618, 2.618, 3.618, 4.236, 1.272, 1.414, 2.272, 2.414, 2, 3, 3.272, 3.414, 4, 4.272, 4.414, 4.618, 4.764],
+      [0, 0, 0, 0, VM, VD, PR, VM]) };
+  T.fibch.o = { uc: 0, w: 1, d: 0, xe: 'd', f: 1, fo: 0.1, pr: 0, nl: 0, nm: 'p', lh: 'e', lvv: 'm', lf: 12,
+    nv: fibPad([0, -0.27, 0.382, 0.5, 0.618, 0.786, 1, 1.618, 2.618, 3.618, 4.236, -0.618, 1.414, -1, 2.414, 2, 3, -2.618, -3.618, 4, -4.618, 4.414, 4.618, 4.764],
+      [PR, 0, 0, CZ, 0, 0, PR, VM, AZ, PR, 0, VM, 0, '#434651', 0, VD, 0, 0, AZ]) };
+  /* preto no tema escuro some: desenha num cinza claro (no tema claro fica preto, como no TradingView) */
+  var fibEsc = { t: 0, v: false };
+  function fibCor(c) {
+    if (!c || String(c).toLowerCase() !== '#000000') { return c; }
+    var agora = Date.now();
+    if (agora - fibEsc.t > 1500) {
+      fibEsc.t = agora;
+      try {
+        var n = api.element(), bg = '';
+        while (n && n.nodeType === 1) { bg = getComputedStyle(n).backgroundColor; if (bg && !/rgba\([^)]*,\s*0\)|transparent/.test(bg)) { break; } n = n.parentNode; }
+        var m = String(bg).match(/\d+(\.\d+)?/g) || [255, 255, 255];
+        fibEsc.v = (0.299 * m[0] + 0.587 * m[1] + 0.114 * m[2]) < 110;
+      } catch (e) { fibEsc.v = false; }
+    }
+    return fibEsc.v ? '#d1d4dc' : c;
+  }
 
   /* ---------- pintura ---------- */
   function rrect(ctx, x, y, w, h, r) {
