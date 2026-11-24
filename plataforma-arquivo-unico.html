@@ -11327,8 +11327,8 @@ Resources:`;for(let t of c){if(!t||typeof t!=`string`)throw Error(`@supabase/aut
     ctx.strokeStyle = WHITE;
     ctx.lineWidth = 1.5;
     hs.forEach(function (h) {
-      var rr = coarse ? 8 : 5.5;
-      if (h.sq) { rrect(ctx, h.x - rr, h.y - rr, rr * 2, rr * 2, 3); } else { ctx.beginPath(); ctx.arc(h.x, h.y, rr, 0, Math.PI * 2); }
+      var rr = coarse ? 5 : 4;   /* pontos pequenos; a área de toque continua grande */
+      if (h.sq) { rrect(ctx, h.x - rr, h.y - rr, rr * 2, rr * 2, 2); } else { ctx.beginPath(); ctx.arc(h.x, h.y, rr, 0, Math.PI * 2); }
       ctx.fill();
       ctx.stroke();
     });
