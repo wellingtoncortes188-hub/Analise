@@ -3419,6 +3419,59 @@ html.pa-rodando .pa-agora{opacity:.5;pointer-events:none}
   .pa-vp{grid-template-columns:repeat(2,1fr)}
 }
 </style>
+<style>/* n28 — barra lateral de desenho no estilo TradingView */
+.bd-oculto{display:none!important}
+html.bd-on .rail{gap:2px;padding:6px 0 10px;background:rgb(var(--surface-rgb))}
+html.bd-on .rail-btn{width:38px;height:38px;border-radius:6px;color:var(--text);opacity:.86;position:relative;transition:background .12s,color .12s,opacity .12s}
+html.bd-on .rail-btn svg{width:24px;height:24px;stroke-width:1.25}
+html.bd-on .rail-btn:hover{background:rgba(var(--ink-rgb),.08);opacity:1}
+html.bd-on .rail-btn[aria-pressed="true"]{background:rgba(var(--ink-rgb),.11);color:var(--text);opacity:1}
+html.bd-on .rail-btn:disabled{opacity:.3}
+html.bd-on .rail-sep{width:28px;height:1px;margin:5px 0;background:rgba(var(--ink-rgb),.12)}
+/* interruptores (ímã, manter, travar, olho) ligados ficam na cor da marca, como o azul do TradingView */
+html.bd-on #bd_ima[aria-pressed="true"],html.bd-on #bd_manter[aria-pressed="true"],
+html.bd-on #bd_trava[aria-pressed="true"],html.bd-on #tool_eye[aria-pressed="true"]{color:var(--primary);background:rgba(var(--primary-rgb),.12)}
+/* triângulo do canto: abre a lista do grupo */
+.bd-seta{position:absolute;right:2px;bottom:2px;width:0;height:0;border-left:5px solid transparent;border-bottom:5px solid currentColor;opacity:.45;pointer-events:none;transition:opacity .12s}
+.bd-grp:hover .bd-seta,.bd-grp[aria-expanded="true"] .bd-seta{opacity:.9}
+.bd-grp[aria-expanded="true"]{background:rgba(var(--ink-rgb),.11)!important}
+/* dica escura ao lado */
+.bd-dica{position:fixed;z-index:9999;padding:6px 10px;border-radius:6px;background:#131722;color:#fff;font:500 12.5px/1.25 var(--font,system-ui),sans-serif;
+  white-space:nowrap;max-width:320px;overflow:hidden;text-overflow:ellipsis;pointer-events:none;box-shadow:0 4px 14px rgba(0,0,0,.25)}
+.bd-dica[hidden]{display:none}
+/* lista do grupo */
+.bd-pop{position:fixed;z-index:9000;min-width:236px;max-width:300px;max-height:min(70vh,560px);overflow-y:auto;padding:6px 0;border-radius:8px;
+  background:rgb(var(--surface-rgb));border:1px solid rgba(var(--ink-rgb),.12);box-shadow:0 10px 32px rgba(0,0,0,.22),0 2px 6px rgba(0,0,0,.1);
+  scrollbar-width:thin;animation:bdIn .12s ease-out}
+.bd-pop[hidden]{display:none}
+@keyframes bdIn{from{opacity:0;transform:translateX(-4px)}to{opacity:1;transform:none}}
+.bd-tt{margin:2px 0 4px;padding:6px 14px 4px;font-size:11px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
+.bd-sub{margin:6px 0 2px;padding:6px 14px 2px;border-top:1px solid rgba(var(--ink-rgb),.08);font-size:11px;font-weight:600;letter-spacing:.04em;text-transform:uppercase;color:var(--muted)}
+.bd-tt+.bd-sub{border-top:0;margin-top:0;padding-top:0}
+.bd-vazio{margin:0;padding:6px 14px 10px;font-size:12.5px;line-height:1.45;color:var(--muted)}
+.bd-it{display:flex;align-items:center;gap:12px;width:100%;min-height:36px;padding:0 10px 0 14px;border:0;background:none;color:var(--text);
+  font:inherit;font-size:13.5px;text-align:left;cursor:pointer}
+.bd-it>svg{flex:none;width:24px;height:24px;fill:none;stroke:currentColor;stroke-width:1.25;stroke-linecap:round;stroke-linejoin:round;opacity:.9}
+.bd-it>span{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.bd-it:hover{background:rgba(var(--ink-rgb),.07)}
+.bd-it[aria-pressed="true"]{background:rgba(var(--primary-rgb),.12);color:var(--primary)}
+.bd-st{flex:none;display:grid;place-items:center;width:28px;height:28px;border-radius:5px;color:var(--muted);opacity:0;transition:opacity .12s}
+.bd-st svg{width:16px;height:16px;fill:none;stroke:currentColor;stroke-width:1.4;stroke-linejoin:round}
+.bd-it:hover .bd-st,.bd-st[data-fav="1"]{opacity:1}
+.bd-st[data-fav="1"]{color:#f5b301}
+.bd-st[data-fav="1"] svg{fill:currentColor}
+.bd-st:hover{background:rgba(var(--ink-rgb),.08)}
+@media (pointer:coarse){
+  html.bd-on .rail-btn{width:40px;height:40px}
+  .bd-st{opacity:.55}
+  .bd-it{min-height:44px}
+}
+@media (max-width:760px){
+  html.bd-on .rail-btn{width:36px;height:36px}
+  html.bd-on .rail-btn svg{width:22px;height:22px}
+  .bd-pop{min-width:210px;max-width:calc(100vw - 60px)}
+}
+</style>
 </head>
 <body>
 <div class="app">
@@ -10464,9 +10517,23 @@ Resources:`;for(let t of c){if(!t||typeof t!=`string`)throw Error(`@supabase/aut
     host.appendChild(fpEl);
   }
   /* ---------- coordenadas ---------- */
+  /* Ímã (a pedido): com ele ligado o ponto gruda na abertura, máxima, mínima ou fechamento da vela
+     quando o dedo/mouse passa perto (até 18 px), como o ímã do TradingView */
+  var ima = false;
+  try { ima = localStorage.getItem('mx360.desenhos.ima.v1') === '1'; } catch (e) {}
   function anchorAt(pt) {
     var l = api.logicalAtX(pt.x), p = api.priceAtY(pt.y);
     if (!ok(l) || !ok(p)) { return null; }
+    if (ima) {
+      var S = global.MXStudies, rs = S && S.velas ? S.velas() : null, r = rs ? rs[Math.round(l)] : null, melhor = 18, k;
+      if (r) {
+        [r.o, r.h, r.l, r.c].forEach(function (v) {
+          var y = api.yOfPrice(v);
+          if (ok(y) && Math.abs(y - pt.y) < melhor) { melhor = Math.abs(y - pt.y); k = v; }
+        });
+        if (k != null) { p = k; l = Math.round(l); }
+      }
+    }
     var t = api.utcOfLogical(l);
     return ok(t) ? { t: t, p: p } : null;
   }
@@ -11863,6 +11930,7 @@ Resources:`;for(let t of c){if(!t||typeof t!=`string`)throw Error(`@supabase/aut
     }
     mrSync();        /* no celular a mira ja aparece na hora que a ferramenta e escolhida */
     showHint();
+    try { document.dispatchEvent(new CustomEvent('mx-ferramenta', { detail: name })); } catch (eF) {}
   }
   function undo() {
     if (pend) { setTool('cursor'); return; }
@@ -13022,7 +13090,27 @@ Resources:`;for(let t of c){if(!t||typeof t!=`string`)throw Error(`@supabase/aut
 
   global.MXDraw = {
     usa: function (id) { if (T[id]) { setTool(id); } },
-    ferramentas: function () { return ORDER.map(function (id) { return { id: id, nome: T[id].name, n: T[id].n, poly: !!T[id].poly, free: !!T[id].free }; }); },
+    ferramentas: function () { return ORDER.map(function (id) { return { id: id, nome: T[id].name, n: T[id].n, poly: !!T[id].poly, free: !!T[id].free, g: T[id].g }; }); },
+    /* barra lateral no estilo TradingView (n28) */
+    grupos: function () { return GROUPS.map(function (g) { return { id: g[0], nome: g[1] }; }); },
+    icone: function (id) { return ICON[id] || ''; },
+    atual: function () { return tool; },
+    trava: function (v) { if (v == null) { return allLocked(); } lockAll(!!v); return !!v; },
+    oculta: function (v) { if (v == null) { return hid; } setHid(!!v); return hid; },
+    manter: function (v) {
+      if (v == null) { return stay; }
+      stay = !!v;
+      try { localStorage.setItem(STAYK, stay ? '1' : '0'); } catch (e) {}
+      try { syncSheet(); } catch (e2) {}
+      return stay;
+    },
+    ima: function (v) {
+      if (v == null) { return ima; }
+      ima = !!v;
+      try { localStorage.setItem('mx360.desenhos.ima.v1', ima ? '1' : '0'); } catch (e) {}
+      return ima;
+    },
+    quantos: function () { return items.length; },
     desfaz: function () { desfaz(); },
     refaz: function () { refazer(); },
     /* redesenha tudo depois de trocar os candles (troca de timeframe) */
@@ -21715,6 +21803,320 @@ window.MXLogosMapa = {"0G":"image/admin_mgs_image_upload/20250921/137e9686-843c-
 
   if (doc.readyState === 'loading') { doc.addEventListener('DOMContentLoaded', inicia); } else { inicia(); }
 })(window);
+</script>
+<script>/* n28 — barra lateral de desenho no estilo TradingView (a pedido do Maxwell).
+   Mesma barra que já existia, só com o "toque profissional":
+   - botões por categoria (Linhas, Fibonacci e Gann, Padrões, Previsão e medição, Formas, Anotações)
+     que mostram a última ferramenta usada daquele grupo e um triângulo no canto; o triângulo,
+     o toque longo, o botão direito ou um 2º toque abrem a lista do grupo ao lado da barra;
+   - favoritos (☆ em cada linha da lista) num botão próprio;
+   - régua (intervalo de data e preço), ímã, manter desenhando, travar e ocultar desenhos;
+   - ícones finos, separadores discretos e dica escura ao lado ao passar o mouse. */
+(function () {
+  'use strict';
+  var ULTK = 'mx360.barra.ult.v1', FAVK = 'mx360.barra.fav.v1';
+  var GR = [
+    { id: 'linhas', nome: 'Linhas e canais', g: ['lines', 'chan'], pad: 'trend' },
+    { id: 'fib', nome: 'Fibonacci e Gann', g: ['fib', 'gann'], pad: 'fib' },
+    { id: 'padroes', nome: 'Padrões', g: ['pat', 'elliott', 'cycle'], pad: 'xabcd' },
+    { id: 'prev', nome: 'Previsão e medição', g: ['fore', 'meas'], pad: 'long' },
+    { id: 'formas', nome: 'Formas', g: ['shape'], pad: 'rect' },
+    { id: 'notas', nome: 'Anotações', g: ['note'], pad: 'text' }
+  ];
+  var IC = {
+    regua: '<path d="M3.5 16.5l13-13 4 4-13 13z"/><path d="M7 13l1.6 1.6M9.5 10.5l2.4 2.4M12 8l1.6 1.6M14.5 5.5l2.4 2.4"/>',
+    ima: '<path d="M5 4h4v7.5a3 3 0 0 0 6 0V4h4v7.5a7 7 0 0 1-14 0z"/><path d="M5 8h4M15 8h4"/>',
+    manter: '<path d="M4 20l.9-3.9L14.6 6.4l3 3L7.9 19.1z"/><path d="M12.6 8.4l3 3"/><rect x="15.5" y="16" width="5.5" height="4.5" rx=".8"/><path d="M16.8 16v-1.2a1.45 1.45 0 0 1 2.9 0V16"/>',
+    trava: '<rect x="5" y="10.5" width="14" height="9.5" rx="1.6"/><path d="M8 10.5V7.5a4 4 0 0 1 8 0v3"/>',
+    destrava: '<rect x="5" y="10.5" width="14" height="9.5" rx="1.6"/><path d="M8 10.5V7.5a4 4 0 0 1 7.7-1.5"/>',
+    fav: '<path d="M12 20s-7-4.4-7-10a4 4 0 0 1 7-2.6A4 4 0 0 1 19 10c0 5.6-7 10-7 10z"/>',
+    estrela: '<path d="M12 3.8l2.5 5.1 5.6.8-4 3.9.9 5.6-5-2.6-5 2.6.9-5.6-4-3.9 5.6-.8z"/>',
+    lixo: '<path d="M4.5 7h15"/><path d="M9.5 7V4.5h5V7"/><path d="M6.5 7l.9 12.5h9.2l.9-12.5"/><path d="M10.2 10.5v6M13.8 10.5v6"/>'
+  };
+  var D, rail, ult = {}, fav = [], pop = null, popDe = null, dica = null, porId = {}, btns = {}, tg = {};
+
+  function svg(i) { return '<svg viewBox="0 0 24 24" aria-hidden="true">' + i + '</svg>'; }
+  function le(k, d) { try { var v = JSON.parse(localStorage.getItem(k)); return v == null ? d : v; } catch (e) { return d; } }
+  function grava(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) {} }
+  function sep() { var s = document.createElement('span'); s.className = 'rail-sep bd-sep'; s.setAttribute('role', 'separator'); return s; }
+  function nomeDe(id) { return porId[id] ? porId[id].nome : id; }
+  function grupoDe(id) {
+    var f = porId[id];
+    if (!f) { return null; }
+    for (var i = 0; i < GR.length; i++) { if (GR[i].g.indexOf(f.g) >= 0) { return GR[i]; } }
+    return null;
+  }
+  function botao(id, rotulo, ico) {
+    var b = document.createElement('button');
+    b.type = 'button';
+    b.className = 'rail-btn bd-btn';
+    b.id = id;
+    b.setAttribute('aria-label', rotulo);
+    b.setAttribute('data-dica', rotulo);
+    b.innerHTML = svg(ico);
+    return b;
+  }
+
+  /* ---------- dica escura ao lado (como no TradingView) ---------- */
+  function mostraDica(b) {
+    var t = b.getAttribute('data-dica') || b.getAttribute('aria-label') || b.title;
+    if (!t || (pop && !pop.hidden)) { return; }
+    if (b.title) { b.setAttribute('data-dica', b.title); b.removeAttribute('title'); }
+    if (!dica) { dica = document.createElement('div'); dica.className = 'bd-dica'; dica.setAttribute('role', 'tooltip'); document.body.appendChild(dica); }
+    var r = b.getBoundingClientRect();
+    dica.textContent = t;
+    dica.hidden = false;
+    dica.style.left = (r.right + 8) + 'px';
+    dica.style.top = (r.top + r.height / 2 - dica.offsetHeight / 2) + 'px';
+  }
+  function someDica() { if (dica) { dica.hidden = true; } }
+
+  /* ---------- lista do grupo ao lado da barra ---------- */
+  function linha(id) {
+    var b = document.createElement('button'), s = document.createElement('span'), st = document.createElement('i');
+    b.type = 'button';
+    b.className = 'bd-it';
+    b.setAttribute('data-bd', id);
+    b.setAttribute('aria-pressed', String(D.atual() === id));
+    b.innerHTML = svg(D.icone(id));
+    s.textContent = nomeDe(id);
+    b.appendChild(s);
+    st.className = 'bd-st';
+    st.setAttribute('role', 'button');
+    st.setAttribute('aria-label', (fav.indexOf(id) >= 0 ? 'Tirar dos' : 'Pôr nos') + ' favoritos');
+    st.setAttribute('data-fav', fav.indexOf(id) >= 0 ? '1' : '0');
+    st.setAttribute('data-bdst', id);
+    st.innerHTML = svg(IC.estrela);
+    b.appendChild(st);
+    return b;
+  }
+  function abre(g, b) {
+    fecha();
+    someDica();
+    if (!pop) {
+      pop = document.createElement('div');
+      pop.className = 'bd-pop';
+      pop.setAttribute('role', 'menu');
+      document.body.appendChild(pop);
+      pop.addEventListener('click', function (e) {
+        e.mxKeepDraw = true;
+        var st = e.target.closest('[data-bdst]');
+        if (st) {
+          var id0 = st.getAttribute('data-bdst'), k = fav.indexOf(id0);
+          if (k >= 0) { fav.splice(k, 1); } else { fav.push(id0); }
+          grava(FAVK, fav);
+          st.setAttribute('data-fav', k >= 0 ? '0' : '1');
+          sincroniza();
+          return;
+        }
+        var it = e.target.closest('[data-bd]');
+        if (!it) { return; }
+        var id = it.getAttribute('data-bd'), gg = grupoDe(id);
+        if (gg && popDe !== 'fav') { ult[gg.id] = id; grava(ULTK, ult); }
+        fecha();
+        D.usa(id);
+        sincroniza();
+      });
+    }
+    pop.innerHTML = '';
+    var h = document.createElement('p');
+    h.className = 'bd-tt';
+    h.textContent = g === 'fav' ? 'Favoritos' : g.nome;
+    pop.appendChild(h);
+    if (g === 'fav') {
+      if (!fav.length) {
+        var v = document.createElement('p');
+        v.className = 'bd-vazio';
+        v.textContent = 'Toque na estrela ao lado de qualquer ferramenta para ela aparecer aqui.';
+        pop.appendChild(v);
+      }
+      fav.forEach(function (id) { if (porId[id]) { pop.appendChild(linha(id)); } });
+    } else {
+      var nomes = {};
+      D.grupos().forEach(function (x) { nomes[x.id] = x.nome; });
+      g.g.forEach(function (sub) {
+        if (g.g.length > 1) {
+          var t = document.createElement('p');
+          t.className = 'bd-sub';
+          t.textContent = nomes[sub] || sub;
+          pop.appendChild(t);
+        }
+        D.ferramentas().forEach(function (f) { if (f.g === sub) { pop.appendChild(linha(f.id)); } });
+      });
+    }
+    popDe = g === 'fav' ? 'fav' : g.id;
+    pop.hidden = false;
+    b.setAttribute('aria-expanded', 'true');
+    var r = b.getBoundingClientRect(), alt = pop.offsetHeight, top = Math.max(8, Math.min(innerHeight - alt - 8, r.top - 6));
+    pop.style.left = (r.right + 6) + 'px';
+    pop.style.top = top + 'px';
+  }
+  function fecha() {
+    if (pop) { pop.hidden = true; }
+    popDe = null;
+    Object.keys(btns).forEach(function (k) { btns[k].setAttribute('aria-expanded', 'false'); });
+  }
+
+  /* ---------- botão de grupo: toque usa, triângulo/toque longo/2º toque abre a lista ---------- */
+  function grupoBtn(g) {
+    var b = botao('bd_' + g.id, g.nome, ''), seta = document.createElement('i'), timer = null, longo = false;
+    b.classList.add('bd-grp');
+    b.setAttribute('aria-haspopup', 'menu');
+    b.setAttribute('aria-expanded', 'false');
+    seta.className = 'bd-seta';
+    seta.setAttribute('aria-hidden', 'true');
+    b.appendChild(seta);
+    b.addEventListener('pointerdown', function (e) {
+      longo = false;
+      clearTimeout(timer);
+      timer = setTimeout(function () { longo = true; abre(g, b); }, 420);
+    });
+    ['pointerup', 'pointerleave', 'pointercancel'].forEach(function (ev) { b.addEventListener(ev, function () { clearTimeout(timer); }); });
+    b.addEventListener('contextmenu', function (e) { e.preventDefault(); abre(g, b); });
+    b.addEventListener('click', function (e) {
+      e.mxKeepDraw = true;
+      if (longo) { longo = false; return; }
+      var r = b.getBoundingClientRect(), naSeta = e.clientX > r.right - 13 && e.clientY > r.bottom - 13;
+      if (popDe === g.id) { fecha(); return; }
+      var id = ult[g.id];
+      if (naSeta || D.atual() === id) { abre(g, b); return; }
+      fecha();
+      D.usa(id);
+      sincroniza();
+    });
+    btns[g.id] = b;
+    return b;
+  }
+
+  function sincroniza() {
+    var at = D.atual();
+    GR.forEach(function (g) {
+      var b = btns[g.id], id = ult[g.id], ativo = grupoDe(at) === g;
+      if (ativo) { id = at; }
+      var nome = nomeDe(id) + ' — ' + g.nome;
+      if (b.getAttribute('data-ico') !== id) {
+        b.setAttribute('data-ico', id);
+        var s = b.querySelector('svg');
+        s.outerHTML = svg(D.icone(id));
+      }
+      b.setAttribute('aria-label', nome);
+      b.setAttribute('data-dica', nome);
+      b.setAttribute('aria-pressed', String(ativo));
+    });
+    if (btns.fav) { btns.fav.setAttribute('aria-pressed', String(fav.indexOf(at) >= 0 && !grupoDe(at))); }
+    tg.regua.setAttribute('aria-pressed', String(at === 'ptrange'));
+    tg.ima.setAttribute('aria-pressed', String(!!D.ima()));
+    tg.manter.setAttribute('aria-pressed', String(!!D.manter()));
+    var tv = !!D.trava() && D.quantos() > 0;
+    tg.trava.setAttribute('aria-pressed', String(tv));
+    tg.trava.innerHTML = svg(tv ? IC.trava : IC.destrava);
+    var tt = tv ? 'Destravar todos os desenhos' : 'Travar todos os desenhos';
+    tg.trava.setAttribute('aria-label', tt);
+    tg.trava.setAttribute('data-dica', tt);
+    if (pop && !pop.hidden) {
+      Array.prototype.forEach.call(pop.querySelectorAll('[data-bd]'), function (x) { x.setAttribute('aria-pressed', String(x.getAttribute('data-bd') === at)); });
+    }
+    var mais = document.getElementById('tool_more');
+    if (mais) { mais.setAttribute('aria-pressed', 'false'); }
+  }
+
+  function monta() {
+    D = window.MXDraw;
+    rail = document.getElementById('tool_cursor').parentNode;
+    if (rail.getAttribute('data-bd')) { return; }
+    rail.setAttribute('data-bd', '1');
+    document.documentElement.classList.add('bd-on');
+    D.ferramentas().forEach(function (f) { porId[f.id] = f; });
+    ult = le(ULTK, {}) || {};
+    fav = (le(FAVK, []) || []).filter(function (id) { return porId[id]; });
+    GR.forEach(function (g) {
+      if (!porId[ult[g.id]] || grupoDe(ult[g.id]) !== g) { ult[g.id] = porId[g.pad] ? g.pad : D.ferramentas().filter(function (f) { return g.g.indexOf(f.g) >= 0; })[0].id; }
+    });
+
+    var $ = function (id) { return document.getElementById(id); };
+    var cursor = $('tool_cursor'), mais = $('tool_more'), olho = $('tool_eye'), undo = $('tool_undo'), del = $('tool_delete'), clr = $('tool_clear');
+    var antigos = ['tool_trend', 'tool_hline', 'tool_rect', 'tool_fib'].map($).filter(Boolean);
+    var sepOrig = rail.querySelector('.rail-sep:not(.bd-sep)');
+    var apps = $('app_add');
+    var ancora = apps ? apps.previousElementSibling : null;   /* separador dos atalhos de apps */
+
+    /* atalhos antigos ficam no DOM (outros módulos/atalhos de teclado usam), só escondidos */
+    antigos.forEach(function (b) { b.classList.add('bd-oculto'); b.tabIndex = -1; });
+    if (sepOrig && sepOrig !== ancora) { sepOrig.classList.add('bd-oculto'); }
+
+    var frag = document.createDocumentFragment();
+    frag.appendChild(cursor);
+    frag.appendChild(sep());
+    GR.forEach(function (g) { frag.appendChild(grupoBtn(g)); });
+    btns.fav = botao('bd_fav', 'Favoritos', IC.fav);
+    btns.fav.setAttribute('aria-haspopup', 'menu');
+    btns.fav.setAttribute('aria-expanded', 'false');
+    btns.fav.addEventListener('click', function (e) { e.mxKeepDraw = true; if (popDe === 'fav') { fecha(); } else { abre('fav', btns.fav); } });
+    frag.appendChild(btns.fav);
+    if (mais) {
+      mais.setAttribute('data-dica', 'Todas as ferramentas (com busca)');
+      mais.setAttribute('aria-label', 'Todas as ferramentas (com busca)');
+      mais.removeAttribute('title');
+      frag.appendChild(mais);
+    }
+    frag.appendChild(sep());
+    tg.regua = botao('bd_regua', 'Régua: medir preço e tempo', IC.regua);
+    tg.regua.addEventListener('click', function (e) { e.mxKeepDraw = true; fecha(); D.usa(D.atual() === 'ptrange' ? 'cursor' : 'ptrange'); sincroniza(); });
+    frag.appendChild(tg.regua);
+    frag.appendChild(sep());
+    tg.ima = botao('bd_ima', 'Ímã: gruda nos preços da vela (abertura, máxima, mínima e fechamento)', IC.ima);
+    tg.ima.addEventListener('click', function (e) { e.mxKeepDraw = true; D.ima(!D.ima()); sincroniza(); });
+    tg.manter = botao('bd_manter', 'Manter desenhando: a ferramenta continua ativa depois de cada desenho', IC.manter);
+    tg.manter.addEventListener('click', function (e) { e.mxKeepDraw = true; D.manter(!D.manter()); sincroniza(); });
+    tg.trava = botao('bd_trava', 'Travar todos os desenhos', IC.destrava);
+    tg.trava.addEventListener('click', function (e) { e.mxKeepDraw = true; D.trava(!(D.trava() && D.quantos() > 0)); sincroniza(); });
+    frag.appendChild(tg.ima);
+    frag.appendChild(tg.manter);
+    frag.appendChild(tg.trava);
+    if (olho) { frag.appendChild(olho); }
+    frag.appendChild(sep());
+    if (undo) { frag.appendChild(undo); }
+    if (del) { frag.appendChild(del); }
+    if (clr) { clr.innerHTML = svg(IC.lixo + '<path d="M17.5 3.5l3 3M20.5 3.5l-3 3"/>'); frag.appendChild(clr); }
+    rail.insertBefore(frag, rail.firstChild);
+    antigos.forEach(function (b) { rail.appendChild(b); });
+    if (sepOrig && sepOrig !== ancora) { rail.appendChild(sepOrig); }
+    if (ancora && apps) { rail.insertBefore(ancora, apps); }
+
+    /* títulos nativos viram dica escura */
+    Array.prototype.forEach.call(rail.querySelectorAll('.rail-btn[title]'), function (b) { b.setAttribute('data-dica', b.title); b.removeAttribute('title'); });
+    rail.addEventListener('pointerover', function (e) {
+      if (e.pointerType !== 'mouse') { return; }
+      var b = e.target.closest('.rail-btn');
+      if (b) { mostraDica(b); }
+    });
+    rail.addEventListener('pointerout', function (e) { if (!e.relatedTarget || !rail.contains(e.relatedTarget)) { someDica(); } });
+    rail.addEventListener('pointerdown', someDica);
+    rail.addEventListener('scroll', function () { someDica(); fecha(); }, { passive: true });
+
+    document.addEventListener('pointerdown', function (e) {
+      if (!pop || pop.hidden) { return; }
+      if (pop.contains(e.target) || e.target.closest('.bd-grp,#bd_fav')) { return; }
+      fecha();
+    }, true);
+    document.addEventListener('keydown', function (e) { if (e.key === 'Escape') { fecha(); } });
+    window.addEventListener('resize', fecha);
+    document.addEventListener('mx-ferramenta', function () { sincroniza(); });
+    document.addEventListener('click', function () { setTimeout(sincroniza, 0); });
+    sincroniza();
+  }
+
+  function espera(n) {
+    var D0 = window.MXDraw;
+    if (D0 && D0.grupos && document.getElementById('tool_more') && document.getElementById('tool_eye')) {
+      try { monta(); } catch (e) { if (window.console) { console.warn('barra de desenho', e); } }
+      return;
+    }
+    if (n < 200) { setTimeout(function () { espera(n + 1); }, 100); }
+  }
+  window.MXBarraDesenho = { grupos: GR, abre: function (id) { var g = GR.filter(function (x) { return x.id === id; })[0]; if (g) { abre(g, btns[g.id]); } }, fecha: fecha };
+  if (document.readyState === 'loading') { document.addEventListener('DOMContentLoaded', function () { espera(0); }); } else { espera(0); }
+})();
 </script>
 </body>
 </html>
