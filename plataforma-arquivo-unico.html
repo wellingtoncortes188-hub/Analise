@@ -2414,6 +2414,20 @@ html[data-ct="0"] .ct-chip,html[data-ct="0"] .ct-seg,html[data-ct="0"] .cc-passo
 /* mira das ferramentas de desenho (a pedido): no centro só um ponto, como no TradingView, sem o anel */
 .dw-px b.o{width:7px!important;height:7px!important;margin:-3.5px 0 0 -3.5px!important;border:0!important;
   background:var(--gold)!important;box-shadow:0 0 0 1.5px rgba(var(--bg-rgb),.85)!important}
+
+/* janela do desenho: aba Texto do retângulo e intensidade do fundo (estilo TradingView) */
+.dw-pane textarea{width:100%;min-height:84px;box-sizing:border-box;padding:9px 10px;border:1px solid rgba(var(--ink-rgb),.18);border-radius:8px;
+  background:rgba(var(--ink-rgb),.04);color:var(--text);font:500 14px/1.4 Manrope,system-ui,sans-serif;resize:vertical}
+.dw-tt{align-items:center;gap:6px}
+.dw-tt select{min-height:36px;padding:0 8px;border:1px solid rgba(var(--ink-rgb),.18);border-radius:8px;background:none;color:var(--text);font:600 13px Manrope,sans-serif}
+.dw-tt .dw-tb,.dw-tt .dw-ti{width:36px;height:36px;min-width:0;padding:0;font:800 15px Georgia,serif}
+.dw-tt .dw-ti{font-style:italic;font-weight:500}
+.dw-tt [aria-pressed="true"]{background:var(--gold)!important;color:#fff!important;border-color:var(--gold)!important}
+.dw-al{flex-wrap:wrap;gap:8px}
+.dw-al .dw-sel{flex:1 1 140px}
+.dw-int{display:flex;align-items:center;gap:10px}
+.dw-int input[type="range"]{flex:1;accent-color:var(--gold)}
+.dw-int b{min-width:42px;text-align:right;font-variant-numeric:tabular-nums}
 </style>
 <style>/* aviso de rede bloqueada: o aluno precisa saber que aqueles candles nao sao o mercado */
 #mxBloqueio{position:absolute;left:50%;top:14px;transform:translateX(-50%);z-index:40;display:flex;
@@ -10634,7 +10648,21 @@ Resources:`;for(let t of c){if(!t||typeof t!=`string`)throw Error(`@supabase/aut
   }, { fl: 1 });
 
   /* --- Formas e pincel --- */
-  def('rect', 'shape', 'Ret\u00e2ngulo', 2, function (P) { return [RC(P[0], P[1], { fill: 1 })]; }, { fl: 1 });
+  def('rect', 'shape', 'Ret\u00e2ngulo', 2, function (P, A, o, e) {
+    var l = Math.min(P[0].x, P[1].x), r = Math.max(P[0].x, P[1].x), t = Math.min(P[0].y, P[1].y), b = Math.max(P[0].y, P[1].y);
+    if (o.ex === 'e' || o.ex === 'a') { l = -2; }
+    if (o.ex === 'd' || o.ex === 'a') { r = (e && e.w ? e.w : r) + 2; }
+    var out = [RC({ x: l, y: t }, { x: r, y: b }, { fill: 1, hin: o.f ? 1 : 0 })];
+    if (o.mi) { out.push(L({ x: l, y: (t + b) / 2 }, { x: r, y: (t + b) / 2 }, 0, { dash: [4, 4], col: o.mc || null })); }
+    return out;
+  }, { fl: 1 });
+  /* 8 pontos para puxar, como no TradingView: 4 cantos (redondos) e o meio de cada lado (quadrados).
+     O codigo diz o que cada ponto mexe: t0 = tempo do 1o ponto, p1 = preco do 2o ponto etc. */
+  T.rect.hp = function (P) {
+    var a = P[0], b = P[1], mx = (a.x + b.x) / 2, my = (a.y + b.y) / 2;
+    return [{ i: 0, x: a.x, y: a.y }, { i: 1, x: b.x, y: b.y }, { i: 't0p1', x: a.x, y: b.y }, { i: 't1p0', x: b.x, y: a.y },
+      { i: 'p0', x: mx, y: a.y, sq: 1 }, { i: 'p1', x: mx, y: b.y, sq: 1 }, { i: 't0', x: a.x, y: my, sq: 1 }, { i: 't1', x: b.x, y: my, sq: 1 }];
+  };
   def('ellipse', 'shape', 'Elipse', 2, function (P) {
     var c = mid(P[0], P[1]);
     return [{ k: 'e', cx: c.x, cy: c.y, rx: Math.abs(P[1].x - P[0].x) / 2, ry: Math.abs(P[1].y - P[0].y) / 2, fill: 1 }];
@@ -11097,6 +11125,17 @@ Resources:`;for(let t of c){if(!t||typeof t!=`string`)throw Error(`@supabase/aut
     var y = ty === 'b' ? Math.max.apply(null, ys) + 16 : Math.min.apply(null, ys) - 16;
     return TX(x, y, s, tx === 'e' ? 'l' : (tx === 'd' ? 'r' : 'c'), { bg: 1, big: 1 });
   }
+  /* texto do retangulo: vertical Em cima (fora, acima) / Interior (no meio) / Em baixo (fora, abaixo) e
+     horizontal Esquerda / Centro / Direita, sem rotulo, como no TradingView */
+  function textoRet(P, o, e) {
+    var l = Math.min(P[0].x, P[1].x), r = Math.max(P[0].x, P[1].x), t = Math.min(P[0].y, P[1].y), b = Math.max(P[0].y, P[1].y);
+    if (o.ex === 'e' || o.ex === 'a') { l = 0; }
+    if (o.ex === 'd' || o.ex === 'a') { r = e && e.w ? e.w : r; }
+    var pad = 6, tx = o.tx || 'c', ty = o.ty === 'a' || o.ty === 'b' ? o.ty : 'i';
+    var x = tx === 'e' ? l + pad : (tx === 'd' ? r - pad : (l + r) / 2);
+    var y = ty === 'a' ? t - 4 : (ty === 'b' ? b + 4 : (t + b) / 2);
+    return { k: 'tt', x: x, y: y, s: o.s, ta: tx === 'e' ? 'l' : (tx === 'd' ? 'r' : 'c'), va: ty, size: o.ts || 14, bo: o.tb, it: o.ti, col: o.tc || null };
+  }
   /* extensao a esquerda/direita e ponto central das linhas de 2 pontos */
   function estende(g, it) {
     var o = it.o, s = null, i;
@@ -11199,12 +11238,12 @@ Resources:`;for(let t of c){if(!t||typeof t!=`string`)throw Error(`@supabase/aut
         if (c && !nl) { ctx.beginPath(); ctx.moveTo(c[0], c[1]); ctx.lineTo(c[2], c[3]); ctx.stroke(); }
       } else if (s.k === 'r') {
         var rx = Math.min(s.x1, s.x2), ry = Math.min(s.y1, s.y2), rw = Math.abs(s.x2 - s.x1), rh = Math.abs(s.y2 - s.y1);
-        if (fillOn(s)) { if (o.fc && !s.col) { ctx.fillStyle = o.fc; } ctx.globalAlpha = (s.fa != null ? s.fa : 0.12) * ga; ctx.fillRect(rx, ry, rw, rh); ctx.globalAlpha = ga; }
+        if (fillOn(s)) { if (o.fc && !s.col) { ctx.fillStyle = o.fc; } ctx.globalAlpha = (s.fa != null ? s.fa : (o.fo != null ? o.fo : 0.12)) * ga; ctx.fillRect(rx, ry, rw, rh); ctx.globalAlpha = ga; }
         if (!s.ns && !nl) { ctx.strokeRect(rx + 0.5, ry + 0.5, rw, rh); }
       } else if (s.k === 'e') {
         ctx.beginPath();
         ctx.ellipse(s.cx, s.cy, Math.max(0.5, s.rx), Math.max(0.5, s.ry), 0, 0, Math.PI * 2);
-        if (fillOn(s)) { if (o.fc && !s.col) { ctx.fillStyle = o.fc; } ctx.globalAlpha = 0.12 * ga; ctx.fill(); ctx.globalAlpha = ga; }
+        if (fillOn(s)) { if (o.fc && !s.col) { ctx.fillStyle = o.fc; } ctx.globalAlpha = (o.fo != null ? o.fo : 0.12) * ga; ctx.fill(); ctx.globalAlpha = ga; }
         if (nl) { ctx.globalAlpha = 0; }
         ctx.stroke();
       } else if (s.k === 'p') {
@@ -11213,7 +11252,7 @@ Resources:`;for(let t of c){if(!t||typeof t!=`string`)throw Error(`@supabase/aut
           ctx.moveTo(s.pts[0][0], s.pts[0][1]);
           for (i = 1; i < s.pts.length; i++) { ctx.lineTo(s.pts[i][0], s.pts[i][1]); }
           if (s.close) { ctx.closePath(); }
-          if (s.close && fillOn(s)) { if (o.fc && !s.col) { ctx.fillStyle = o.fc; } ctx.globalAlpha = (s.fa != null ? s.fa : 0.12) * ga; ctx.fill(); ctx.globalAlpha = ga; }
+          if (s.close && fillOn(s)) { if (o.fc && !s.col) { ctx.fillStyle = o.fc; } ctx.globalAlpha = (s.fa != null ? s.fa : (o.fo != null ? o.fo : 0.12)) * ga; ctx.fill(); ctx.globalAlpha = ga; }
           if (!s.ns && !nl) { ctx.stroke(); }
         }
       } else if (s.k === 't') {
@@ -11232,6 +11271,15 @@ Resources:`;for(let t of c){if(!t||typeof t!=`string`)throw Error(`@supabase/aut
         ctx.textBaseline = 'middle';
         ctx.textAlign = 'left';
         ctx.fillText(s.s, tx + (s.bg ? pad : 0), s.y);
+      } else if (s.k === 'tt') {
+        ctx.setLineDash([]);
+        var fs = s.size || 14, lh = Math.round(fs * 1.3), ls = String(s.s).split('\n'), h0 = ls.length * lh;
+        ctx.font = (s.it ? 'italic ' : '') + (s.bo ? '700 ' : '500 ') + fs + 'px Manrope, system-ui, sans-serif';
+        ctx.fillStyle = s.col || col;
+        ctx.textAlign = s.ta === 'l' ? 'left' : (s.ta === 'r' ? 'right' : 'center');
+        ctx.textBaseline = 'middle';
+        var y0 = s.va === 'a' ? s.y - h0 : (s.va === 'b' ? s.y : s.y - h0 / 2);
+        ls.forEach(function (ln, j) { ctx.fillText(ln, s.x, y0 + lh * j + lh / 2); });
       } else if (s.k === 'd') {
         ctx.beginPath();
         ctx.arc(s.x, s.y, 3, 0, Math.PI * 2);
@@ -11279,8 +11327,8 @@ Resources:`;for(let t of c){if(!t||typeof t!=`string`)throw Error(`@supabase/aut
     ctx.strokeStyle = WHITE;
     ctx.lineWidth = 1.5;
     hs.forEach(function (h) {
-      ctx.beginPath();
-      ctx.arc(h.x, h.y, coarse ? 8 : 5.5, 0, Math.PI * 2);
+      var rr = coarse ? 8 : 5.5;
+      if (h.sq) { rrect(ctx, h.x - rr, h.y - rr, rr * 2, rr * 2, 3); } else { ctx.beginPath(); ctx.arc(h.x, h.y, rr, 0, Math.PI * 2); }
       ctx.fill();
       ctx.stroke();
     });
@@ -11312,7 +11360,7 @@ Resources:`;for(let t of c){if(!t||typeof t!=`string`)throw Error(`@supabase/aut
       try {
         var g = T[it.k].geo(self._P, it.pts, it.o, e);
         estende(g, it);
-        if (it.o.s && !T[it.k].txt) { g.push(labelOf(self._P, it.o.s, it.o, g)); }
+        if (it.o.s && !T[it.k].txt) { g.push(it.k === 'rect' ? textoRet(self._P, it.o, e) : labelOf(self._P, it.o.s, it.o, g)); }
         paint(ctx, g, it.o, self.selected, e);
         if (self.selected || (pend && pend.it === it)) { drawHandles(ctx, handles(it, self._P)); }
       } catch (err) { /* um desenho com defeito nao pode derrubar o grafico */ }
@@ -11509,6 +11557,7 @@ Resources:`;for(let t of c){if(!t||typeof t!=`string`)throw Error(`@supabase/aut
       if (s.ns) { return false; }
       var xa = Math.min(s.x1, s.x2), xb = Math.max(s.x1, s.x2), ya = Math.min(s.y1, s.y2), yb = Math.max(s.y1, s.y2);
       if (x < xa - tol || x > xb + tol || y < ya - tol || y > yb + tol) { return false; }
+      if (s.hin) { return true; }
       return Math.abs(x - xa) <= tol || Math.abs(x - xb) <= tol || Math.abs(y - ya) <= tol || Math.abs(y - yb) <= tol;
     }
     if (s.k === 'e') {
@@ -11751,8 +11800,12 @@ Resources:`;for(let t of c){if(!t||typeof t!=`string`)throw Error(`@supabase/aut
     } else {
       var a = anchorAt({ x: pt.x + drag.ox, y: pt.y + drag.oy });   /* a ponta acompanha o dedo sem dar salto */
       if (!a) { return; }
-      it.pts[drag.i].t = a.t;
-      it.pts[drag.i].p = a.p;
+      if (typeof drag.i === 'string') {
+        drag.i.replace(/([tp])(\d)/g, function (m, c, n) { if (it.pts[+n]) { it.pts[+n][c] = a[c]; } return m; });
+      } else {
+        it.pts[drag.i].t = a.t;
+        it.pts[drag.i].p = a.p;
+      }
     }
     drag.moved = true;
     if (fbEl && !fbEl.hidden) { fbEl.hidden = true; fbPop(null); }
@@ -12160,6 +12213,51 @@ Resources:`;for(let t of c){if(!t||typeof t!=`string`)throw Error(`@supabase/aut
     w.appendChild(s);
     return w;
   }
+  /* intensidade da cor do fundo (0 a 100%) */
+  function intensidade(o) {
+    var w = el('label', 'dw-sel dw-int'), ri = el('input'), v = Math.round((o.fo != null ? o.fo : 0.12) * 100), rv = el('b', '', v + '%');
+    w.appendChild(el('span', '', 'Intensidade'));
+    ri.type = 'range'; ri.min = '3'; ri.max = '100'; ri.step = '1'; ri.value = String(v);
+    ri.setAttribute('aria-label', 'Intensidade da cor do fundo');
+    ri.addEventListener('input', function () { rv.textContent = ri.value + '%'; upd('fo', +ri.value / 100); });
+    ri.addEventListener('change', save);
+    w.appendChild(ri);
+    w.appendChild(rv);
+    return w;
+  }
+  /* aba Texto do retangulo no estilo do TradingView: tamanho, negrito, italico, texto de varias linhas,
+     cor e alinhamento (vertical e horizontal) */
+  function textoRetUi(pane, it, o, focusText) {
+    var s = sec(pane, 'Texto'), r = el('div', 'dw-row dw-tt'), sz = el('select'), ta = el('textarea');
+    [10, 11, 12, 14, 16, 18, 20, 24, 28, 32].forEach(function (n) { var op = el('option', '', String(n)); op.value = String(n); sz.appendChild(op); });
+    sz.value = String(o.ts || 14);
+    sz.setAttribute('aria-label', 'Tamanho do texto');
+    sz.addEventListener('change', function () { upd('ts', +sz.value); save(); });
+    r.appendChild(sz);
+    var bB = btn('B', 'Negrito', function () { upd('tb', it.o.tb ? 0 : 1); save(); renderDlg(); }, 'dw-tb');
+    bB.setAttribute('aria-pressed', String(!!o.tb));
+    var bI = btn('I', 'Itálico', function () { upd('ti', it.o.ti ? 0 : 1); save(); renderDlg(); }, 'dw-ti');
+    bI.setAttribute('aria-pressed', String(!!o.ti));
+    r.appendChild(bB);
+    r.appendChild(bI);
+    s.appendChild(r);
+    ta.rows = 3;
+    ta.maxLength = 300;
+    ta.value = o.s || '';
+    ta.placeholder = 'Adicionar texto';
+    ta.setAttribute('aria-label', 'Texto do retângulo');
+    ta.addEventListener('input', function () { upd('s', ta.value); });
+    ta.addEventListener('change', save);
+    s.appendChild(ta);
+    s = sec(pane, 'Cor do texto');
+    s.appendChild(swatches(o.tc || o.c, function (c) { upd('tc', c); }));
+    s = sec(pane, 'Alinhamento do texto');
+    r = el('div', 'dw-row dw-al');
+    r.appendChild(escolha('Vertical', o.ty === 'a' || o.ty === 'b' ? o.ty : 'i', [['a', 'Em cima'], ['i', 'Interior'], ['b', 'Em baixo']], function (v) { upd('ty', v); }));
+    r.appendChild(escolha('Horizontal', o.tx || 'c', [['e', 'Esquerda'], ['c', 'Centro'], ['d', 'Direita']], function (v) { upd('tx', v); }));
+    s.appendChild(r);
+    if (focusText) { setTimeout(function () { ta.focus(); }, 30); }
+  }
   function renderDlg(focusText) {
     if (!dsel || !dlg) { return; }
     var it = dsel, t = T[it.k], o = it.o, old = dlg.querySelector('.dw-pane'), st = old ? old.scrollTop : 0, box = el('div', 'dw-sheet dw-sheet2'), s, r, ti, sv;
@@ -12215,6 +12313,13 @@ Resources:`;for(let t of c){if(!t||typeof t!=`string`)throw Error(`@supabase/aut
         s = sec(pane, 'Fundo');
         s.appendChild(chk('Preencher o fundo', o.f, function (v) { upd('f', v ? 1 : 0); renderDlg(); }));
         if (o.f && !NOFC[it.k]) { s.appendChild(swatches(o.fc || o.c, function (c) { upd('fc', c); })); }
+        if (o.f) { s.appendChild(intensidade(o)); }
+      }
+      if (it.k === 'rect') {
+        s = sec(pane, 'Retângulo');
+        s.appendChild(escolha('Estender', o.ex || 'n', [['n', 'Não estender'], ['e', 'À esquerda'], ['d', 'À direita'], ['a', 'Para os dois lados']], function (v) { upd('ex', v === 'n' ? '' : v); }));
+        s.appendChild(chk('Linha intermediária', o.mi, function (v) { upd('mi', v ? 1 : 0); renderDlg(); }));
+        if (o.mi) { s.appendChild(swatches(o.mc || o.c, function (c) { upd('mc', c); })); }
       }
     } else if (dlgTab === 'conf') {
       var algo = false;
@@ -12240,6 +12345,8 @@ Resources:`;for(let t of c){if(!t||typeof t!=`string`)throw Error(`@supabase/aut
       s = sec(pane, 'Desenho');
       s.appendChild(chk('Travar (não move nem apaga sem querer)', o.lk, function (v) { upd('lk', v ? 1 : 0); }));
       if (!algo) { s.appendChild(el('p', 'dw-nota', 'Esta ferramenta não tem opções avançadas.')); }
+    } else if (dlgTab === 'txt' && it.k === 'rect') {
+      textoRetUi(pane, it, o, focusText);
     } else if (dlgTab === 'txt') {
       s = sec(pane, t.txt ? 'Texto' : 'Texto personalizável');
       ti = el('input');
@@ -12549,14 +12656,17 @@ Resources:`;for(let t of c){if(!t||typeof t!=`string`)throw Error(`@supabase/aut
 
   /* Cada ativo tem os proprios desenhos. */
   function setSymbol(s) {
-    if (symbol === s.id) { return; }
+    /* o grafico manda o ativo como texto ('BTCUSDT'); antes so um objeto {id} funcionava e os desenhos
+       nunca eram salvos nem trocados junto com o ativo */
+    var id = s && typeof s === 'object' ? s.id : s;
+    if (!id || symbol === id) { return; }
     onUp();
     cancelPend();
     select(null);
     items.splice(0).forEach(destroy);
     hist.length = 0;
     refaz.length = 0;
-    symbol = s.id;
+    symbol = id;
     loadSymbol();
   }
 
