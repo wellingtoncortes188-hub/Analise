@@ -3536,6 +3536,54 @@ html.bd-on #bd_trava[aria-pressed="true"],html.bd-on #tool_eye[aria-pressed="tru
 @media (max-width:640px){.vp-selo{order:3;min-height:32px;padding:0 12px;font-size:12px}.vp-card{padding:22px 18px 18px}.vp-card h2{font-size:19px}}
 .cvip:has(.vp-fundo:not([hidden])) .cv-suporte{display:none}
 </style>
+<style>/* n30 — Roda de indicadores */
+.rd-fundo{position:fixed;inset:0;z-index:9500;background:rgba(10,14,20,.28);-webkit-tap-highlight-color:transparent;animation:rdFundo .16s ease-out}
+.rd-fundo[hidden]{display:none}
+@keyframes rdFundo{from{opacity:0}to{opacity:1}}
+.rd-roda{position:absolute;border-radius:50%;animation:rdAbre .26s cubic-bezier(.2,.9,.3,1.15);
+  --rd-a:#e9bf62;--rd-b:#c8923a;--rd-ink:#1d1406}
+@keyframes rdAbre{from{transform:scale(.55) rotate(-40deg);opacity:0}to{transform:none;opacity:1}}
+/* o anel (a parte que gira) */
+.rd-anel{position:absolute;inset:0;border-radius:50%;touch-action:none;user-select:none;-webkit-user-select:none;cursor:grab;
+  background:conic-gradient(from 210deg,var(--rd-a),var(--rd-b) 30%,var(--rd-a) 55%,var(--rd-b) 80%,var(--rd-a));
+  -webkit-mask:radial-gradient(circle closest-side,transparent calc(100% - var(--rd-t)),#000 calc(100% - var(--rd-t) + .5px));
+  mask:radial-gradient(circle closest-side,transparent calc(100% - var(--rd-t)),#000 calc(100% - var(--rd-t) + .5px));
+  box-shadow:0 18px 50px rgba(0,0,0,.35)}
+.rd-anel:active{cursor:grabbing}
+.rd-roda::before{content:"";position:absolute;inset:-1px;border-radius:50%;pointer-events:none;
+  box-shadow:0 16px 44px rgba(0,0,0,.32),inset 0 0 0 1px rgba(255,255,255,.25)}
+.rd-roda[data-nivel="grupo"],.rd-roda[data-nivel="ativos"]{--rd-a:#d9aa4a;--rd-b:#b07d2c}
+.rd-anel.rd-entra .rd-it{transition:none}
+/* cada item fica no meio da faixa do anel */
+.rd-it{position:absolute;left:50%;top:50%;width:0;height:0;display:block;transition:opacity .18s}
+.rd-it.rd-fora{opacity:0;pointer-events:none}
+.rd-r{position:absolute;left:0;top:0;display:inline-flex;align-items:center;gap:5px;transform:translate(-50%,-50%);white-space:nowrap;
+  padding:5px 9px;border-radius:999px;color:var(--rd-ink);font:800 var(--rd-fs,13px)/1 Manrope,system-ui,sans-serif;letter-spacing:.01em;
+  transition:background .15s,transform .12s}
+.rd-r svg{width:calc(var(--rd-fs,13px) + 5px);height:calc(var(--rd-fs,13px) + 5px);fill:none;stroke:currentColor;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round}
+.rd-r b{font-weight:800}
+.rd-n{display:grid;place-items:center;min-width:17px;height:17px;padding:0 4px;border-radius:9px;background:var(--rd-ink);color:var(--rd-a);
+  font:800 10.5px/1 Manrope,sans-serif;font-style:normal}
+.rd-it.rd-on .rd-r{background:#fff;box-shadow:0 2px 8px rgba(0,0,0,.18)}
+.rd-it.rd-on .rd-r::before{content:"";width:8px;height:8px;border-radius:50%;background:var(--rd-cor,#1fa04b);box-shadow:0 0 0 1.5px rgba(0,0,0,.25)}
+.rd-it.rd-aperta .rd-r{transform:translate(-50%,-50%) scale(.92);background:rgba(255,255,255,.45)}
+.rd-it.rd-perigo .rd-r{color:#7a1410}
+/* 1º nível: ícone em cima do nome, para as 10 opções caberem na volta */
+.rd-roda[data-nivel="raiz"] .rd-r{flex-direction:column;gap:3px;padding:5px 7px;font-size:calc(var(--rd-fs,13px) - 1px)}
+.rd-roda[data-nivel="raiz"] .rd-n{position:absolute;top:-4px;right:-6px}
+@media (hover:hover){.rd-it:hover .rd-r{background:rgba(255,255,255,.35)}.rd-it.rd-on:hover .rd-r{background:#fff}}
+/* centro */
+.rd-centro{position:absolute;inset:var(--rd-t);border-radius:50%;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;
+  padding:0 14%;text-align:center;background:rgb(var(--surface-rgb,255,255,255));color:var(--text,#111);
+  box-shadow:inset 0 2px 10px rgba(0,0,0,.08)}
+.rd-tt{margin:0;font:800 18px/1.15 Manrope,sans-serif}
+.rd-sub{margin:0;min-height:2.6em;color:var(--muted,#667);font-size:12.5px;line-height:1.3}
+.rd-c{display:inline-flex;align-items:center;gap:6px;min-height:36px;margin-top:2px;padding:0 14px;border:1px solid rgba(var(--ink-rgb,0,0,0),.16);
+  border-radius:999px;background:rgba(var(--ink-rgb,0,0,0),.04);color:var(--text,#111);font:700 13px Manrope,sans-serif;cursor:pointer}
+.rd-c svg{width:16px;height:16px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.rd-c:hover{background:rgba(var(--ink-rgb,0,0,0),.08)}
+@media (prefers-reduced-motion:reduce){.rd-roda,.rd-fundo{animation:none}}
+</style>
 </head>
 <body>
 <div class="app">
@@ -9341,7 +9389,7 @@ Resources:`;for(let t of c){if(!t||typeof t!=`string`)throw Error(`@supabase/aut
     renderUi();
   }
 
-  global.MXStudies = { init: init, setData: setData, update: update, toggle: toggle, active: active, set: set, openConfig: cfgOpen, scan: scan, groups: function () { return GROUPS.slice(); }, perfil: perfilEntre, temaTrocou: temaTrocou, vp: function (m) { if (m) { vpSet2(m); } var c = vpCfg(), o = {}, k; for (k in c) { if (c.hasOwnProperty(k)) { o[k] = c[k]; } } return o; }, velas: function () { return rows; } };
+  global.MXStudies = { lista: function () { return DEFS.map(function (d) { return { id: d.id, label: d.label, group: d.group, color: d.color }; }); }, oculta: function (v) { if (v != null) { setHidden(!!v); } return hid; }, limpa: function () { clearAll(); }, init: init, setData: setData, update: update, toggle: toggle, active: active, set: set, openConfig: cfgOpen, scan: scan, groups: function () { return GROUPS.slice(); }, perfil: perfilEntre, temaTrocou: temaTrocou, vp: function (m) { if (m) { vpSet2(m); } var c = vpCfg(), o = {}, k; for (k in c) { if (c.hasOwnProperty(k)) { o[k] = c[k]; } } return o; }, velas: function () { return rows; } };
 })(window);
 
 /* MX360 Plataforma: caixa de fluxo do MX360 2.0.
@@ -22649,6 +22697,351 @@ window.MXLogosMapa = {"0G":"image/admin_mgs_image_upload/20250921/137e9686-843c-
     estado: function () { return { ok: estado.ok, ate: estado.ate, status: estado.status, email: estado.email }; },
     assinar: function () { abreTela(); },
     preco: PRECO + CICLO
+  };
+})(window);
+</script>
+<script>/* n30 — Roda de indicadores (a pedido do Maxwell, no estilo da roda do MT5).
+   O botão Indicadores abre uma roda que gira com o dedo (ou o mouse) e continua girando um pouco
+   ao soltar.
+   - 1º nível: as categorias (Médias, Bandas, Tendência, Osciladores, Volume, MX360°), Ativos,
+     Lista (a janela completa de antes, com busca), Ocultar/Mostrar e Limpar.
+   - 2º nível: tocou numa categoria, a roda gira e mostra os indicadores dela; tocar liga/desliga.
+     Categorias com muitos indicadores viram um "carrossel" circular: gire para ver os outros.
+   - Centro: nome do nível, quantos estão ligados e o botão Fechar / Voltar.
+   A versão antiga continua inteira (item Lista). Para voltar a ela de vez: MXRoda.desliga(). */
+(function (global) {
+  'use strict';
+  var doc = global.document;
+  var GRUPOS = [
+    { g: 0, nome: 'Médias', ico: '<path d="M3 17c4-7 7-9 9-9s5 2 9-3"/><path d="M3 20c4-5 8-6 10-6s5 1 8-3"/>' },
+    { g: 1, nome: 'Bandas', ico: '<path d="M3 8c5-4 13-4 18 0M3 16c5 4 13 4 18 0"/><path d="M3 12h18"/>' },
+    { g: 2, nome: 'Tendência', ico: '<path d="M3 18l6-6 4 4 8-9"/><path d="M15 7h6v6"/>' },
+    { g: 3, nome: 'Osciladores', ico: '<path d="M2 12c2.5-6 5-6 7.5 0s5 6 7.5 0 3.5-4 5-2"/>' },
+    { g: 4, nome: 'Volume', ico: '<path d="M5 20V12M10 20V6M15 20v-9M20 20V9"/>' },
+    { g: 5, nome: 'MX360°', ico: '<circle cx="12" cy="12" r="8"/><path d="M12 4v4M12 16v4M4 12h4M16 12h4"/>' }
+  ];
+  var ICO = {
+    ativos: '<circle cx="12" cy="12" r="8"/><path d="M8.5 12l2.5 2.5 4.5-5"/>',
+    lista: '<path d="M8 6h12M8 12h12M8 18h12"/><circle cx="4" cy="6" r="1"/><circle cx="4" cy="12" r="1"/><circle cx="4" cy="18" r="1"/>',
+    olho: '<path d="M2 12s3.6-6.5 10-6.5S22 12 22 12s-3.6 6.5-10 6.5S2 12 2 12z"/><circle cx="12" cy="12" r="3"/>',
+    olhoX: '<path d="M3 3l18 18"/><path d="M10.6 5.6A10 10 0 0 1 12 5.5C18.4 5.5 22 12 22 12a17 17 0 0 1-3.2 3.9M6.6 6.7C3.7 8.4 2 12 2 12s3.6 6.5 10 6.5a9.7 9.7 0 0 0 4.3-1"/>',
+    lixo: '<path d="M4.5 7h15M9.5 7V4.5h5V7M6.5 7l.9 12.5h9.2l.9-12.5"/>',
+    x: '<path d="M6 6l12 12M18 6L6 18"/>',
+    volta: '<path d="M15 5l-7 7 7 7"/>'
+  };
+  /* nomes curtos para caber na roda (o nome completo aparece no centro ao tocar) */
+  var CURTO = [
+    [/^Bandas de Bollinger.*/, 'Bollinger'], [/^Canais de Keltner.*/, 'Keltner'], [/^Canais de Donchian.*/, 'Donchian'],
+    [/^Regress[aã]o linear.*/i, 'Regressão'], [/^RSI Estoc.*/, 'RSI Estoc.'], [/^Estoc[aá]stico.*/, 'Estocástico'],
+    [/^Taxa de varia.*ROC.*/, 'ROC'], [/^Awesome Oscillator.*/, 'Awesome'], [/^Oscilador Final.*/, 'Osc. Final'],
+    [/^[IÍ]ndice de Choppiness.*/, 'Choppiness'], [/^Volatilidade hist.*/, 'Vol. hist.'], [/^Bollinger %B.*/, '%B'],
+    [/^OBV.*/, 'OBV'], [/^Acumula.*Distribui.*/, 'A/D'], [/^Chaikin Money Flow.*/, 'CMF'], [/^[IÍ]ndice de Fluxo de Dinheiro.*/, 'MFI'],
+    [/^[IÍ]ndice de For[cç]a.*/, 'Força'], [/^Williams %R.*/, 'Williams %R'], [/^ADX.*/, 'ADX/DMI'], [/^Envelope.*/, 'Envelope'],
+    [/^VWMA (\d+).*/, 'VWMA $1'], [/^HMA (\d+).*/, 'HMA $1']
+  ];
+  function curto(n) {
+    var s = String(n || '');
+    for (var i = 0; i < CURTO.length; i++) { if (CURTO[i][0].test(s)) { return s.replace(CURTO[i][0], CURTO[i][1]); } }
+    s = s.replace(/\s*\(.*\)\s*$/, '');
+    return s.length > 13 ? s.slice(0, 12) + '…' : s;
+  }
+
+  var S, ligado = true, root, roda, anel, centro, itensEl = [], itens = [], nivel = null;
+  var rot = 0, vel = 0, anim = 0, R = 150, D = 380, T = 74, cx = 0, cy = 0, sp = 30, total = 360, carrossel = false, ang = [], larg = [];
+  var arr = null, confirma = 0, passando = false;
+  try { ligado = localStorage.getItem('mx360.roda.off') !== '1'; } catch (e) {}
+
+  function svg(p) { return '<svg viewBox="0 0 24 24" aria-hidden="true">' + p + '</svg>'; }
+  function esc(t) { return String(t).replace(/[&<>"]/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]; }); }
+  function lista() { try { return S.lista(); } catch (e) { return []; } }
+  function ativos() { try { return S.active(); } catch (e) { return []; } }
+
+  /* ---------- montar ---------- */
+  function monta() {
+    root = doc.createElement('div');
+    root.className = 'rd-fundo';
+    root.hidden = true;
+    root.innerHTML = '<div class="rd-roda" role="dialog" aria-modal="true" aria-label="Roda de indicadores">' +
+      '<div class="rd-anel" role="listbox" aria-label="Gire para ver mais"></div>' +
+      '<div class="rd-centro"><p class="rd-tt"></p><p class="rd-sub"></p><button type="button" class="rd-c"></button></div></div>';
+    doc.body.appendChild(root);
+    roda = root.querySelector('.rd-roda');
+    anel = root.querySelector('.rd-anel');
+    centro = root.querySelector('.rd-centro');
+    root.addEventListener('pointerdown', function (e) { if (e.target === root) { fecha(); } });
+    centro.querySelector('.rd-c').addEventListener('click', function () { if (nivel && nivel.tipo !== 'raiz') { abreNivel(raiz(), -1); } else { fecha(); } });
+    anel.addEventListener('pointerdown', aperta);
+    anel.addEventListener('pointermove', move);
+    anel.addEventListener('pointerup', solta);
+    anel.addEventListener('pointercancel', function () { arr = null; });
+    anel.addEventListener('wheel', function (e) { e.preventDefault(); para(); rot -= (e.deltaY || e.deltaX) * 0.25; pinta(); }, { passive: false });
+    doc.addEventListener('keydown', function (e) {
+      if (root.hidden) { return; }
+      if (e.key === 'Escape') { e.stopPropagation(); if (nivel.tipo !== 'raiz') { abreNivel(raiz(), -1); } else { fecha(); } }
+      if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') { e.preventDefault(); gira(-sp); }
+      if (e.key === 'ArrowRight' || e.key === 'ArrowDown') { e.preventDefault(); gira(sp); }
+    }, true);
+    global.addEventListener('resize', function () { if (!root.hidden) { medida(); espaca(); pinta(); } });
+  }
+
+  /* ---------- níveis ---------- */
+  function raiz() {
+    var on = ativos(), L = lista(), porG = {};
+    L.forEach(function (d) { if (on.indexOf(d.id) >= 0) { porG[d.group] = (porG[d.group] || 0) + 1; } });
+    var its = GRUPOS.map(function (g) { return { a: 'grupo', g: g.g, rot: g.nome, ico: g.ico, n: porG[g.g] || 0, dica: 'Abrir ' + g.nome }; });
+    var oc = false;
+    try { oc = S.oculta(); } catch (e) {}
+    its.push({ a: 'ativos', rot: 'Ativos', ico: ICO.ativos, n: on.length, dica: 'Indicadores ligados' });
+    its.push({ a: 'lista', rot: 'Lista', ico: ICO.lista, dica: 'Lista completa com busca' });
+    its.push({ a: 'olho', rot: oc ? 'Mostrar' : 'Ocultar', ico: oc ? ICO.olhoX : ICO.olho, on: oc, dica: oc ? 'Mostrar os indicadores' : 'Ocultar os indicadores' });
+    its.push({ a: 'limpa', rot: 'Limpar', ico: ICO.lixo, dica: 'Desligar todos', perigo: 1 });
+    return { tipo: 'raiz', titulo: 'Indicadores', itens: its };
+  }
+  function grupo(g) {
+    var on = ativos(), G = GRUPOS.filter(function (x) { return x.g === g; })[0];
+    var its = lista().filter(function (d) { return d.group === g; }).map(function (d) {
+      return { a: 'ind', id: d.id, rot: curto(d.label), nome: d.label, on: on.indexOf(d.id) >= 0, cor: d.color };
+    });
+    return { tipo: 'grupo', g: g, titulo: G ? G.nome : 'Indicadores', itens: its };
+  }
+  function soAtivos() {
+    var on = ativos(), L = lista();
+    var its = L.filter(function (d) { return on.indexOf(d.id) >= 0; }).map(function (d) {
+      return { a: 'ind', id: d.id, rot: curto(d.label), nome: d.label, on: true, cor: d.color };
+    });
+    return { tipo: 'ativos', titulo: 'Ativos', itens: its };
+  }
+  function refaz() {
+    if (!nivel) { return; }
+    var novo = nivel.tipo === 'raiz' ? raiz() : (nivel.tipo === 'ativos' ? soAtivos() : grupo(nivel.g));
+    if (novo.itens.length !== nivel.itens.length) { abreNivel(novo, 0, true); return; }
+    nivel = novo;
+    nivel.itens.forEach(function (it, i) { conteudo(itensEl[i], it); });
+    pinta();
+    textoCentro();
+  }
+
+  function abreNivel(nv, dir, semGiro) {
+    nivel = nv;
+    anel.innerHTML = '';
+    itensEl = [];
+    nv.itens.forEach(function (it, i) {
+      var b = doc.createElement('div');
+      b.className = 'rd-it';
+      b.setAttribute('role', 'option');
+      b.setAttribute('data-i', String(i));
+      if (it.a) { b.setAttribute('data-a', it.a); }
+      conteudo(b, it);
+      anel.appendChild(b);
+      itensEl.push(b);
+    });
+    roda.setAttribute('data-nivel', nv.tipo);
+    espaca();
+    textoCentro();
+    para();
+    if (semGiro) { pinta(); return; }
+    /* a roda dá meio giro ao trocar de nível, como no MT5 */
+    var de = dir < 0 ? 140 : -140, t0 = performance.now(), dur = 420;
+    rot = de;
+    anel.classList.add('rd-entra');
+    (function passo(t) {
+      var k = Math.min(1, (t - t0) / dur), e = 1 - Math.pow(1 - k, 3);
+      rot = de * (1 - e);
+      pinta();
+      if (k < 1) { anim = requestAnimationFrame(passo); } else { anel.classList.remove('rd-entra'); anim = 0; }
+    })(t0);
+  }
+  function conteudo(b, it) {
+    b.innerHTML = '<span class="rd-r">' + (it.ico && nivel.tipo === 'raiz' ? svg(it.ico) : '') + '<b>' + esc(it.rot) + '</b>' +
+      (it.n ? '<i class="rd-n">' + it.n + '</i>' : '') + '</span>';
+    b.setAttribute('aria-selected', String(!!it.on));
+    b.setAttribute('aria-label', it.nome || it.dica || it.rot);
+    b.classList.toggle('rd-on', !!it.on);
+    b.classList.toggle('rd-perigo', !!it.perigo);
+    b.style.setProperty('--rd-cor', it.cor || 'transparent');
+  }
+  function textoCentro(msg) {
+    var on = ativos().length;
+    centro.querySelector('.rd-tt').textContent = nivel.titulo;
+    centro.querySelector('.rd-sub').textContent = msg || (nivel.tipo === 'raiz'
+      ? (on ? on + (on === 1 ? ' ligado' : ' ligados') + ' · gire a roda' : 'Gire a roda e toque')
+      : (nivel.itens.length ? nivel.itens.filter(function (x) { return x.on; }).length + ' de ' + nivel.itens.length + ' ligados' : 'Nenhum indicador ligado'));
+    var c = centro.querySelector('.rd-c');
+    var volta = nivel.tipo !== 'raiz';
+    c.innerHTML = svg(volta ? ICO.volta : ICO.x) + '<span>' + (volta ? 'Voltar' : 'Fechar') + '</span>';
+    c.setAttribute('aria-label', volta ? 'Voltar às categorias' : 'Fechar a roda');
+  }
+
+  /* ---------- desenhar a posição de cada item ---------- */
+  function medida() {
+    var A = global.MXApp, el = A && A.api && A.api.element ? A.api.element() : null, r = el ? el.getBoundingClientRect() : null;
+    var w = global.innerWidth, h = global.innerHeight;
+    if (!r || r.width < 200 || r.height < 200) { r = { left: 0, top: 0, width: w, height: h }; }
+    D = Math.round(Math.max(270, Math.min(400, w * 0.94, h * 0.8, Math.max(r.height, 300) * 0.95)));
+    T = Math.round(D * 0.2);
+    R = D / 2 - T / 2;
+    cx = Math.min(w - D / 2 - 6, Math.max(D / 2 + 6, r.left + r.width / 2));
+    cy = Math.min(h - D / 2 - 6, Math.max(D / 2 + 6, r.top + r.height / 2));
+    roda.style.width = roda.style.height = D + 'px';
+    roda.style.left = (cx - D / 2) + 'px';
+    roda.style.top = (cy - D / 2) + 'px';
+    roda.style.setProperty('--rd-t', T + 'px');
+    roda.style.setProperty('--rd-fs', Math.round(Math.max(11.5, Math.min(14.5, D / 27))) + 'px');
+  }
+  /* espaço de cada item conforme o tamanho do nome: se todos cabem, ocupam a volta inteira;
+     se não cabem, a roda vira um carrossel (gira e os próximos aparecem pela emenda de baixo) */
+  function espaca() {
+    var n = itensEl.length, i, c = 0;
+    larg = itensEl.map(function (b) { var r = b.firstChild; return ((r ? r.offsetWidth : 60) + 16) / R * 180 / Math.PI; });
+    ang = [];
+    for (i = 0; i < n; i++) { if (i) { c += larg[i - 1] / 2 + larg[i] / 2; } ang.push(c); }
+    total = n ? c + larg[n - 1] / 2 + larg[0] / 2 : 360;
+    carrossel = total > 360;
+    sp = n ? total / n : 30;
+    if (!carrossel && n) { var f = 360 / total; ang = ang.map(function (x) { return x * f; }); total = 360; sp = 360 / n; }
+  }
+  function pinta() {
+    var n = itensEl.length, i;
+    for (i = 0; i < n; i++) {
+      var a, vis = true;
+      if (carrossel) {
+        /* carrossel: os itens andam numa "fita" maior que a roda; a emenda fica embaixo */
+        a = ((ang[i] + rot) % total + total) % total;
+        vis = a + larg[i] / 2 <= 360 - larg[i] / 2 - 4;
+        a = a + 180 + larg[i] / 2 + 2;
+      } else {
+        a = ang[i] + rot;
+      }
+      a = ((a % 360) + 360) % 360;
+      var vira = a > 90 && a < 270 ? 180 : 0;   /* na metade de baixo o texto vira para continuar legível */
+      var b = itensEl[i];
+      b.style.transform = 'rotate(' + a.toFixed(2) + 'deg) translateY(' + (-R) + 'px) rotate(' + vira + 'deg)';
+      b.classList.toggle('rd-fora', !vis);
+    }
+  }
+  function para() { if (anim) { cancelAnimationFrame(anim); anim = 0; } vel = 0; }
+  function gira(g) {
+    para();
+    var de = rot, ate = rot + g, t0 = performance.now();
+    (function passo(t) {
+      var k = Math.min(1, (t - t0) / 220), e = 1 - Math.pow(1 - k, 3);
+      rot = de + (ate - de) * e;
+      pinta();
+      if (k < 1) { anim = requestAnimationFrame(passo); } else { anim = 0; }
+    })(t0);
+  }
+
+  /* ---------- girar com o dedo ---------- */
+  function angulo(e) { return Math.atan2(e.clientY - cy, e.clientX - cx) * 180 / Math.PI; }
+  function aperta(e) {
+    para();
+    var it = e.target.closest ? e.target.closest('.rd-it') : null;
+    arr = { id: e.pointerId, a: angulo(e), x: e.clientX, y: e.clientY, it: it, moveu: false, t: performance.now(), v: 0 };
+    try { anel.setPointerCapture(e.pointerId); } catch (z) {}
+    if (it) { it.classList.add('rd-aperta'); }
+  }
+  function move(e) {
+    if (!arr || e.pointerId !== arr.id) { return; }
+    if (!arr.moveu && Math.hypot(e.clientX - arr.x, e.clientY - arr.y) < 7) { return; }
+    if (!arr.moveu) { arr.moveu = true; if (arr.it) { arr.it.classList.remove('rd-aperta'); } }
+    var a = angulo(e), d = a - arr.a, t = performance.now();
+    if (d > 180) { d -= 360; } else if (d < -180) { d += 360; }
+    rot += d;
+    var dt = Math.max(1, t - arr.t);
+    arr.v = arr.v * 0.5 + (d / dt) * 0.5;
+    arr.a = a; arr.t = t;
+    pinta();
+  }
+  function solta(e) {
+    if (!arr || e.pointerId !== arr.id) { return; }
+    var a = arr;
+    arr = null;
+    if (a.it) { a.it.classList.remove('rd-aperta'); }
+    if (!a.moveu) { if (a.it) { toca(+a.it.getAttribute('data-i')); } return; }
+    /* solta girando: continua um pouco e vai parando */
+    vel = performance.now() - a.t > 80 ? 0 : a.v * 16;
+    if (Math.abs(vel) < 0.4) { return; }
+    (function inercia() {
+      vel *= 0.94;
+      rot += vel;
+      pinta();
+      if (Math.abs(vel) > 0.15) { anim = requestAnimationFrame(inercia); } else { anim = 0; }
+    })();
+  }
+
+  /* ---------- tocar num item ---------- */
+  function toca(i) {
+    var it = nivel.itens[i];
+    if (!it) { return; }
+    if (it.a === 'grupo') { abreNivel(grupo(it.g), 1); return; }
+    if (it.a === 'ativos') { abreNivel(soAtivos(), 1); return; }
+    if (it.a === 'lista') { fecha(); global.setTimeout(abreLista, 40); return; }   /* espera o clique do toque terminar, senão ele fecha a janela */
+    if (it.a === 'olho') { try { S.oculta(!S.oculta()); } catch (e) {} refaz(); return; }
+    if (it.a === 'limpa') {
+      if (!ativos().length) { textoCentro('Nenhum indicador ligado'); return; }
+      if (Date.now() - confirma > 2500) { confirma = Date.now(); textoCentro('Toque de novo em Limpar para desligar todos'); return; }
+      confirma = 0;
+      try { S.limpa(); } catch (e) {}
+      refaz();
+      textoCentro('Todos os indicadores foram desligados');
+      return;
+    }
+    if (it.a === 'ind') {
+      try { S.toggle(it.id); } catch (e) {}
+      var ligou = ativos().indexOf(it.id) >= 0;
+      refaz();
+      textoCentro((ligou ? 'Ligado: ' : 'Desligado: ') + it.nome);
+    }
+  }
+
+  /* ---------- abrir / fechar ---------- */
+  function abre() {
+    S = global.MXStudies;
+    if (!S || !S.lista) { return false; }
+    if (!root) { monta(); }
+    root.hidden = false;
+    doc.documentElement.classList.add('rd-aberta');
+    medida();
+    abreNivel(raiz(), 1);
+    var b = doc.getElementById('btnInd');
+    if (b) { b.setAttribute('aria-expanded', 'true'); }
+    return true;
+  }
+  function fecha() {
+    if (!root || root.hidden) { return; }
+    para();
+    root.hidden = true;
+    doc.documentElement.classList.remove('rd-aberta');
+    var b = doc.getElementById('btnInd');
+    if (b) { b.setAttribute('aria-expanded', 'false'); }
+  }
+  function abreLista() {
+    var b = doc.getElementById('btnInd');
+    if (!b) { return; }
+    passando = true;
+    try { b.click(); } finally { passando = false; }
+  }
+
+  /* o botão Indicadores (e o ícone do celular, que clica nele) abre a roda no lugar da janela */
+  doc.addEventListener('click', function (e) {
+    if (passando || !ligado) { return; }
+    var b = e.target.closest ? e.target.closest('#btnInd') : null;
+    if (!b) { return; }
+    var menu = doc.getElementById('indMenu');
+    if (menu && !menu.hidden) { return; }      /* janela aberta: o botão fecha a janela, como antes */
+    if (!global.MXStudies || !global.MXStudies.lista) { return; }
+    e.preventDefault();
+    e.stopImmediatePropagation();
+    if (root && !root.hidden) { fecha(); } else { abre(); }
+  }, true);
+
+  global.MXRoda = {
+    abre: abre, fecha: fecha, lista: function () { fecha(); abreLista(); },
+    aberta: function () { return !!(root && !root.hidden); },
+    nivel: function () { return nivel ? nivel.tipo + (nivel.tipo === 'grupo' ? ':' + nivel.g : '') : ''; },
+    girar: function (g) { gira(g); },
+    liga: function () { ligado = true; try { localStorage.removeItem('mx360.roda.off'); } catch (e) {} },
+    desliga: function () { ligado = false; fecha(); try { localStorage.setItem('mx360.roda.off', '1'); } catch (e) {} }
   };
 })(window);
 </script>
