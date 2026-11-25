@@ -13789,7 +13789,7 @@ Resources:`;for(let t of c){if(!t||typeof t!=`string`)throw Error(`@supabase/aut
   global.MXTrade = {
     init: function (a) { api = a; load(); build(); marks(); },
     ordem: ordem,
-    lv: function () { var p = c.pos[sym]; return p && p.q ? { tp: p.tp == null ? null : p.tp, sl: p.sl == null ? null : p.sl, dir: p.q > 0 ? 1 : -1 } : null; },
+    lv: function () { var p = c.pos[sym]; return p && p.q ? { tp: p.tp == null ? null : p.tp, sl: p.sl == null ? null : p.sl, dir: p.q > 0 ? 1 : -1, avg: p.avg, q: p.q } : null; },
     setLv: function (k, v) { var p = c.pos[sym]; if (p) { p[k] = v; save(); draw(); } },
     tick: function (px) {
       last = px; var p = c.pos[sym];
@@ -13865,8 +13865,10 @@ Resources:`;for(let t of c){if(!t||typeof t!=`string`)throw Error(`@supabase/aut
   }
   var pend = { tp: null, sl: null }, layer = null, seg = null, lvEls = {}, qty = null, drag = null;
   function lvNow() { return global.MXTrade && global.MXTrade.lv ? global.MXTrade.lv() : null; }
-  function levels() { var l = lvNow(); return l ? { tp: l.tp, sl: l.sl, dir: l.dir } : { tp: pend.tp, sl: pend.sl, dir: chipSide === 'buy' ? 1 : -1 }; }
-  function setLv(k, v) { if (lvNow()) { global.MXTrade.setLv(k, v); } else { pend[k] = v; } }
+  /* antes de abrir, o alvo e o stop ficam guardados como DISTÂNCIA do preço atual: andam junto com o preço e o valor
+     em US$ não muda; com a operação aberta, ficam presos no preço e o valor é contado a partir do preço médio */
+  function levels() { var l = lvNow(); return l ? { tp: l.tp, sl: l.sl, dir: l.dir, avg: l.avg, q: l.q } : { tp: pend.tp == null || !lastPx ? null : lastPx + pend.tp, sl: pend.sl == null || !lastPx ? null : lastPx + pend.sl, dir: chipSide === 'buy' ? 1 : -1 }; }
+  function setLv(k, v) { if (lvNow()) { global.MXTrade.setLv(k, v); } else { pend[k] = v == null || !lastPx ? null : v - lastPx; } }
   function toggleLv(k) {
     var L = levels(); if (L[k] != null) { setLv(k, null); return; }
     if (!lastPx) { return; }
@@ -13905,7 +13907,8 @@ Resources:`;for(let t of c){if(!t||typeof t!=`string`)throw Error(`@supabase/aut
       chip.querySelector('.cc-' + k).setAttribute('aria-pressed', String(v != null));
       if (yy == null || isNaN(yy)) { el.style.display = 'none'; return; }
       yy = Math.max(14, Math.min(ch.clientHeight - 44, yy));   /* fora da tela: o rotulo gruda na borda e continua arrastavel */
-      var pct = (v - lastPx) / lastPx * 100 * L.dir, pnl = (v - lastPx) * q * L.dir;
+      var base = L.avg > 0 ? L.avg : lastPx, qq = L.q ? Math.abs(L.q) : q;   /* operação aberta: preço médio e tamanho da posição (fixo) */
+      var pct = (v - base) / base * 100 * L.dir, pnl = (v - base) * qq * L.dir;
       el.style.display = 'block'; el.style.left = (L0 + x + 2) + 'px'; el.style.top = (T0 + yy) + 'px'; el.style.width = w + 'px';
       el.querySelector('span').textContent = A.fmt(v) + ' · ' + (pct >= 0 ? '+' : '') + pct.toFixed(2) + '% · ' + (pnl >= 0 ? '+' : '') + pnl.toFixed(2) + ' US$';
     });
@@ -13988,7 +13991,7 @@ Resources:`;for(let t of c){if(!t||typeof t!=`string`)throw Error(`@supabase/aut
     chip.querySelector('.cc-sl').onclick = function () { toggleLv('sl'); };
     chip.querySelector('.cc-sw').onclick = function () { chipSide = chipSide === 'buy' ? 'sell' : 'buy'; if (!lvNow()) { var ref = lastPx; pend = { tp: pend.tp != null && ref > 0 ? 2 * ref - pend.tp : null, sl: pend.sl != null && ref > 0 ? 2 * ref - pend.sl : null }; } go.dataset.s = chipSide; go.textContent = chipSide === 'buy' ? 'Comprar' : 'Vender'; };
     go.onclick = function () {
-      var tem = !!lvNow(), e = global.MXTrade && global.MXTrade.ordem(chipSide, parseFloat(q.value), tem ? undefined : pend.tp, tem ? undefined : pend.sl);
+      var tem = !!lvNow(), Lg = levels(), e = global.MXTrade && global.MXTrade.ordem(chipSide, parseFloat(q.value), tem ? undefined : Lg.tp, tem ? undefined : Lg.sl);
       go.title = e || ''; if (e) { toast(e); } else { pend = { tp: null, sl: null }; }
     };
     if (A.api.rightRoom) {
