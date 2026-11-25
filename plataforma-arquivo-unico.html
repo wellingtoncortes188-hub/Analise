@@ -1778,7 +1778,20 @@ if(r&&r.t&&Date.now()-r.t<2592000000){document.documentElement.setAttribute('dat
 .pz-tag i.pz-x{display:grid;place-items:center;width:17px;height:17px;border-radius:2px;background:rgba(255,255,255,.1);
   color:#fff;font-style:normal;font-size:12px;line-height:1;cursor:pointer}
 .pz-tag i.pz-x:hover{background:#dc2626}
-.pz-tag i.pz-m{font-style:normal;opacity:.7;cursor:grab}
+.pz-tag{-webkit-user-select:none;user-select:none;-webkit-touch-callout:none}
+.pz-tag i.pz-m{font-style:normal;opacity:.85;cursor:grab;touch-action:none;position:relative}
+.pz-tag i.pz-m::after{content:"";position:absolute;inset:-10px}   /* área de toque maior para o dedo */
+.pz-menu{position:fixed;z-index:9600;min-width:210px;padding:6px;border-radius:10px;background:#17181c;color:#fff;
+  box-shadow:0 10px 30px rgba(0,0,0,.4);font:600 13px/1.2 Manrope,system-ui,sans-serif;animation:pzMenu .12s ease-out}
+@keyframes pzMenu{from{opacity:0;transform:translateY(-4px)}to{opacity:1;transform:none}}
+.pz-menu button{display:flex;align-items:center;gap:10px;width:100%;min-height:42px;padding:0 10px;border:0;border-radius:7px;
+  background:none;color:inherit;font:inherit;text-align:left;cursor:pointer}
+.pz-menu button:hover:not(:disabled){background:rgba(255,255,255,.08)}
+.pz-menu button:disabled{opacity:.45;cursor:default}
+.pz-menu i{display:grid;place-items:center;min-width:30px;height:22px;border-radius:4px;font-style:normal;font-weight:800;font-size:11px;color:#0b0c0e}
+.pz-menu .pz-mtp{background:#2ecc71}
+.pz-menu .pz-msl{background:#ff5a6e}
+.pz-menu p{margin:4px 8px 4px;color:rgba(255,255,255,.6);font-size:11.5px;font-weight:500;line-height:1.35}
 
 /* etiqueta no eixo de preco, encostada na escala */
 .pz-ax{position:absolute;top:0;transform:translateY(-50%);height:17px;padding:0 5px;border-radius:2px;
@@ -14874,7 +14887,7 @@ Resources:`;for(let t of c){if(!t||typeof t!=`string`)throw Error(`@supabase/aut
     l.className = 'pz-l ' + classe;
     l.hidden = true;
     l.innerHTML = '<hr>' + (comX === 'arrastavel'
-      ? '<div class="pz-tag"><em></em><b></b><span class="pz-r"></span><i class="pz-m" title="Segure 1 s e arraste para criar o alvo ou o stop">⇅</i><i class="pz-x" title="Zerar posição">×</i></div>'
+      ? '<div class="pz-tag"><em></em><b></b><span class="pz-r"></span><i class="pz-m" title="Arraste para criar o alvo ou o stop (ou toque para escolher)" role="button" aria-label="Criar alvo ou stop">⇅</i><i class="pz-x" title="Zerar posição">×</i></div>'
       : comX === 'ordem'
         ? '<div class="pz-tag"><em></em><b></b><span class="pz-r"></span><i class="pz-x" title="Cancelar ordem">×</i></div>'
         : '<div class="pz-tag"><b></b><span class="pz-r"></span></div>') +
@@ -14895,8 +14908,12 @@ Resources:`;for(let t of c){if(!t||typeof t!=`string`)throw Error(`@supabase/aut
     var tag = l.querySelector('.pz-tag');
     tag.addEventListener('pointerdown', function (e) {
       if (e.target.classList.contains('pz-x')) { return; }
-      arrasto = { tipo: tipo, id: id, y: e.clientY, y0: e.clientY, x0: e.clientX, ativo: tipo !== 'posicao' };
-      if (tipo === 'posicao') {
+      /* o ⇅ é a alça: arrasta na hora (sem esperar 1 s); um toque nele abre o menu de alvo/stop */
+      var alca = tipo === 'posicao' && !!(e.target.closest && e.target.closest('.pz-m'));
+      fechaMenuNv();
+      arrasto = { tipo: tipo, id: id, y: e.clientY, y0: e.clientY, x0: e.clientX, ativo: tipo !== 'posicao' || alca, alca: alca, moveu: false };
+      if (alca) { tag.classList.add('pz-armado'); }
+      if (tipo === 'posicao' && !alca) {
         arrasto.tm = global.setTimeout(function () {
           if (!arrasto || arrasto.tipo !== 'posicao') { return; }
           arrasto.ativo = true;
@@ -14916,6 +14933,7 @@ Resources:`;for(let t of c){if(!t||typeof t!=`string`)throw Error(`@supabase/aut
         return;
       }
       arrasto.y = e.clientY;
+      if (Math.abs(e.clientY - arrasto.y0) > 6 || Math.abs(e.clientX - arrasto.x0) > 6) { arrasto.moveu = true; }
       if (tipo === 'ordem') {
         var px = precoEm(e.clientY), o = acha(id);
         if (o && px > 0) { o.px = px; salvaCfg(); }
@@ -14924,17 +14942,71 @@ Resources:`;for(let t of c){if(!t||typeof t!=`string`)throw Error(`@supabase/aut
     });
     tag.addEventListener('pointerup', function (e) {
       if (!arrasto || arrasto.tipo !== tipo || arrasto.id !== id) { return; }
-      var ativo = arrasto.ativo, px = precoEm(e.clientY), p = pos();
+      var ativo = arrasto.ativo, px = precoEm(e.clientY), p = pos(), toque = arrasto.alca && !arrasto.moveu;
       desarma(tag);
+      if (toque) { abreMenuNv(tag); return; }
       if (tipo !== 'posicao' || !ativo || !p || !(px > 0)) { return; }
       var lucro = (px - p.avg) * (p.q > 0 ? 1 : -1) > 0, k = lucro ? 'tp' : 'sl';
       if (Math.abs(px - p.avg) / p.avg < 0.0004) { return; }   /* soltou quase no medio: nao faz nada */
       var lv = global.MXTrade.lv && global.MXTrade.lv();
       if (lv && lv[k] != null) { toast((lucro ? 'O alvo' : 'O stop') + ' já está no gráfico: arraste a linha dele para mudar.'); return; }
-      global.MXTrade.setLv(k, px);
+      global.MXTrade.setLv(k, +px.toFixed(casas()));
       atualiza();
       toast((lucro ? 'Alvo' : 'Stop') + ' em ' + pr(px));
     });
+  }
+
+  /* menu do ⇅: cria o alvo ou o stop a uma distância padrão (1,5× e 1× a amplitude média das
+     últimas 14 velas); depois é só arrastar a linha do TP/SL para o preço certo */
+  var menuNv = null;
+  function fechaMenuNv() { if (menuNv) { menuNv.remove(); menuNv = null; } }
+  function distPadrao(p) {
+    var rs = A && A.rows ? A.rows() : null, soma = 0, n = 0, i;
+    if (rs && rs.length) { for (i = rs.length - 1; i >= 0 && n < 14; i--) { var r = rs[i]; if (r && r.h > r.l) { soma += r.h - r.l; n++; } } }
+    var d = n ? soma / n : 0;
+    return d > 0 ? d : p.avg * 0.004;
+  }
+  function criaNivel(k) {
+    var p = pos();
+    fechaMenuNv();
+    if (!p || !global.MXTrade || !global.MXTrade.setLv) { return; }
+    var lv = global.MXTrade.lv && global.MXTrade.lv();
+    if (lv && lv[k] != null) { toast((k === 'tp' ? 'O alvo' : 'O stop') + ' já está no gráfico: arraste a linha dele para mudar.'); return; }
+    var dir = p.q > 0 ? 1 : -1, d = distPadrao(p), px = k === 'tp' ? p.avg + dir * d * 1.5 : p.avg - dir * d;
+    if (!(px > 0)) { return; }
+    global.MXTrade.setLv(k, +px.toFixed(casas()));
+    atualiza();
+    toast((k === 'tp' ? 'Alvo' : 'Stop') + ' em ' + pr(px) + ' · arraste a linha para ajustar');
+  }
+  function abreMenuNv(tag) {
+    fechaMenuNv();
+    var p = pos();
+    if (!p) { return; }
+    var lv = (global.MXTrade.lv && global.MXTrade.lv()) || {}, r = tag.getBoundingClientRect();
+    menuNv = doc.createElement('div');
+    menuNv.className = 'pz-menu';
+    menuNv.setAttribute('role', 'menu');
+    menuNv.innerHTML =
+      '<button type="button" role="menuitem" data-k="tp"' + (lv.tp != null ? ' disabled' : '') + '><i class="pz-mtp">TP</i>' + (lv.tp != null ? 'Alvo já colocado' : 'Colocar alvo (take)') + '</button>' +
+      '<button type="button" role="menuitem" data-k="sl"' + (lv.sl != null ? ' disabled' : '') + '><i class="pz-msl">SL</i>' + (lv.sl != null ? 'Stop já colocado' : 'Colocar stop') + '</button>' +
+      '<p>Ou arraste o ⇅ para cima ou para baixo até o preço.</p>';
+    doc.body.appendChild(menuNv);
+    var w = menuNv.offsetWidth, h = menuNv.offsetHeight;
+    var x = Math.max(6, Math.min(global.innerWidth - w - 6, r.left));
+    var y = r.bottom + 6 + h > global.innerHeight - 6 ? r.top - h - 6 : r.bottom + 6;
+    menuNv.style.left = x + 'px';
+    menuNv.style.top = Math.max(6, y) + 'px';
+    menuNv.addEventListener('click', function (e) {
+      var b = e.target.closest('button[data-k]');
+      if (b && !b.disabled) { criaNivel(b.getAttribute('data-k')); }
+    });
+    global.setTimeout(function () {
+      doc.addEventListener('pointerdown', function fora(e) {
+        if (menuNv && menuNv.contains(e.target)) { return; }
+        doc.removeEventListener('pointerdown', fora, true);
+        fechaMenuNv();
+      }, true);
+    }, 0);
   }
 
   function precoEm(clientY) {
