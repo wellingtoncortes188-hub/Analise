@@ -3071,6 +3071,13 @@ html[data-la="tracoponto"] .ct-lvl::before,html[data-la="tracoponto"] .pz-ord>hr
 .pz-l .pz-tag .pz-r{display:grid;place-items:center;align-self:stretch;padding:0 8px;border:1px solid var(--oc);border-left:0;
   border-radius:0 3px 3px 0;background:var(--bg);color:var(--oc);font:700 11px/1 Manrope,system-ui,sans-serif}
 .pz-l .pz-tag .pz-r:empty{display:none}
+/* botões TP e SL tracejados ao lado da etiqueta da operação (mesmo visual do Chart Trading) */
+.pz-l .pz-tag i.pz-bt{order:1;display:grid;place-items:center;height:20px;margin-left:6px;padding:0 8px;border:1px dashed var(--c2);border-radius:3px;
+  background:var(--bg);color:var(--c2);font:800 10.5px/1 Manrope,system-ui,sans-serif;font-style:normal;cursor:pointer;box-sizing:border-box;position:relative}
+.pz-l .pz-tag i.pz-bt[hidden]{display:none}
+.pz-l .pz-tag i.pz-bt:hover{border-style:solid}
+.pz-l .pz-tag i.pz-btp{--c2:#0f9d8a}
+.pz-l .pz-tag i.pz-bsl{--c2:#f08c00}
 .pz-l .pz-tag .pz-r[data-dir="up"]{color:#1fa04b}
 .pz-l .pz-tag .pz-r[data-dir="down"]{color:#e5404f}
 .pz-ord .pz-tag i.pz-x,.pz-cob .pz-tag i.pz-x{width:18px;height:18px;font-size:12px}
@@ -3122,6 +3129,12 @@ body:has(.ct-chip .cc-go[data-s="sell"]) .ct-seg{border-top-color:#e5404f!import
 /* linha tracejada da operação: da vela da execução até a etiqueta, presa no preço da entrada */
 .pz-l>.ol-lig{position:absolute;top:-.5px;height:0;border-top:1.5px dashed var(--oc,#1fa04b);pointer-events:none}
 .pz-l>.ol-lig[hidden]{display:none}
+@media (max-width:520px){
+  .pz-l .pz-tag i.pz-bt{margin-left:3px;padding:0 5px;font-size:10px}
+  .pz-pos .pz-tag i.pz-x{margin-right:4px}
+  .pz-pos .pz-tag i.pz-m{margin-right:5px}
+  .pz-pos .pz-tag b,.pz-pos .pz-tag .pz-r{padding:0 6px}
+}
 </style>
 <style>/* ===== Personalizar e Linha de status: esconder/mostrar ===== */
 html[data-ui-off~="mx"] .topbar .brand,
@@ -14878,7 +14891,7 @@ Resources:`;for(let t of c){if(!t||typeof t!=`string`)throw Error(`@supabase/aut
     l.className = 'pz-l ' + classe;
     l.hidden = true;
     l.innerHTML = '<hr>' + (comX === 'arrastavel'
-      ? '<div class="pz-tag"><em></em><b></b><span class="pz-r"></span><i class="pz-m" title="Segure 1 s e arraste para criar o alvo ou o stop">⇅</i><i class="pz-x" title="Zerar posição">×</i></div>'
+      ? '<div class="pz-tag"><em></em><b></b><span class="pz-r"></span><i class="pz-m" title="Segure 1 s e arraste para criar o alvo ou o stop">⇅</i><i class="pz-x" title="Zerar posição">×</i><i class="pz-bt pz-btp" data-k="tp" role="button" title="Colocar o alvo (take profit) e depois arrastar a linha">TP</i><i class="pz-bt pz-bsl" data-k="sl" role="button" title="Colocar o stop (stop loss) e depois arrastar a linha">SL</i></div>'
       : comX === 'ordem'
         ? '<div class="pz-tag"><em></em><b></b><span class="pz-r"></span><i class="pz-x" title="Cancelar ordem">×</i></div>'
         : '<div class="pz-tag"><b></b><span class="pz-r"></span></div>') +
@@ -14898,7 +14911,7 @@ Resources:`;for(let t of c){if(!t||typeof t!=`string`)throw Error(`@supabase/aut
   function pegaArrasto(l, tipo, id) {
     var tag = l.querySelector('.pz-tag');
     tag.addEventListener('pointerdown', function (e) {
-      if (e.target.classList.contains('pz-x')) { return; }
+      if (e.target.classList.contains('pz-x') || e.target.classList.contains('pz-bt')) { return; }
       arrasto = { tipo: tipo, id: id, y: e.clientY, y0: e.clientY, x0: e.clientX, ativo: tipo !== 'posicao' };
       if (tipo === 'posicao') {
         arrasto.tm = global.setTimeout(function () {
@@ -14996,6 +15009,11 @@ Resources:`;for(let t of c){if(!t||typeof t!=`string`)throw Error(`@supabase/aut
         var htmlR = '<span class="ol-v">' + (ab > 0 ? '+' : ab < 0 ? '−' : '') + n2(Math.abs(ab)) + ' <small>' + (moeda() === 'US$' ? 'USD' : moeda()) + '</small></span>';
         if (r.innerHTML !== htmlR) { r.innerHTML = htmlR; }
         r.setAttribute('data-dir', dir(ab));
+        /* botões TP e SL na etiqueta (como no Chart Trading antes de abrir): aparecem enquanto o nível não existe */
+        var lvB = (global.MXTrade.lv && global.MXTrade.lv()) || {};
+        var bTp = t.querySelector('.pz-btp'), bSl = t.querySelector('.pz-bsl');
+        if (bTp) { bTp.hidden = lvB.tp != null; }
+        if (bSl) { bSl.hidden = lvB.sl != null; }
       }
       var cb = cobertura(p);
       if (cb == null) { el.cob.hidden = true; }
@@ -15231,6 +15249,22 @@ Resources:`;for(let t of c){if(!t||typeof t!=`string`)throw Error(`@supabase/aut
     el.fan = linha('pz-fan');
     pegaArrasto(el.pos, 'posicao', 'p');
     el.pos.querySelector('.pz-x').onclick = zerar;
+    /* TP/SL na etiqueta da operação: põe o nível a 0,5% da entrada (igual ao TP/SL do Chart Trading antes de abrir);
+       depois o usuário arrasta a linha do nível até o preço que quiser */
+    Array.prototype.forEach.call(el.pos.querySelectorAll('.pz-bt'), function (bt) {
+      bt.addEventListener('pointerdown', function (e) { e.stopPropagation(); });
+      bt.addEventListener('click', function (e) {
+        e.stopPropagation();
+        var k = bt.getAttribute('data-k'), p = pos();
+        if (!p || !global.MXTrade || !global.MXTrade.setLv) { return; }
+        var lv = (global.MXTrade.lv && global.MXTrade.lv()) || {};
+        if (lv[k] != null) { return; }
+        var lado = p.q > 0 ? 1 : -1, px = p.avg * (1 + (k === 'tp' ? 1 : -1) * lado * 0.005);
+        global.MXTrade.setLv(k, +px.toFixed(casas()));
+        atualiza();
+        toast((k === 'tp' ? 'Alvo' : 'Stop') + ' em ' + pr(px) + ' · arraste a linha para ajustar');
+      });
+    });
     el.cob.querySelector('.pz-tag').style.cursor = 'pointer';
     el.cob.querySelector('.pz-tag').addEventListener('click', custos);
     el.cob.querySelector('.pz-tag').style.pointerEvents = 'auto';
